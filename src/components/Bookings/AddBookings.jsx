@@ -27,7 +27,7 @@ const AddBooking = () => {
     salon_id: "6708dc20b54f5c6a4d0cf9a2", // hardcoded for now
   });
 
-  // Fetch services from backend
+  // 🟢 Fetch Services
   useEffect(() => {
     axios
       .get("http://localhost:3000/services")
@@ -43,10 +43,10 @@ const AddBooking = () => {
         }));
         setServices(formattedServices);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error("Error fetching services:", err));
   }, []);
 
-  // Fetch employees from backend
+  // 🟢 Fetch Employees
   useEffect(() => {
     axios
       .get("http://localhost:3000/auth/employees")
@@ -57,10 +57,10 @@ const AddBooking = () => {
         }));
         setEmployees(formattedEmployees);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.error("Error fetching employees:", err));
   }, []);
 
-  // Update sub-services when service changes
+  // 🟢 When service changes, reset sub-services
   useEffect(() => {
     if (selectedService) {
       setSubServices(selectedService.sub_services);
@@ -70,55 +70,76 @@ const AddBooking = () => {
     }
   }, [selectedService]);
 
+  // 🟢 Auto-fill amount when sub-service is selected
+  useEffect(() => {
+    if (selectedSubService) {
+      setFormData((prev) => ({ ...prev, amount: selectedSubService.price }));
+    }
+  }, [selectedSubService]);
+
+  // 🟢 Handle Input Changes
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  // 🟢 Handle Submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedService || !selectedSubService || !selectedEmployee) {
-      alert("Please select service, sub-service, and employee.");
+  
+    if (!selectedService || !selectedEmployee) {
+      alert("Please select both a service and employee.");
       return;
     }
-
+  
     const payload = {
       ...formData,
-      service_id: selectedSubService.value,
+      service_id: selectedService.value,
       employee_id: selectedEmployee.value,
-      amount: selectedSubService.price,
+      amount: formData.amount || selectedSubService?.price || 0,
     };
+  
+    // Only include sub_service_id if selected
+    if (selectedSubService) {
+      payload.sub_service_id = selectedSubService.value;
+    }
+  
+    try {
+      const res = await axios.post("http://localhost:3000/appointments", payload);
+      alert(res.data.message || "Booking created successfully!");
+      resetForm();
+    } catch (err) {
+      console.error("Error creating booking:", err);
+      alert(err.response?.data?.message || "Failed to create booking.");
+    }
+  };
+  
 
-    axios
-      .post("http://localhost:3000/appointments/", payload)
-      .then((res) => {
-        alert("Booking created successfully!");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          gender: "",
-          dob: "",
-          address: "",
-          note: "",
-          source: "online",
-          date: "",
-          appointment_time: "",
-          amount: "",
-          payment_mode: "",
-          salon_id: "6708dc20b54f5c6a4d0cf9a2",
-        });
-        setSelectedService(null);
-        setSelectedSubService(null);
-        setSelectedEmployee(null);
-      })
-      .catch((err) => console.log(err));
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      gender: "",
+      dob: "",
+      address: "",
+      note: "",
+      source: "online",
+      date: "",
+      appointment_time: "",
+      amount: "",
+      payment_mode: "",
+      salon_id: "6708dc20b54f5c6a4d0cf9a2",
+    });
+    setSelectedService(null);
+    setSelectedSubService(null);
+    setSelectedEmployee(null);
   };
 
   return (
     <div className="p-6 bg-white rounded-3xl shadow-lg max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Booking</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Customer Info */}
+        {/* 🧍 Customer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -182,7 +203,7 @@ const AddBooking = () => {
           className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
         />
 
-        {/* Service & Sub-Service */}
+        {/* ✂️ Service & Sub-Service */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select
             options={services}
@@ -199,20 +220,21 @@ const AddBooking = () => {
             placeholder="Select Sub-Service"
             isSearchable
             className="rounded-xl"
+            isDisabled={!subServices.length}
           />
         </div>
 
-        {/* Employee */}
+        {/* 👩‍💼 Employee */}
         <Select
           options={employees}
           value={selectedEmployee}
           onChange={setSelectedEmployee}
-          placeholder="Select Employee"
+          placeholder="Assign Employee"
           isSearchable
           className="rounded-xl mt-4"
         />
 
-        {/* Booking Info */}
+        {/* 📅 Booking Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <input
             type="date"
@@ -232,6 +254,7 @@ const AddBooking = () => {
           />
         </div>
 
+        {/* 💰 Payment */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <input
             type="number"
@@ -256,6 +279,7 @@ const AddBooking = () => {
           </select>
         </div>
 
+        {/* ✅ Submit */}
         <button
           type="submit"
           className="w-full p-3 mt-4 rounded-2xl bg-[#687FE5] text-white font-semibold hover:bg-[#556fd1] transition"
