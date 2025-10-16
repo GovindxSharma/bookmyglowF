@@ -1,11 +1,24 @@
 // src/components/Layout/Sidebar.jsx
 import { Home, Scissors, CalendarDays, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import AttendanceIcon from "@/assets/icons/attendance.png"; // 👈 new import
+
 
 const Sidebar = () => {
   const menuItems = [
     { icon: <Home size={22} />, path: "/", label: "Home" },
     { icon: <CalendarDays size={22} />, path: "/bookings", label: "Bookings" },
+    {
+      icon: (
+        <img
+          src={AttendanceIcon}
+          alt="Attendance"
+          className="w-[22px] h-[22px]"
+        />
+      ),
+      path: "/attendance",
+      label: "Attendance",
+    },
     { icon: <Scissors size={22} />, path: "/services", label: "Services" },
     { icon: <Settings size={22} />, path: "/settings", label: "Settings" },
     // Add more menu items as needed
