@@ -1,13 +1,22 @@
-import React from 'react'
-import Login from './components/login'
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/login";
+import BookingsPage from "./pages/Bookings/BookingsPage"; // adjust path if needed
 
 const App = () => {
   return (
-    <>
+    <Router>
+      <Routes>
+        {/* Login Route */}
+        <Route path="/" element={<Login />} />
 
-  <Login/>
-    </>
-  )
-}
+        {/* Dashboard / Bookings */}
+        <Route path="/bookings" element={<BookingsPage />} />
 
-export default App
+        {/* Add more routes later — e.g. /services, /settings, etc. */}
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
