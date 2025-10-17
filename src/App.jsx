@@ -7,16 +7,30 @@ import DashboardLayout from "@/components/Layout/DashboardLayout";
 // Pages
 import Login from "./components/login";
 import BookingsPage from "./pages/Bookings/BookingsPage";
-import AttendancePage from "./pages/Attendance/AttendacePage.jsx"; // ✅ new page added
+import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx"; // ✅ new dashboard page
+import CustomerPage from "./pages/customerpage.jsx";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        {/* 🏠 Login Route */}
-        <Route path="/" element={<Login />} />
 
-        {/* 📅 Bookings (wrapped in Dashboard layout) */}
+      <Route path="/" element={<CustomerPage />} />
+        {/* 🏠 Login Route */}
+        <Route path="/login" element={<Login />} />
+
+        {/* 🧭 Admin Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <DashboardLayout>
+              <AdminDashboard />
+            </DashboardLayout>
+          }
+        />
+
+        {/* 📅 Bookings */}
         <Route
           path="/bookings"
           element={
@@ -26,7 +40,7 @@ const App = () => {
           }
         />
 
-        {/* ✅ Attendance Section */}
+        {/* ✅ Attendance */}
         <Route
           path="/attendance"
           element={
