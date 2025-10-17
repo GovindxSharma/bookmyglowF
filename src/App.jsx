@@ -10,6 +10,7 @@ import BookingsPage from "./pages/Bookings/BookingsPage";
 import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx"; // ✅ new dashboard page
 import CustomerPage from "./pages/customerpage.jsx";
+import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
 
 const App = () => {
   return (
@@ -49,8 +50,14 @@ const App = () => {
             </DashboardLayout>
           }
         />
-
-        {/* 🔧 Add more routes later (e.g. /services, /settings, etc.) */}
+        <Route
+          path="/employees"
+          element={
+            <DashboardLayout>
+              <EmployeeManagement />
+            </DashboardLayout>
+          }
+        />
       </Routes>
     </Router>
   );
