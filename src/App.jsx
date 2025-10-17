@@ -10,6 +10,7 @@ import BookingsPage from "./pages/Bookings/BookingsPage";
 import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CustomerPage from "./pages/customerpage.jsx";
+import CustomerPageNew from "./pages/CustomerPageNew.jsx";
 import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
 
 // Auth
@@ -20,7 +21,7 @@ const App = () => {
     <Router>
       <Routes>
         {/* 🏠 Public Routes */}
-        <Route path="/" element={<CustomerPage />} />
+        <Route path="/" element={<CustomerPageNew />} />
         <Route path="/login" element={<Login />} />
 
         {/* 🧭 Admin Dashboard — only for admin */}
