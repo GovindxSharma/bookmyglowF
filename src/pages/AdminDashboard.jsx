@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   BarChart,
   Bar,
@@ -6,33 +7,86 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  CartesianGrid,
 } from "recharts";
 import { Users, DollarSign, CalendarDays } from "lucide-react";
 
+const API_BASE = "http://localhost:3000/payments"; // ✅ Payment API base URL
+
 const AdminDashboard = () => {
-  const todayRevenue = 12000;
-  const todayAppointments = 32;
+  const [todayRevenue, setTodayRevenue] = useState(0);
+  const [todayAppointments, setTodayAppointments] = useState(0);
+  const [staffPerformance, setStaffPerformance] = useState([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const staffPerformance = [
-    { name: "Dr. Sharma", revenue: 5000 },
-    { name: "Dr. Patel", revenue: 3000 },
-    { name: "Dr. Mehta", revenue: 2000 },
-    { name: "Dr. Khan", revenue: 2000 },
-  ];
+  // Utility to get today's date in YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0];
 
-  const monthlyRevenue = [
-    { month: "Jan", revenue: 45000 },
-    { month: "Feb", revenue: 52000 },
-    { month: "Mar", revenue: 48000 },
-    { month: "Apr", revenue: 61000 },
-    { month: "May", revenue: 57000 },
-    { month: "Jun", revenue: 63000 },
-    { month: "Jul", revenue: 70000 },
-    { month: "Aug", revenue: 75000 },
-    { month: "Sep", revenue: 72000 },
-    { month: "Oct", revenue: 68000 },
-  ];
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // 1️⃣ Get all payments (for today’s revenue + appointments)
+        const paymentsRes = await axios.get(`${API_BASE}`);
+        const payments = paymentsRes.data || [];
+
+        // Filter today’s payments
+        const todayPayments = payments.filter((p) => {
+          const d = new Date(p.date).toISOString().split("T")[0];
+          return d === today;
+        });
+
+        // Calculate today’s revenue & appointments
+        const totalRevenue = todayPayments.reduce(
+          (sum, p) => sum + (p.amount || 0),
+          0
+        );
+        setTodayRevenue(totalRevenue);
+        setTodayAppointments(todayPayments.length);
+
+        // 2️⃣ Calculate staff performance (revenue per employee)
+        const staffMap = {};
+        todayPayments.forEach((p) => {
+          const employee =
+            p.appointment_id?.employee_id?.name || "Unknown Staff";
+          if (!staffMap[employee]) staffMap[employee] = 0;
+          staffMap[employee] += p.amount || 0;
+        });
+
+        const staffArray = Object.entries(staffMap).map(([name, revenue]) => ({
+          name,
+          revenue,
+        }));
+        setStaffPerformance(staffArray);
+
+        // 3️⃣ Fetch monthly revenue (grouped payments)
+        const groupedRes = await axios.get(`${API_BASE}/grouped`);
+        const grouped = groupedRes.data || [];
+
+        // Convert grouped data for chart
+        const monthly = grouped.map((g) => ({
+          month: new Date(g._id).toLocaleString("default", { month: "short" }),
+          revenue: g.total_amount,
+        }));
+        setMonthlyRevenue(monthly);
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Error loading dashboard data:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-screen text-gray-500">
+        Loading dashboard...
+      </div>
+    );
 
   return (
     <div
@@ -58,7 +112,7 @@ const AdminDashboard = () => {
             </h2>
             <DollarSign className="text-[#687FE5]" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             ₹{todayRevenue.toLocaleString()}
           </p>
         </div>
@@ -75,7 +129,7 @@ const AdminDashboard = () => {
             </h2>
             <CalendarDays className="text-[#687FE5]" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             {todayAppointments}
           </p>
         </div>
@@ -92,7 +146,7 @@ const AdminDashboard = () => {
             </h2>
             <Users className="text-[#687FE5]" />
           </div>
-          <p className="text-3xl font-bold text-gray-800">
+          <p className="text-2xl font-bold text-gray-800">
             {staffPerformance.length}
           </p>
         </div>
@@ -119,19 +173,24 @@ const AdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {staffPerformance.map((staff, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-[#FEEBF6]/60 transition-all duration-200"
-                >
-                  <td className="px-4 py-3 border-b border-[#EBD6FB] font-medium">
-                    {staff.name}
-                  </td>
-                  <td className="px-4 py-3 border-b border-[#EBD6FB]">
-                    {staff.revenue.toLocaleString()}
+              {staffPerformance.length === 0 ? (
+                <tr>
+                  <td colSpan="2" className="text-center py-4 text-gray-500">
+                    No staff performance data for today.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                staffPerformance.map((staff, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 border-b font-medium">
+                      {staff.name}
+                    </td>
+                    <td className="px-4 py-3 border-b">
+                      {staff.revenue.toLocaleString()}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
