@@ -89,16 +89,28 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div
+      className="p-8 min-h-screen bg-gradient-to-br 
+      from-[#FCD8CD] via-[#FEEBF6] to-[#EBD6FB] 
+      text-gray-800"
+    >
+      <h1 className="text-4xl font-bold mb-8 text-[#687FE5] drop-shadow-sm">
+        Admin Dashboard
+      </h1>
 
       {/* ====== TOP CARDS ====== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {/* Card 1 */}
-        <div className="bg-white shadow-lg rounded-xl border-l-4 border-green-500 p-5">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Today's Revenue</h2>
-            <DollarSign className="text-green-500" />
+        <div
+          className="p-5 rounded-2xl shadow-md 
+          bg-gradient-to-r from-[#EBD6FB]/80 to-[#FEEBF6]/70 
+          border border-white/40 backdrop-blur-sm"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-[#687FE5]">
+              Today's Revenue
+            </h2>
+            <DollarSign className="text-[#687FE5]" />
           </div>
           <p className="text-2xl font-bold text-gray-800">
             ₹{todayRevenue.toLocaleString()}
@@ -106,10 +118,16 @@ const AdminDashboard = () => {
         </div>
 
         {/* Card 2 */}
-        <div className="bg-white shadow-lg rounded-xl border-l-4 border-blue-500 p-5">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Today's Appointments</h2>
-            <CalendarDays className="text-blue-500" />
+        <div
+          className="p-5 rounded-2xl shadow-md 
+          bg-gradient-to-r from-[#FEEBF6]/80 to-[#FCD8CD]/70 
+          border border-white/40 backdrop-blur-sm"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-[#687FE5]">
+              Today's Appointments
+            </h2>
+            <CalendarDays className="text-[#687FE5]" />
           </div>
           <p className="text-2xl font-bold text-gray-800">
             {todayAppointments}
@@ -117,10 +135,16 @@ const AdminDashboard = () => {
         </div>
 
         {/* Card 3 */}
-        <div className="bg-white shadow-lg rounded-xl border-l-4 border-purple-500 p-5">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Staff Count</h2>
-            <Users className="text-purple-500" />
+        <div
+          className="p-5 rounded-2xl shadow-md 
+          bg-gradient-to-r from-[#FCD8CD]/70 to-[#EBD6FB]/70 
+          border border-white/40 backdrop-blur-sm"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-[#687FE5]">
+              Staff Count
+            </h2>
+            <Users className="text-[#687FE5]" />
           </div>
           <p className="text-2xl font-bold text-gray-800">
             {staffPerformance.length}
@@ -129,14 +153,23 @@ const AdminDashboard = () => {
       </div>
 
       {/* ====== STAFF PERFORMANCE ====== */}
-      <div className="bg-white shadow-md rounded-xl p-5 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Today's Staff Performance</h2>
+      <div
+        className="bg-white/60 rounded-2xl shadow-md border border-white/40 
+        backdrop-blur-md p-6 mb-10"
+      >
+        <h2 className="text-2xl font-semibold text-[#687FE5] mb-4">
+          Staff Performance (Today)
+        </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-gray-100 text-left text-gray-600 text-sm uppercase">
-                <th className="px-4 py-3 border-b">Staff Name</th>
-                <th className="px-4 py-3 border-b">Revenue Generated (₹)</th>
+              <tr className="bg-[#EBD6FB]/50 text-left text-[#687FE5] text-sm uppercase">
+                <th className="px-4 py-3 border-b border-[#EBD6FB]">
+                  Staff Name
+                </th>
+                <th className="px-4 py-3 border-b border-[#EBD6FB]">
+                  Revenue (₹)
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -164,15 +197,27 @@ const AdminDashboard = () => {
       </div>
 
       {/* ====== MONTHLY REVENUE CHART ====== */}
-      <div className="bg-white shadow-md rounded-xl p-5">
-        <h2 className="text-xl font-semibold mb-4">Monthly Revenue Overview</h2>
+      <div
+        className="bg-white/60 rounded-2xl shadow-md border border-white/40 
+        backdrop-blur-md p-6"
+      >
+        <h2 className="text-2xl font-semibold text-[#687FE5] mb-4">
+          Monthly Revenue Overview
+        </h2>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyRevenue}>
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="revenue" fill="#34d399" radius={[6, 6, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#EBD6FB" />
+              <XAxis dataKey="month" stroke="#687FE5" />
+              <YAxis stroke="#687FE5" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#FEEBF6",
+                  borderRadius: "10px",
+                  border: "1px solid #EBD6FB",
+                }}
+              />
+              <Bar dataKey="revenue" fill="#687FE5" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
