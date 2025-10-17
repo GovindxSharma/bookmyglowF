@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { CheckCircle, XCircle, AlertCircle, Pencil } from "lucide-react";
+import { CheckCircle, XCircle, AlertCircle, Pencil, Info } from "lucide-react";
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
@@ -13,21 +13,22 @@ const BookingList = () => {
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
 
+  const API_BASE = "http://localhost:3000";
+
   // ✅ Fetch appointments
   const fetchBookings = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/appointments/");
+      const res = await axios.get(`${API_BASE}/appointments/`);
       const formatted = res.data.map((b) => ({
         _id: b._id,
         customer: b.customer_id?.name || "N/A",
         phone: b.customer_id?.phone || "N/A",
         service: b.service_id?.name || "N/A",
-        sub_service: b.service_id?.sub_services?.[0]?.name || "",
         employee: b.employee_id?.name || "N/A",
         amount: b.amount,
-        payment_status: b.payment_status,
+        payment_status: b.payment_status || "pending",
         confirmation_status_label: b.confirmation_status ? "Confirmed" : "Pending",
-        ...b,
+        raw: b,
       }));
       setBookings(formatted);
     } catch (err) {
@@ -38,8 +39,8 @@ const BookingList = () => {
   const fetchDropdowns = async () => {
     try {
       const [empRes, servRes] = await Promise.all([
-        axios.get("http://localhost:3000/employees/"),
-        axios.get("http://localhost:3000/services/"),
+        axios.get(`${API_BASE}/employees/`),
+        axios.get(`${API_BASE}/services/`),
       ]);
       setEmployees(empRes.data);
       setServices(servRes.data);
@@ -53,26 +54,30 @@ const BookingList = () => {
     fetchDropdowns();
   }, []);
 
-  // 🟣 Filtered bookings
-  const filteredBookings = bookings.filter(
-    (b) =>
-      (filterStatus === "all" || b.payment_status === filterStatus) &&
-      (b.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        b.service.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // 🟣 Filtered + Search bookings
+  const filteredBookings = bookings.filter((b) => {
+    const matchesSearch =
+      b.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      b.payment_status.toLowerCase().includes(searchTerm.toLowerCase());
 
-  // ✅ Status badges
+    const matchesStatus = filterStatus === "all" || b.payment_status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
+  // ✅ Status badge
   const getStatusBadge = (status) => {
     switch (status) {
       case "completed":
         return (
-          <span className="px-2 py-1 text-xs bg-[#EBD6FB] text-[#687FE5] flex items-center gap-1 rounded">
+          <span className="px-2 py-1 text-xs bg-green-100 text-green-700 flex items-center gap-1 rounded">
             <CheckCircle size={14} /> Completed
           </span>
         );
       case "pending":
         return (
-          <span className="px-2 py-1 text-xs bg-[#FEEBF6] text-[#FCD8CD] flex items-center gap-1 rounded">
+          <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 flex items-center gap-1 rounded">
             <AlertCircle size={14} /> Pending
           </span>
         );
@@ -89,24 +94,25 @@ const BookingList = () => {
 
   // 🟣 Open Edit Modal
   const handleEdit = (b) => {
+    const raw = b.raw;
     setEditBooking(b);
     setEditForm({
-      name: b.customer_id?.name || "",
-      phone: b.customer_id?.phone || "",
-      email: b.customer_id?.email || "",
-      note: b.customer_id?.note || "",
-      service_id: b.service_id?._id || "",
-      employee_id: b.employee_id?._id || "",
-      amount: b.amount || "",
-      payment_mode: b.payment_mode || "",
-      date: b.date ? new Date(b.date).toISOString().split("T")[0] : "",
-      appointment_time: b.appointment_time || "",
-      confirmation_status: b.confirmation_status || false,
-      source: b.source || "",
+      name: raw.customer_id?.name || "",
+      phone: raw.customer_id?.phone || "",
+      email: raw.customer_id?.email || "",
+      note: raw.customer_id?.note || "",
+      service_id: raw.service_id?._id || "",
+      employee_id: raw.employee_id?._id || "",
+      amount: raw.amount || "",
+      payment_mode: raw.payment_mode || "",
+      date: raw.date ? new Date(raw.date).toISOString().split("T")[0] : "",
+      appointment_time: raw.appointment_time || "",
+      confirmation_status: raw.confirmation_status || false,
+      source: raw.source || "",
     });
   };
 
-  // 🟣 Handle Edit Input Change
+  // 🟣 Handle Edit Change
   const handleEditChange = (e) => {
     const { name, value, type, checked } = e.target;
     setEditForm({
@@ -118,7 +124,7 @@ const BookingList = () => {
   // ✅ Update Appointment
   const handleUpdate = async () => {
     try {
-      await axios.put(`http://localhost:3000/appointments/${editBooking._id}`, editForm);
+      await axios.put(`${API_BASE}/appointments/${editBooking._id}`, editForm);
       alert("Appointment updated successfully ✅");
       setEditBooking(null);
       fetchBookings();
@@ -129,7 +135,7 @@ const BookingList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FEEBF6] p-6">
+    <div className="min-h-screen bg-white p-6">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6 flex justify-between items-center">
           <h1 className="text-3xl font-extrabold text-gray-800">Salon Appointments</h1>
@@ -139,7 +145,7 @@ const BookingList = () => {
         <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
           <input
             type="text"
-            placeholder="Search by customer or service..."
+            placeholder="Search by name, phone, service, or payment..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full sm:w-1/2 pl-3 pr-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#687FE5] rounded-md"
@@ -162,7 +168,7 @@ const BookingList = () => {
           <table className="min-w-full text-sm border-collapse">
             <thead className="bg-[#687FE5] text-white">
               <tr>
-                <th className="py-2 px-4 border">Customer Name</th>
+                <th className="py-2 px-4 border">Customer</th>
                 <th className="py-2 px-4 border">Phone</th>
                 <th className="py-2 px-4 border">Service</th>
                 <th className="py-2 px-4 border">Employee</th>
@@ -183,7 +189,7 @@ const BookingList = () => {
                     <td className="py-2 px-4 border">₹{b.amount}</td>
                     <td className="py-2 px-4 border">{getStatusBadge(b.payment_status)}</td>
                     <td className="py-2 px-4 border">
-                      {b.confirmation_status ? (
+                      {b.raw.confirmation_status ? (
                         <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full flex items-center gap-1 justify-center">
                           <CheckCircle size={14} /> Confirmed
                         </span>
@@ -195,10 +201,10 @@ const BookingList = () => {
                     </td>
                     <td className="py-2 px-4 border flex gap-2">
                       <button
-                        className="px-2 py-1 text-xs bg-[#687FE5] text-white hover:bg-[#556fd1] rounded-md"
-                        onClick={() => setSelectedBooking(b)}
+                        className="px-2 py-1 text-xs bg-[#687FE5] text-white hover:bg-[#556fd1] rounded-md flex items-center gap-1"
+                        onClick={() => setSelectedBooking(b.raw)}
                       >
-                        Explore
+                        <Info size={14} /> Explore
                       </button>
                       <button
                         className="px-2 py-1 text-xs bg-[#FCD8CD] text-[#687FE5] hover:bg-[#f8c6b9] rounded-md flex items-center gap-1"
@@ -220,7 +226,39 @@ const BookingList = () => {
           </table>
         </div>
 
-        {/* 🟣 Edit Modal */}
+        {/* 🟣 Explore Modal */}
+        {selectedBooking && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg relative">
+              <button
+                className="absolute top-3 right-3 text-red-500 font-bold"
+                onClick={() => setSelectedBooking(null)}
+              >
+                ✕
+              </button>
+              <h2 className="text-2xl font-semibold mb-4 text-[#687FE5] flex items-center gap-2">
+                <Info /> Appointment Details
+              </h2>
+
+              <div className="space-y-2 text-sm">
+                <p><strong>Customer:</strong> {selectedBooking.customer_id?.name}</p>
+                <p><strong>Phone:</strong> {selectedBooking.customer_id?.phone}</p>
+                <p><strong>Email:</strong> {selectedBooking.customer_id?.email}</p>
+                <p><strong>Service:</strong> {selectedBooking.service_id?.name}</p>
+                <p><strong>Employee:</strong> {selectedBooking.employee_id?.name}</p>
+                <p><strong>Amount:</strong> ₹{selectedBooking.amount}</p>
+                <p><strong>Payment Mode:</strong> {selectedBooking.payment_mode}</p>
+                <p><strong>Status:</strong> {selectedBooking.payment_status}</p>
+                <p><strong>Date:</strong> {selectedBooking.date?.split("T")[0]}</p>
+                <p><strong>Time:</strong> {selectedBooking.appointment_time}</p>
+                <p><strong>Source:</strong> {selectedBooking.source || "N/A"}</p>
+                <p><strong>Notes:</strong> {selectedBooking.customer_id?.note || "N/A"}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 🟣 Edit Modal (unchanged from before) */}
         {editBooking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg overflow-y-auto max-h-[90vh] relative">
@@ -230,10 +268,9 @@ const BookingList = () => {
               >
                 ✕
               </button>
-              <h2 className="text-2xl font-semibold mb-4 text-[#687FE5]">
-                Edit Appointment
-              </h2>
+              <h2 className="text-2xl font-semibold mb-4 text-[#687FE5]">Edit Appointment</h2>
 
+              {/* same form as before */}
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <label>
                   Customer Name:
@@ -342,16 +379,6 @@ const BookingList = () => {
                     type="time"
                     name="appointment_time"
                     value={editForm.appointment_time}
-                    onChange={handleEditChange}
-                    className="w-full border p-2 rounded mt-1"
-                  />
-                </label>
-
-                <label>
-                  Source:
-                  <input
-                    name="source"
-                    value={editForm.source}
                     onChange={handleEditChange}
                     className="w-full border p-2 rounded mt-1"
                   />
