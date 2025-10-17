@@ -8,49 +8,55 @@ import DashboardLayout from "@/components/Layout/DashboardLayout";
 import Login from "./components/login";
 import BookingsPage from "./pages/Bookings/BookingsPage";
 import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx"; // ✅ new dashboard page
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CustomerPage from "./pages/customerpage.jsx";
+
+// Auth
+import ProtectedRoute from "@/components/Auth/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
       <Routes>
-
-      <Route path="/" element={<CustomerPage />} />
-        {/* 🏠 Login Route */}
+        {/* 🏠 Public Routes */}
+        <Route path="/" element={<CustomerPage />} />
         <Route path="/login" element={<Login />} />
 
-        {/* 🧭 Admin Dashboard */}
+        {/* 🧭 Admin Dashboard — only for admin */}
         <Route
           path="/dashboard"
           element={
-            <DashboardLayout>
-              <AdminDashboard />
-            </DashboardLayout>
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <DashboardLayout>
+                <AdminDashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
 
-        {/* 📅 Bookings */}
+        {/* 📅 Bookings — for both admin & receptionist */}
         <Route
           path="/bookings"
           element={
-            <DashboardLayout>
-              <BookingsPage />
-            </DashboardLayout>
+            <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
+              <DashboardLayout>
+                <BookingsPage />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
 
-        {/* ✅ Attendance */}
+        {/* ✅ Attendance — for both admin & receptionist */}
         <Route
           path="/attendance"
           element={
-            <DashboardLayout>
-              <AttendancePage />
-            </DashboardLayout>
+            <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
+              <DashboardLayout>
+                <AttendancePage />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
-
-        {/* 🔧 Add more routes later (e.g. /services, /settings, etc.) */}
       </Routes>
     </Router>
   );
