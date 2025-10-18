@@ -6,20 +6,24 @@ import axios from "axios";
 const salonId = "68eb4a7fb6c1692cffcf1bcf"; // hardcoded for now
 
 const AppointmentForm = () => {
+  const today = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     service: "",
-    date: "",
+    subservice: "",
+    date: today,
     note: "",
   });
   const [services, setServices] = useState([]);
+  const [subservices, setSubservices] = useState([]);
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const res = await axios.get("http://localhost:3000/services");
-        setServices(res.data); // make sure your API returns _id for each service
+        setServices(res.data);
       } catch (err) {
         console.error("Failed to fetch services:", err);
       }
@@ -27,21 +31,25 @@ const AppointmentForm = () => {
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    if (formData.service) {
+      const selected = services.find((s) => s._id === formData.service);
+      setSubservices(selected?.subservices || []);
+      setFormData((prev) => ({ ...prev, subservice: "" }));
+    }
+  }, [formData.service, services]);
+
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.service) {
-      alert("Please select a service");
-      return;
-    }
-
     const payload = {
       name: formData.name,
       phone: formData.phone,
-      service_id: formData.service, // ✅ this is now ObjectId
+      service_id: formData.service,
+      subservice: formData.subservice,
       date: formData.date,
       salon_id: salonId,
       source: "online",
@@ -57,7 +65,8 @@ const AppointmentForm = () => {
         name: "",
         phone: "",
         service: "",
-        date: "",
+        subservice: "",
+        date: today,
         note: "",
       });
     } catch (err) {
@@ -69,32 +78,36 @@ const AppointmentForm = () => {
   return (
     <section
       id="book"
-      className="py-24 px-6 md:px-20 bg-gradient-to-r from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] relative overflow-hidden"
+      className="relative py-24 px-6 md:px-20 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
     >
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-20"></div>
+      {/* Subtle decorative background */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-15"></div>
 
-      <motion.h2
+      <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-4xl font-extrabold text-center mb-6 text-gray-900"
+        className="text-center relative z-10 mb-14"
       >
-        Book Your Appointment 💆‍♀️
-      </motion.h2>
-      <p className="text-center text-gray-600 max-w-2xl mx-auto mb-14">
-        Take a moment to relax — we’ll handle the rest. Choose your service and
-        reserve your time, or call us directly to book instantly.
-      </p>
+        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
+          Book Your Appointment 💇‍♀️
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          Select your service and preferred date. We’ll make sure you get the
+          best care possible.
+        </p>
+      </motion.div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10">
+      <div className="flex flex-col items-center justify-center">
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 max-w-3xl mx-auto bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border border-[#EBD6FB] w-full md:w-2/3"
+          className="relative z-10 max-w-3xl w-full bg-white/90 backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-[#EBD6FB]"
         >
           <div className="grid md:grid-cols-2 gap-6">
+            {/* Name */}
             <input
               name="name"
               type="text"
@@ -102,8 +115,10 @@ const AppointmentForm = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5]"
+              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
+
+            {/* Phone */}
             <input
               name="phone"
               type="tel"
@@ -111,14 +126,16 @@ const AppointmentForm = () => {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5]"
+              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
+
+            {/* Service */}
             <select
               name="service"
               value={formData.service}
               onChange={handleChange}
               required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5]"
+              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             >
               <option value="">Choose a Service</option>
               {services.map((s) => (
@@ -127,24 +144,55 @@ const AppointmentForm = () => {
                 </option>
               ))}
             </select>
+
+            {/* Subservice */}
+            <select
+              name="subservice"
+              value={formData.subservice}
+              onChange={handleChange}
+              required
+              disabled={!subservices.length}
+              className={`border rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all ${
+                !subservices.length
+                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                  : "border-[#FEEBF6]"
+              }`}
+            >
+              <option value="">
+                {subservices.length
+                  ? "Choose a Subservice"
+                  : "Select a service first"}
+              </option>
+              {subservices.map((ss, i) => (
+                <option key={i} value={ss}>
+                  {ss}
+                </option>
+              ))}
+            </select>
+
+            {/* Date */}
             <input
               name="date"
               type="date"
               value={formData.date}
               onChange={handleChange}
               required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5]"
+              min={today}
+              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
+
+            {/* Note */}
             <textarea
               name="note"
               value={formData.note}
               onChange={handleChange}
               placeholder="Any special requests?"
               rows={3}
-              className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5]"
+              className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
           </div>
 
+          {/* Buttons */}
           <div className="text-center mt-10 flex flex-col sm:flex-row justify-center gap-5">
             <motion.button
               type="submit"
@@ -165,6 +213,10 @@ const AppointmentForm = () => {
           </div>
         </motion.form>
       </div>
+
+      {/* Floating background accents */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-[#FCD8CD] rounded-full blur-3xl opacity-40 animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-72 h-72 bg-[#687FE5] rounded-full blur-3xl opacity-40 animate-pulse"></div>
     </section>
   );
 };
