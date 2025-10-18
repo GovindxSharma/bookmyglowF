@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axios from "axios";
+import Toast from "../Toast";
 
 const AddBooking = () => {
   const [services, setServices] = useState([]);
@@ -11,23 +12,25 @@ const AddBooking = () => {
   const [selectedSubService, setSelectedSubService] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
+  const today = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     gender: "",
-    dob: "",
     address: "",
     note: "",
     source: "online",
-    date: "",
-    appointment_time: "",
+    date: today,
     amount: "",
     payment_mode: "",
-    salon_id: "6708dc20b54f5c6a4d0cf9a2", // hardcoded for now
+    salon_id: "6708dc20b54f5c6a4d0cf9a2",
   });
 
-  // 🟢 Fetch Services
+  const [toast, setToast] = useState(null);
+
+  // Fetch services
   useEffect(() => {
     axios
       .get("http://localhost:3000/services")
@@ -43,10 +46,10 @@ const AddBooking = () => {
         }));
         setServices(formattedServices);
       })
-      .catch((err) => console.error("Error fetching services:", err));
+      .catch(() => setToast({ message: "Failed to load services", type: "error" }));
   }, []);
 
-  // 🟢 Fetch Employees
+  // Fetch employees
   useEffect(() => {
     axios
       .get("http://localhost:3000/auth/employees")
@@ -57,38 +60,51 @@ const AddBooking = () => {
         }));
         setEmployees(formattedEmployees);
       })
-      .catch((err) => console.error("Error fetching employees:", err));
+      .catch(() => setToast({ message: "Failed to load employees", type: "error" }));
   }, []);
 
-  // 🟢 When service changes, reset sub-services
+  // Update sub-services
   useEffect(() => {
     if (selectedService) {
       setSubServices(selectedService.sub_services);
       setSelectedSubService(null);
-    } else {
-      setSubServices([]);
-    }
+    } else setSubServices([]);
   }, [selectedService]);
 
-  // 🟢 Auto-fill amount when sub-service is selected
+  // Auto-fill amount
   useEffect(() => {
     if (selectedSubService) {
       setFormData((prev) => ({ ...prev, amount: selectedSubService.price }));
     }
   }, [selectedSubService]);
 
-  // 🟢 Handle Input Changes
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // 🟢 Handle Submit
+  const resetForm = () => {
+    setFormData({
+      ...formData,
+      name: "",
+      email: "",
+      phone: "",
+      gender: "",
+      address: "",
+      note: "",
+      date: today,
+      amount: "",
+      payment_mode: "",
+    });
+    setSelectedService(null);
+    setSelectedSubService(null);
+    setSelectedEmployee(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if (!selectedService || !selectedEmployee) {
-      alert("Please select both a service and employee.");
-      return;
+    if (!selectedService || !selectedEmployee || !formData.name || !formData.phone) {
+      return setToast({ message: "Please fill all required fields.", type: "error" });
     }
   
     const payload = {
@@ -96,58 +112,39 @@ const AddBooking = () => {
       service_id: selectedService.value,
       employee_id: selectedEmployee.value,
       amount: formData.amount || selectedSubService?.price || 0,
+      confirmation_status: true, // ✅ send true
     };
   
-    // Only include sub_service_id if selected
-    if (selectedSubService) {
-      payload.sub_service_id = selectedSubService.value;
-    }
+    if (selectedSubService) payload.sub_service_id = selectedSubService.value;
   
     try {
       const res = await axios.post("http://localhost:3000/appointments", payload);
-      alert(res.data.message || "Booking created successfully!");
+      setToast({ message: res.data.message || "Booking created!", type: "info" });
       resetForm();
     } catch (err) {
-      console.error("Error creating booking:", err);
-      alert(err.response?.data?.message || "Failed to create booking.");
+      setToast({ message: err.response?.data?.message || "Failed to create booking.", type: "error" });
     }
   };
   
 
-  const resetForm = () => {
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      gender: "",
-      dob: "",
-      address: "",
-      note: "",
-      source: "online",
-      date: "",
-      appointment_time: "",
-      amount: "",
-      payment_mode: "",
-      salon_id: "6708dc20b54f5c6a4d0cf9a2",
-    });
-    setSelectedService(null);
-    setSelectedSubService(null);
-    setSelectedEmployee(null);
-  };
+  // Styles for required vs optional
+  const requiredClass = "p-3 rounded-xl border border-blue-400 focus:ring-2 focus:ring-blue-400 w-full bg-blue-50";
+  const optionalClass = "p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-300 w-full bg-gray-50";
 
   return (
-    <div className="p-6 bg-white rounded-3xl shadow-lg max-w-3xl mx-auto">
+    <div className="p-6 bg-white rounded-3xl shadow-lg max-w-3xl mx-auto relative">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Add Booking</h2>
+
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 🧍 Customer Info */}
+        {/* Customer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Full Name"
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+            placeholder="Full Name *"
+            className={requiredClass}
             required
           />
           <input
@@ -155,25 +152,25 @@ const AddBooking = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Email"
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+            placeholder="Email (optional)"
+            className={optionalClass}
           />
           <input
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Phone"
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+            placeholder="Phone *"
+            className={requiredClass}
             required
           />
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+            className={optionalClass}
           >
-            <option value="">Select Gender</option>
+            <option value="">Gender (optional)</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
             <option value="other">Other</option>
@@ -181,112 +178,95 @@ const AddBooking = () => {
         </div>
 
         <input
-          type="date"
-          name="dob"
-          value={formData.dob}
-          onChange={handleChange}
-          className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
-        />
-        <input
           type="text"
           name="address"
           value={formData.address}
           onChange={handleChange}
-          placeholder="Address"
-          className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+          placeholder="Address (optional)"
+          className={optionalClass}
         />
         <textarea
           name="note"
           value={formData.note}
           onChange={handleChange}
-          placeholder="Notes"
-          className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
+          placeholder="Notes (optional)"
+          className={optionalClass}
         />
 
-        {/* ✂️ Service & Sub-Service */}
+        {/* Service & Sub-Service */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Select
             options={services}
             value={selectedService}
             onChange={setSelectedService}
-            placeholder="Select Service"
-            isSearchable
+            placeholder="Select Service *"
             className="rounded-xl"
           />
           <Select
             options={subServices}
             value={selectedSubService}
             onChange={setSelectedSubService}
-            placeholder="Select Sub-Service"
-            isSearchable
-            className="rounded-xl"
+            placeholder="Select Sub-Service (optional)"
             isDisabled={!subServices.length}
+            className="rounded-xl"
           />
         </div>
 
-        {/* 👩‍💼 Employee */}
+        {/* Employee */}
         <Select
           options={employees}
           value={selectedEmployee}
           onChange={setSelectedEmployee}
-          placeholder="Assign Employee"
-          isSearchable
-          className="rounded-xl mt-4"
+          placeholder="Assign Employee *"
+          className="mt-4 rounded-xl"
         />
 
-        {/* 📅 Booking Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
-            required
-          />
-          <input
-            type="time"
-            name="appointment_time"
-            value={formData.appointment_time}
-            onChange={handleChange}
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
-            required
-          />
-        </div>
+        {/* Booking Date */}
+        <input
+          type="date"
+          name="date"
+          value={formData.date}
+          onChange={handleChange}
+          className={requiredClass + " mt-4"}
+          required
+        />
 
-        {/* 💰 Payment */}
+        {/* Payment */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <input
             type="number"
             name="amount"
             value={formData.amount}
             onChange={handleChange}
-            placeholder="Amount"
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
-            required
+            placeholder="Amount (optional)"
+            className={optionalClass}
           />
           <select
             name="payment_mode"
             value={formData.payment_mode}
             onChange={handleChange}
-            className="p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#687FE5] w-full"
-            required
+            className={optionalClass}
           >
-            <option value="">Payment Mode</option>
+            <option value="">Payment Mode (optional)</option>
             <option value="cash">Cash</option>
             <option value="upi">UPI</option>
             <option value="card">Card</option>
           </select>
         </div>
 
-        {/* ✅ Submit */}
+        {/* Submit */}
         <button
           type="submit"
-          className="w-full p-3 mt-4 rounded-2xl bg-[#687FE5] text-white font-semibold hover:bg-[#556fd1] transition"
+          className="w-full p-3 mt-4 rounded-2xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
         >
           Create Booking
         </button>
       </form>
+
+      {/* Toast */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
     </div>
   );
 };
