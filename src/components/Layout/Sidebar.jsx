@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Scissors, CalendarDays, Settings, LogOut } from "lucide-react";
+import { Scissors, CalendarDays, Settings, LogOut, Users } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import AttendanceIcon from "@/assets/icons/attendance.png";
 import DashboardIcon from "@/assets/icons/dashboard.png";
@@ -9,6 +9,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState(localStorage.getItem("role"));
 
+  // ✅ Keep sidebar in sync with role changes
   useEffect(() => {
     const handleStorageChange = () => {
       setRole(localStorage.getItem("role"));
@@ -17,9 +18,10 @@ const Sidebar = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  // ✅ Logout function
   const handleLogout = async () => {
     try {
-      await axios.post("/auth/logout"); // call logout API
+      await axios.post("/auth/logout");
     } catch (err) {
       console.error("Logout API error:", err);
     } finally {
@@ -29,6 +31,7 @@ const Sidebar = () => {
     }
   };
 
+  // ✅ Define sidebar menus for each role
   const allMenus = {
     admin: [
       {
@@ -42,15 +45,24 @@ const Sidebar = () => {
         path: "/dashboard",
         label: "Dashboard",
       },
-      { icon: <Scissors size={22} />, path: "/services", label: "Services" },
-      { icon: <Settings size={22} />, path: "/settings", label: "Settings" },
+      {
+        icon: <Users size={22} />,
+        path: "/employees",
+        label: "Employees",
+      },
+      {
+        icon: <Settings size={22} />,
+        path: "/settings",
+        label: "Settings",
+      },
       {
         icon: <LogOut size={22} className="text-red-500" />,
         path: "#",
         label: "Logout",
-        onClick: handleLogout, // call logout function
+        onClick: handleLogout,
       },
     ],
+
     receptionist: [
       {
         icon: <CalendarDays size={22} />,
@@ -69,6 +81,11 @@ const Sidebar = () => {
         label: "Attendance",
       },
       {
+        icon: <Users size={22} />,
+        path: "/employees",
+        label: "Employees",
+      },
+      {
         icon: <LogOut size={22} className="text-red-500" />,
         path: "#",
         label: "Logout",
@@ -79,6 +96,7 @@ const Sidebar = () => {
 
   const menuItems = allMenus[role] || [];
 
+  // ✅ Sidebar UI
   return (
     <div
       className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col items-center 
@@ -86,6 +104,7 @@ const Sidebar = () => {
       backdrop-blur-md border border-white/30 overflow-y-auto scrollbar-hide"
     >
       {menuItems.map((item, idx) => {
+        // 🔴 Logout button (not a NavLink)
         if (item.label === "Logout") {
           return (
             <button
@@ -99,6 +118,7 @@ const Sidebar = () => {
           );
         }
 
+        // 🔵 Regular menu items
         return (
           <NavLink
             key={idx}
