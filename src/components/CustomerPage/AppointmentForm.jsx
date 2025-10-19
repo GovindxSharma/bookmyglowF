@@ -10,13 +10,11 @@ const AppointmentForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    services: [],
+    service: "",
     date: today,
     note: "",
   });
   const [services, setServices] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -29,31 +27,6 @@ const AppointmentForm = () => {
     };
     fetchServices();
   }, []);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const toggleService = (service) => {
-    if (formData.services.find((s) => s.service_id === service._id)) {
-      setFormData({
-        ...formData,
-        services: formData.services.filter((s) => s.service_id !== service._id),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        services: [...formData.services, { service_id: service._id }],
-      });
-    }
-  };
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -68,7 +41,7 @@ const AppointmentForm = () => {
     const payload = {
       name: formData.name,
       phone: formData.phone,
-      services: formData.services,
+      service_id: formData.service,
       date: formData.date,
       salon_id: salonId,
       source: "online",
@@ -80,7 +53,13 @@ const AppointmentForm = () => {
     try {
       await axios.post("http://localhost:3000/appointments", payload);
       alert(`Appointment booked successfully for ${formData.name}!`);
-      setFormData({ name: "", phone: "", services: [], date: today, note: "" });
+      setFormData({
+        name: "",
+        phone: "",
+        service: "",
+        date: today,
+        note: "",
+      });
     } catch (err) {
       console.error("Failed to create appointment:", err);
       alert("Something went wrong. Please try again.");
@@ -101,7 +80,7 @@ const AppointmentForm = () => {
         className="text-center relative z-10 mb-14"
       >
         <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-          Book Your Appointment
+          Book Your Appointment 
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
           Select your services and preferred date. We’ll make sure you get the
@@ -140,54 +119,21 @@ const AppointmentForm = () => {
               className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
-            {/* Multi-select Services */}
-            <div className="relative" ref={dropdownRef}>
-              <div
-                className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] flex justify-between items-center cursor-pointer focus:ring-2 focus:ring-[#687FE5] transition-all"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {formData.services.length > 0
-                  ? formData.services
-                      .map((s) => {
-                        const service = services.find(
-                          (ser) => ser._id === s.service_id
-                        );
-                        return service?.name || "Unknown";
-                      })
-                      .join(", ")
-                  : "Select Services"}
-                <ChevronDown size={20} />
-              </div>
-
-              {dropdownOpen && (
-                <div className="absolute z-20 mt-1 w-full bg-white border border-[#EBD6FB] rounded-xl shadow max-h-60 overflow-y-auto">
-                  {services.map((s) => (
-                    <div
-                      key={s._id}
-                      className={`px-4 py-2 cursor-pointer hover:bg-[#EBD6FB] flex items-center gap-2 ${
-                        formData.services.find(
-                          (sel) => sel.service_id === s._id
-                        )
-                          ? "bg-[#EBD6FB]"
-                          : ""
-                      }`}
-                      onClick={() => toggleService(s)}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={
-                          !!formData.services.find(
-                            (sel) => sel.service_id === s._id
-                          )
-                        }
-                        readOnly
-                      />
-                      <span>{s.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Service */}
+            <select
+              name="service"
+              value={formData.service}
+              onChange={handleChange}
+              required
+              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
+            >
+              <option value="">Choose a Service</option>
+              {services.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
 
             {/* Date */}
             <input
@@ -223,7 +169,7 @@ const AppointmentForm = () => {
             </motion.button>
 
             <motion.a
-              href="tel:+919999999999"
+              href="tel:+919999999999" // testing number
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center gap-2 px-8 py-3 border-2 border-[#687FE5] text-[#687FE5] rounded-full font-semibold hover:bg-[#687FE5]/10 transition-all duration-300"

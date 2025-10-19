@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 const HeroSection = () => {
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#FFFDFE] via-[#FEEBF6] to-[#EBD6FB] min-h-[90vh] flex flex-col md:flex-row items-center justify-center px-6 md:px-16 py-20">
+      {/* Decorative blurred circles */}
       <div className="absolute top-[-10%] left-[-10%] w-[350px] h-[350px] bg-[#FCD8CD]/50 rounded-full blur-[120px]"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#687FE5]/40 rounded-full blur-[120px]"></div>
 
+      {/* Text Content */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -44,6 +46,7 @@ const HeroSection = () => {
         </div>
       </motion.div>
 
+      {/* Hero Image */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}
@@ -51,11 +54,14 @@ const HeroSection = () => {
         className="relative mt-16 md:mt-0 md:ml-10"
       >
         <div className="relative w-[280px] md:w-[400px] h-[280px] md:h-[400px]">
+          {/* Gradient Glow */}
           <div className="absolute inset-0 bg-gradient-to-tr from-[#687FE5] via-[#EBD6FB] to-[#FCD8CD] rounded-[50%_40%_60%_50%/50%_60%_40%_50%] blur-[2px] animate-pulse"></div>
+
+          {/* PNG Image */}
           <img
-            src="https://images.unsplash.com/photo-1600180758890-6d5bbf4a0d7d?auto=format&fit=crop&w=800&q=80"
+            src="https://png.pngtree.com/png-clipart/20240311/original/pngtree-working-as-hairdresser-hair-salon-and-barber-shop-png-image_14565273.png"
             alt="Salon"
-            className="absolute inset-0 w-full h-full object-cover rounded-[50%_40%_60%_50%/50%_60%_40%_50%] shadow-xl"
+            className="absolute inset-0 w-full h-full object-contain rounded-[50%_40%_60%_50%/50%_60%_40%_50%] shadow-xl"
           />
         </div>
       </motion.div>
