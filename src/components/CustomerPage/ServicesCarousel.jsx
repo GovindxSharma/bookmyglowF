@@ -87,7 +87,7 @@ const ServicesCarousel = () => {
   };
 
   return (
-    <section className="py-20 px-6 md:px-20 bg-gradient-to-br from-[#FDFBFF] via-[#FEEBF6] to-[#EBD6FB] relative">
+    <section  id="services" className="py-20 px-6 md:px-20 bg-gradient-to-br from-[#FDFBFF] via-[#FEEBF6] to-[#EBD6FB] relative">
       <h2 className="text-4xl md:text-5xl font-extrabold text-center mb-14 text-gray-900">
         Our <span className="text-[#687FE5]">Signature Services</span>
       </h2>

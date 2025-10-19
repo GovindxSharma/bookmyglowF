@@ -12,12 +12,10 @@ const AppointmentForm = () => {
     name: "",
     phone: "",
     service: "",
-    subservice: "",
     date: today,
     note: "",
   });
   const [services, setServices] = useState([]);
-  const [subservices, setSubservices] = useState([]);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -31,14 +29,6 @@ const AppointmentForm = () => {
     fetchServices();
   }, []);
 
-  useEffect(() => {
-    if (formData.service) {
-      const selected = services.find((s) => s._id === formData.service);
-      setSubservices(selected?.subservices || []);
-      setFormData((prev) => ({ ...prev, subservice: "" }));
-    }
-  }, [formData.service, services]);
-
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -49,7 +39,6 @@ const AppointmentForm = () => {
       name: formData.name,
       phone: formData.phone,
       service_id: formData.service,
-      subservice: formData.subservice,
       date: formData.date,
       salon_id: salonId,
       source: "online",
@@ -65,7 +54,6 @@ const AppointmentForm = () => {
         name: "",
         phone: "",
         service: "",
-        subservice: "",
         date: today,
         note: "",
       });
@@ -90,7 +78,7 @@ const AppointmentForm = () => {
         className="text-center relative z-10 mb-14"
       >
         <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-          Book Your Appointment 💇‍♀️
+          Book Your Appointment 
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
           Select your service and preferred date. We’ll make sure you get the
@@ -145,31 +133,6 @@ const AppointmentForm = () => {
               ))}
             </select>
 
-            {/* Subservice */}
-            <select
-              name="subservice"
-              value={formData.subservice}
-              onChange={handleChange}
-              required
-              disabled={!subservices.length}
-              className={`border rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all ${
-                !subservices.length
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-[#FEEBF6]"
-              }`}
-            >
-              <option value="">
-                {subservices.length
-                  ? "Choose a Subservice"
-                  : "Select a service first"}
-              </option>
-              {subservices.map((ss, i) => (
-                <option key={i} value={ss}>
-                  {ss}
-                </option>
-              ))}
-            </select>
-
             {/* Date */}
             <input
               name="date"
@@ -202,8 +165,9 @@ const AppointmentForm = () => {
             >
               Confirm Appointment
             </motion.button>
+
             <motion.a
-              href="tel:+919876543210"
+              href="tel:+919999999999" // testing number
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center gap-2 px-8 py-3 border-2 border-[#687FE5] text-[#687FE5] rounded-full font-semibold hover:bg-[#687FE5]/10 transition-all duration-300"
