@@ -64,14 +64,26 @@ const AdminDashboard = () => {
         const staffData = await Promise.all(staffDataPromises);
         setStaffPerformance(staffData);
 
-        // ===== 4️⃣ Monthly revenue =====
-        const groupedRes = await axios.get(`${PAYMENTS_API}/grouped`);
-        const grouped = groupedRes.data || [];
-        const monthly = grouped.map((g) => ({
-          month: new Date(g._id).toLocaleString("default", { month: "short" }),
-          revenue: g.total_amount,
-        }));
-        setMonthlyRevenue(monthly);
+       // ===== 4️⃣ Monthly revenue (Ensure all 12 months) =====
+const groupedRes = await axios.get(`${PAYMENTS_API}/grouped`);
+const grouped = groupedRes.data || [];
+
+// Create map from API result (monthIndex: total_amount)
+const revenueMap = new Map();
+grouped.forEach((g) => {
+  const date = new Date(g._id);
+  const monthIndex = date.getMonth(); // 0–11
+  revenueMap.set(monthIndex, g.total_amount || 0);
+});
+
+// Generate data for all 12 months
+const allMonths = Array.from({ length: 12 }, (_, i) => ({
+  month: new Date(2025, i).toLocaleString("default", { month: "short" }),
+  revenue: revenueMap.get(i) || 0,
+}));
+
+setMonthlyRevenue(allMonths);
+
 
         setLoading(false);
       } catch (err) {
