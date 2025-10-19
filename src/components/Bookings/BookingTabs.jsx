@@ -14,7 +14,11 @@ const BookingTabs = () => {
       const res = await axios.get(
         "http://localhost:3000/appointments/?for_notification=true"
       );
-      setHasUnread(res.data && res.data.length > 0);
+      const appointments = res.data.appointments || [];
+      const unconfirmed = appointments.some(
+        (b) => b.confirmation_status === false
+      );
+      setHasUnread(unconfirmed);
     } catch (error) {
       console.error("Failed to fetch online appointment notifications:", error);
     }

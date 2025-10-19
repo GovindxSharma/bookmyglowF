@@ -10,7 +10,8 @@ const OnlineBooking = () => {
       const res = await axios.get(
         "http://localhost:3000/appointments/?for_notification=true"
       );
-      setBookings(res.data);
+      const data = res.data.appointments || [];
+      setBookings(data);
     } catch (err) {
       console.error("Error fetching online appointments", err);
     }
@@ -57,7 +58,10 @@ const OnlineBooking = () => {
                 📞 {b.customer_id?.phone || "N/A"}
               </p>
               <p className="text-sm text-gray-600">
-                💇‍♀️ {b.service_id?.name || "Service Unavailable"}
+                💇‍♀️{" "}
+                {b.services?.length > 0
+                  ? b.services.map((s) => s.service_id?.name).join(", ")
+                  : "Service Unavailable"}
               </p>
               <p className="text-sm text-gray-500">
                 📅 {new Date(b.date).toLocaleDateString()}

@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Phone } from "lucide-react";
+import { Phone, ChevronDown } from "lucide-react";
 import axios from "axios";
 
-const salonId = "68eb4a7fb6c1692cffcf1bcf"; // hardcoded for now
+const salonId = "68eb4a7fb6c1692cffcf1bcf";
 
 const AppointmentForm = () => {
   const today = new Date().toISOString().split("T")[0];
-
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -34,6 +33,10 @@ const AppointmentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.services.length === 0) {
+      alert("Please select at least one service!");
+      return;
+    }
 
     const payload = {
       name: formData.name,
@@ -68,7 +71,6 @@ const AppointmentForm = () => {
       id="book"
       className="relative py-24 px-6 md:px-20 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
     >
-      {/* Subtle decorative background */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-15"></div>
 
       <motion.div
@@ -81,7 +83,7 @@ const AppointmentForm = () => {
           Book Your Appointment 
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Select your service and preferred date. We’ll make sure you get the
+          Select your services and preferred date. We’ll make sure you get the
           best care possible.
         </p>
       </motion.div>
@@ -178,7 +180,6 @@ const AppointmentForm = () => {
         </motion.form>
       </div>
 
-      {/* Floating background accents */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#FCD8CD] rounded-full blur-3xl opacity-40 animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-72 h-72 bg-[#687FE5] rounded-full blur-3xl opacity-40 animate-pulse"></div>
     </section>
