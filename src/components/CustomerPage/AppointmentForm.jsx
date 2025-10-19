@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Phone } from "lucide-react";
+import { Phone, ChevronDown } from "lucide-react";
 import axios from "axios";
 
-const salonId = "68eb4a7fb6c1692cffcf1bcf"; // hardcoded for now
+const salonId = "68eb4a7fb6c1692cffcf1bcf";
 
 const AppointmentForm = () => {
   const today = new Date().toISOString().split("T")[0];
-
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    service: "",
-    subservice: "",
+    services: [],
     date: today,
     note: "",
   });
   const [services, setServices] = useState([]);
-  const [subservices, setSubservices] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -31,25 +30,45 @@ const AppointmentForm = () => {
     fetchServices();
   }, []);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
-    if (formData.service) {
-      const selected = services.find((s) => s._id === formData.service);
-      setSubservices(selected?.subservices || []);
-      setFormData((prev) => ({ ...prev, subservice: "" }));
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const toggleService = (service) => {
+    if (formData.services.find((s) => s.service_id === service._id)) {
+      setFormData({
+        ...formData,
+        services: formData.services.filter((s) => s.service_id !== service._id),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        services: [...formData.services, { service_id: service._id }],
+      });
     }
-  }, [formData.service, services]);
+  };
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.services.length === 0) {
+      alert("Please select at least one service!");
+      return;
+    }
 
     const payload = {
       name: formData.name,
       phone: formData.phone,
-      service_id: formData.service,
-      subservice: formData.subservice,
+      services: formData.services,
       date: formData.date,
       salon_id: salonId,
       source: "online",
@@ -61,14 +80,7 @@ const AppointmentForm = () => {
     try {
       await axios.post("http://localhost:3000/appointments", payload);
       alert(`Appointment booked successfully for ${formData.name}!`);
-      setFormData({
-        name: "",
-        phone: "",
-        service: "",
-        subservice: "",
-        date: today,
-        note: "",
-      });
+      setFormData({ name: "", phone: "", services: [], date: today, note: "" });
     } catch (err) {
       console.error("Failed to create appointment:", err);
       alert("Something went wrong. Please try again.");
@@ -80,7 +92,6 @@ const AppointmentForm = () => {
       id="book"
       className="relative py-24 px-6 md:px-20 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
     >
-      {/* Subtle decorative background */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-15"></div>
 
       <motion.div
@@ -90,10 +101,10 @@ const AppointmentForm = () => {
         className="text-center relative z-10 mb-14"
       >
         <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">
-          Book Your Appointment 💇‍♀️
+          Book Your Appointment
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Select your service and preferred date. We’ll make sure you get the
+          Select your services and preferred date. We’ll make sure you get the
           best care possible.
         </p>
       </motion.div>
@@ -129,46 +140,54 @@ const AppointmentForm = () => {
               className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
-            {/* Service */}
-            <select
-              name="service"
-              value={formData.service}
-              onChange={handleChange}
-              required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            >
-              <option value="">Choose a Service</option>
-              {services.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+            {/* Multi-select Services */}
+            <div className="relative" ref={dropdownRef}>
+              <div
+                className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] flex justify-between items-center cursor-pointer focus:ring-2 focus:ring-[#687FE5] transition-all"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                {formData.services.length > 0
+                  ? formData.services
+                      .map((s) => {
+                        const service = services.find(
+                          (ser) => ser._id === s.service_id
+                        );
+                        return service?.name || "Unknown";
+                      })
+                      .join(", ")
+                  : "Select Services"}
+                <ChevronDown size={20} />
+              </div>
 
-            {/* Subservice */}
-            <select
-              name="subservice"
-              value={formData.subservice}
-              onChange={handleChange}
-              required
-              disabled={!subservices.length}
-              className={`border rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all ${
-                !subservices.length
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-[#FEEBF6]"
-              }`}
-            >
-              <option value="">
-                {subservices.length
-                  ? "Choose a Subservice"
-                  : "Select a service first"}
-              </option>
-              {subservices.map((ss, i) => (
-                <option key={i} value={ss}>
-                  {ss}
-                </option>
-              ))}
-            </select>
+              {dropdownOpen && (
+                <div className="absolute z-20 mt-1 w-full bg-white border border-[#EBD6FB] rounded-xl shadow max-h-60 overflow-y-auto">
+                  {services.map((s) => (
+                    <div
+                      key={s._id}
+                      className={`px-4 py-2 cursor-pointer hover:bg-[#EBD6FB] flex items-center gap-2 ${
+                        formData.services.find(
+                          (sel) => sel.service_id === s._id
+                        )
+                          ? "bg-[#EBD6FB]"
+                          : ""
+                      }`}
+                      onClick={() => toggleService(s)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={
+                          !!formData.services.find(
+                            (sel) => sel.service_id === s._id
+                          )
+                        }
+                        readOnly
+                      />
+                      <span>{s.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Date */}
             <input
@@ -202,8 +221,9 @@ const AppointmentForm = () => {
             >
               Confirm Appointment
             </motion.button>
+
             <motion.a
-              href="tel:+919876543210"
+              href="tel:+919999999999"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center gap-2 px-8 py-3 border-2 border-[#687FE5] text-[#687FE5] rounded-full font-semibold hover:bg-[#687FE5]/10 transition-all duration-300"
@@ -214,7 +234,6 @@ const AppointmentForm = () => {
         </motion.form>
       </div>
 
-      {/* Floating background accents */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-[#FCD8CD] rounded-full blur-3xl opacity-40 animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-72 h-72 bg-[#687FE5] rounded-full blur-3xl opacity-40 animate-pulse"></div>
     </section>
