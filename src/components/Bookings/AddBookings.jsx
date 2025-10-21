@@ -28,11 +28,11 @@ const AddBooking = () => {
     gender: "",
     address: "",
     note: "",
-    source: "online",
+    source: "walk-in",
     date: today,
     payment_mode: "",
     salon_id: "6708dc20b54f5c6a4d0cf9a2",
-    confirmation_status: true,
+    // confirmation_status: true
   });
 
   // Fetch services
@@ -153,7 +153,7 @@ const AddBooking = () => {
       employee_id: selectedEmployee.value,
       services: servicesPayload,
       amount: totalAmount,
-      confirmation_status: true,
+      // confirmation_status: true,
     };
 
     try {

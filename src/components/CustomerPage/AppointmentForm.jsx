@@ -11,12 +11,15 @@ const AppointmentForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    service: "", // single select
+    services: [],
     date: today,
     note: "",
   });
   const [services, setServices] = useState([]);
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
+  // Fetch services
   useEffect(() => {
     const fetchServices = async () => {
       try {
@@ -29,9 +32,33 @@ const AppointmentForm = () => {
     fetchServices();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpenDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle input change
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // Handle service selection toggle
+  const handleServiceToggle = (id) => {
+    setFormData((prev) => {
+      const alreadySelected = prev.services.includes(id);
+      const updatedServices = alreadySelected
+        ? prev.services.filter((s) => s !== id)
+        : [...prev.services, id];
+      return { ...prev, services: updatedServices };
+    });
+  };
+
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -46,6 +73,8 @@ const AppointmentForm = () => {
       service_id: [formData.service], // ✅ send as array
       date: formData.date,
       salon_id: salonId,
+      services: formData.services.map((id) => ({ service_id: id })),
+      date: formData.date,
       source: "online",
       seen: false,
       confirmation_status: false,
@@ -63,7 +92,7 @@ const AppointmentForm = () => {
       setFormData({
         name: "",
         phone: "",
-        service: "",
+        services: [],
         date: today,
         note: "",
       });
@@ -123,20 +152,44 @@ const AppointmentForm = () => {
               className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
-            <select
-              name="service"
-              value={formData.service}
-              onChange={handleChange}
-              required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            >
-              <option value="">Choose a Service</option>
-              {services.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+            {/* Service Dropdown */}
+            <div className="relative md:col-span-2" ref={dropdownRef}>
+              <div
+                onClick={() => setOpenDropdown((prev) => !prev)}
+                className="flex justify-between items-center border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] cursor-pointer select-none focus:ring-2 focus:ring-[#687FE5]"
+              >
+                <span className="text-gray-700">
+                  {formData.services.length > 0
+                    ? `${formData.services.length} service(s) selected`
+                    : "Choose Services"}
+                </span>
+                <ChevronDown
+                  size={18}
+                  className={`transition-transform ${
+                    openDropdown ? "rotate-180" : "rotate-0"
+                  }`}
+                />
+              </div>
+
+              {openDropdown && (
+                <div className="absolute mt-2 w-full bg-white border border-[#EBD6FB] rounded-xl shadow-lg z-50 max-h-56 overflow-y-auto">
+                  {services.map((s) => (
+                    <label
+                      key={s._id}
+                      className="flex items-center px-4 py-2 hover:bg-[#F8F4FF] cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.services.includes(s._id)}
+                        onChange={() => handleServiceToggle(s._id)}
+                        className="mr-3 accent-[#687FE5]"
+                      />
+                      {s.name}
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <input
               name="date"
@@ -145,7 +198,7 @@ const AppointmentForm = () => {
               onChange={handleChange}
               required
               min={today}
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
+              className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
             <textarea
