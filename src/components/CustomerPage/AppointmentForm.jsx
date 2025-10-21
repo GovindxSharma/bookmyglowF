@@ -63,10 +63,10 @@ const AppointmentForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.phone.trim() || !formData.service) {
-      alert("Please fill all required fields.");
-      return;
-    }
+if (!formData.name.trim() || !formData.phone.trim() || formData.services.length === 0) {
+  alert("Please fill all required fields.");
+  return;
+}
 
     const payload = {
       name: formData.name.trim(),
