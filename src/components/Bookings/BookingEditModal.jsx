@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axios from "axios";
 import Toast from "../Toast";
+import { BASE_URL } from "../../data/data";
 
 const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
   const [services, setServices] = useState([]);
@@ -40,7 +41,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
   // Fetch all services for dropdown
   useEffect(() => {
     axios
-      .get("http://localhost:3000/services")
+      .get(`${BASE_URL}/services`)
       .then((res) => {
         const formatted = res.data.map((s) => ({
           label: s.name,
@@ -84,7 +85,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
         (editBooking.services || []).map(async (s) => {
           try {
             const { data } = await axios.get(
-              `http://localhost:3000/services/${s.service_id._id}`
+              `${BASE_URL}/services/${s.service_id._id}`
             );
             const mainService = {
               label: data.name,
@@ -208,7 +209,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
 
     try {
       const res = await axios.put(
-        `http://localhost:3000/appointments/${editBooking._id}`,
+        `${BASE_URL}/appointments/${editBooking._id}`,
         payload
       );
 

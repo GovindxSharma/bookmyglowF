@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axios from "axios";
 import Toast from "../Toast";
+import { BASE_URL } from "../../data/data"; // ✅ import common base URL
 
 const AddBooking = () => {
   const [services, setServices] = useState([]);
@@ -16,6 +17,7 @@ const AddBooking = () => {
     },
   ]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -33,12 +35,10 @@ const AddBooking = () => {
     // confirmation_status: true
   });
 
-  const [toast, setToast] = useState(null);
-
   // Fetch services
   useEffect(() => {
     axios
-      .get("http://localhost:3000/services")
+      .get(`${BASE_URL}/services`)
       .then((res) => {
         const formattedServices = res.data.map((service) => ({
           label: service.name,
@@ -60,7 +60,7 @@ const AddBooking = () => {
   // Fetch employees
   useEffect(() => {
     axios
-      .get("http://localhost:3000/auth/employees")
+      .get(`${BASE_URL}/auth/employees`)
       .then((res) => {
         const formattedEmployees = res.data.employees.map((emp) => ({
           label: emp.name,
@@ -157,10 +157,7 @@ const AddBooking = () => {
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/appointments",
-        payload
-      );
+      const res = await axios.post(`${BASE_URL}/appointments`, payload);
       setToast({
         message: res.data.message || "Booking created!",
         type: "info",

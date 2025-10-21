@@ -4,6 +4,7 @@ import axios from "axios";
 import { CheckCircle, XCircle, AlertCircle, Pencil, Info } from "lucide-react";
 import BookingEditModal from "./BookingEditModal";
 import BookingExploreModal from "./BookingExploreModal";
+import { BASE_URL} from "../../data/data"
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
@@ -14,12 +15,12 @@ const BookingList = () => {
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
 
-  const API_BASE = "http://localhost:3000";
+
 
   // Fetch bookings
   const fetchBookings = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/appointments/`);
+      const res = await axios.get(`${BASE_URL}/appointments/`);
       setBookings(res.data.appointments);
     } catch (err) {
       console.log(err);
@@ -30,8 +31,8 @@ const BookingList = () => {
   const fetchDropdowns = async () => {
     try {
       const [empRes, servRes] = await Promise.all([
-        axios.get(`${API_BASE}/auth/employees`),
-        axios.get(`${API_BASE}/services`),
+        axios.get(`${BASE_URL}/auth/employees`),
+        axios.get(`${BASE_URL}/services`),
       ]);
       setEmployees(empRes.data.employees || []);
       setServices(servRes.data || []);

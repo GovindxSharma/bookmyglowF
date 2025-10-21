@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Phone, ChevronDown } from "lucide-react";
+import { Phone } from "lucide-react";
 import axios from "axios";
+import { BASE_URL } from "../../data/data";
 
 const salonId = "68eb4a7fb6c1692cffcf1bcf";
 
@@ -22,7 +23,7 @@ const AppointmentForm = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/services");
+        const res = await axios.get(`${BASE_URL}/services`);
         setServices(res.data);
       } catch (err) {
         console.error("Failed to fetch services:", err);
@@ -61,31 +62,33 @@ const AppointmentForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.phone) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    if (formData.services.length === 0) {
-      alert("Please select at least one service!");
+    if (!formData.name.trim() || !formData.phone.trim() || !formData.service) {
+      alert("Please fill all required fields.");
       return;
     }
 
     const payload = {
-      name: formData.name,
-      phone: formData.phone,
+      name: formData.name.trim(),
+      phone: formData.phone.trim(),
+      service_id: [formData.service], // ✅ send as array
+      date: formData.date,
       salon_id: salonId,
       services: formData.services.map((id) => ({ service_id: id })),
       date: formData.date,
       source: "online",
       seen: false,
       confirmation_status: false,
-      note: formData.note || "",
+      note: formData.note.trim() || "",
     };
 
     try {
-      await axios.post("http://localhost:3000/appointments", payload);
-      alert(`Appointment booked successfully for ${formData.name}!`);
+      const res = await axios.post(`${BASE_URL}/appointments`, payload);
+      if (res.data.success) {
+        alert(`Appointment booked successfully for ${formData.name}!`);
+      } else {
+        alert(res.data.message || "Something went wrong. Please try again.");
+      }
+
       setFormData({
         name: "",
         phone: "",
@@ -95,7 +98,7 @@ const AppointmentForm = () => {
       });
     } catch (err) {
       console.error("Failed to create appointment:", err);
-      alert("Something went wrong. Please try again.");
+      alert("Something went wrong. Please try again later.");
     }
   };
 
@@ -116,8 +119,7 @@ const AppointmentForm = () => {
           Book Your Appointment
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Select your services and preferred date. We’ll make sure you get the
-          best care possible.
+          Select your service and preferred date. We’ll make sure you get the best care possible.
         </p>
       </motion.div>
 
@@ -130,7 +132,6 @@ const AppointmentForm = () => {
           className="relative z-10 max-w-3xl w-full bg-white/90 backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-[#EBD6FB]"
         >
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Name */}
             <input
               name="name"
               type="text"
@@ -141,7 +142,6 @@ const AppointmentForm = () => {
               className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
-            {/* Phone */}
             <input
               name="phone"
               type="tel"
@@ -191,7 +191,6 @@ const AppointmentForm = () => {
               )}
             </div>
 
-            {/* Date */}
             <input
               name="date"
               type="date"
@@ -202,7 +201,6 @@ const AppointmentForm = () => {
               className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
             />
 
-            {/* Note */}
             <textarea
               name="note"
               value={formData.note}
@@ -213,7 +211,6 @@ const AppointmentForm = () => {
             />
           </div>
 
-          {/* Buttons */}
           <div className="text-center mt-10 flex flex-col sm:flex-row justify-center gap-5">
             <motion.button
               type="submit"

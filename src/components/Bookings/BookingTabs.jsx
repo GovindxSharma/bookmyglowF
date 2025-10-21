@@ -3,6 +3,7 @@ import axios from "axios";
 import AddBooking from "./AddBookings";
 import BookingList from "./BookingList";
 import OnlineBooking from "./OnlineBooking"; // 👈 new component
+import { BASE_URL} from "../../data/data"
 
 const BookingTabs = () => {
   const [activeTab, setActiveTab] = useState("add");
@@ -12,7 +13,7 @@ const BookingTabs = () => {
   const fetchOnlineNotifications = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/appointments/?for_notification=true"
+        `${BASE_URL}/appointments/?for_notification=true`
       );
       const appointments = res.data.appointments || [];
       const unconfirmed = appointments.some(
