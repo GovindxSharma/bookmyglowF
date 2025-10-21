@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { BASE_URL } from "../../data/data";
 
 const OnlineBooking = () => {
   const [bookings, setBookings] = useState([]);
@@ -8,7 +9,7 @@ const OnlineBooking = () => {
   const fetchBookings = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/appointments/?for_notification=true"
+        `${BASE_URL}/appointments/?for_notification=true`
       );
       const data = res.data.appointments || [];
       setBookings(data);
@@ -19,7 +20,7 @@ const OnlineBooking = () => {
 
   const handleApprove = async (id) => {
     try {
-      await axios.put(`http://localhost:3000/appointments/${id}`, {
+      await axios.put(`${BASE_URL}/appointments/${id}`, {
         confirmation_status: true,
         seen: true,
       });

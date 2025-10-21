@@ -3,6 +3,7 @@ import HeroSection from "../components/CustomerPage/HeroSection.jsx";
 import ServicesCarousel from "../components/CustomerPage/ServicesCarousel.jsx";
 import AppointmentForm from "../components/CustomerPage/AppointmentForm.jsx";
 import axios from "axios";
+import { BASE_URL } from "../data/data.js";
 
 const CustomerPage = () => {
   const [services, setServices] = useState([]);
@@ -10,7 +11,7 @@ const CustomerPage = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/services");
+        const res = await axios.get(`${BASE_URL}/services`);
         setServices(res.data);
       } catch (err) {
         console.error(err);

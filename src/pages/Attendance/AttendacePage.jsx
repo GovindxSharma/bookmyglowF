@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { BASE_URL } from "../../data/data";
 
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
@@ -13,7 +14,7 @@ const AttendancePage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/auth/employees");
+      const res = await axios.get(`${BASE_URL}/auth/employees`);
       setEmployees(res.data.employees);
       const initialMap = {};
       res.data.employees.forEach((emp) => (initialMap[emp._id] = false));
@@ -31,7 +32,7 @@ const AttendancePage = () => {
     const today = new Date().toISOString().split("T")[0];
     try {
       for (const empId in attendanceMap) {
-        await axios.post("http://localhost:3000/attendance", {
+        await axios.post(`${BASE_URL}/attendance`, {
           employee_id: empId,
           date: today,
           leave: !attendanceMap[empId],
@@ -48,7 +49,7 @@ const AttendancePage = () => {
   const fetchEmployeeAttendance = async (empId) => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/attendance/employee/${empId}`
+        `${BASE_URL}/attendance/employee/${empId}`
       );
       setAttendanceRecords(res.data);
     } catch (err) {
@@ -90,7 +91,7 @@ const AttendancePage = () => {
 
   const saveEdit = async () => {
     try {
-      await axios.put(`http://localhost:3000/attendance/${editRecord.id}`, {
+      await axios.put(`${BASE_URL}/attendance/${editRecord.id}`, {
         leave: editRecord.leave,
       });
       setEditRecord(null);

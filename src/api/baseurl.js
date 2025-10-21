@@ -1,0 +1,1 @@
+base_url=https://bookyourglowforbeauty.onrender.com

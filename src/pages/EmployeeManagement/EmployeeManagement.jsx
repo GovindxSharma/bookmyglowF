@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "@/api/axiosInstance";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import { BASE_URL } from "../../data/data";
 
 const EmployeeManagement = () => {
-  const API_BASE = "/auth"; // base API
   const token = localStorage.getItem("token"); // get token
 
   const [employees, setEmployees] = useState([]);
@@ -28,7 +28,7 @@ const EmployeeManagement = () => {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/employees`, config);
+      const res = await axios.get(`${BASE_URL}/auth/employees`, config);
       setEmployees(res.data.employees || []);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -60,7 +60,7 @@ const EmployeeManagement = () => {
           address: formData.address,
           status: formData.status,
         };
-        await axios.put(`${API_BASE}/${editingEmployee._id}`, payload, config);
+        await axios.put(`${BASE_URL}/auth/${editingEmployee._id}`, payload, config);
       } else {
         const payload = {
           name: formData.name,
@@ -68,7 +68,7 @@ const EmployeeManagement = () => {
           password: formData.password,
           role: "employee",
         };
-        await axios.post(`${API_BASE}/register`, payload, config);
+        await axios.post(`${BASE_URL}/auth/register`, payload, config);
       }
       fetchEmployees();
       closeModal();
@@ -82,7 +82,7 @@ const EmployeeManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        await axios.delete(`${API_BASE}/${id}`, config);
+        await axios.delete(`${BASE_URL}/auth/${id}`, config);
         setEmployees(employees.filter((emp) => emp._id !== id));
       } catch (err) {
         console.error("Delete failed:", err);
@@ -95,7 +95,7 @@ const EmployeeManagement = () => {
   const toggleStatus = async (emp) => {
     try {
       await axios.put(
-        `${API_BASE}/${emp._id}`,
+        `${BASE_URL}/auth/${emp._id}`,
         { ...emp, status: !emp.status },
         config
       );

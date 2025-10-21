@@ -10,9 +10,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Users, DollarSign, CalendarDays } from "lucide-react";
+import { BASE_URL } from "../data/data";
 
-const PAYMENTS_API = "http://localhost:3000/payments";
-const EMPLOYEE_API = "http://localhost:3000/auth/employees";
+const PAYMENTS_API =`${BASE_URL}/payments`;
+const EMPLOYEE_API = `${BASE_URL}/auth/employees`;
 
 const AdminDashboard = () => {
   const [todayRevenue, setTodayRevenue] = useState(0);
