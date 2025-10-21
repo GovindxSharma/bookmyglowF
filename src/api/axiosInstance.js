@@ -1,9 +1,8 @@
-// src/api/axiosInstance.js
 import axios from "axios";
 import { BASE_URL } from "../data/data";
 
 const axiosInstance = axios.create({
-  baseURL: `${BASE_URL} || http://localhost:3000`,
+  baseURL: BASE_URL || "http://localhost:3000",
 });
 
 // 🔒 Automatically attach token if available
