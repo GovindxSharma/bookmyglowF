@@ -1,10 +1,9 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Phone ,ChevronDown } from "lucide-react";
+import { Phone, ChevronDown } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../../data/data";
 
-///lets hope it works
 const salonId = "68eb4a7fb6c1692cffcf1bcf";
 
 const AppointmentForm = () => {
@@ -44,35 +43,30 @@ const AppointmentForm = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle input change
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Handle service selection toggle
   const handleServiceToggle = (id) => {
     setFormData((prev) => {
       const alreadySelected = prev.services.includes(id);
-      const updatedServices = alreadySelected
+      const updated = alreadySelected
         ? prev.services.filter((s) => s !== id)
         : [...prev.services, id];
-      return { ...prev, services: updatedServices };
+      return { ...prev, services: updated };
     });
   };
 
-  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-if (!formData.name.trim() || !formData.phone.trim() || formData.services.length === 0) {
-  alert("Please fill all required fields.");
-  return;
-}
+    if (!formData.name.trim() || !formData.phone.trim() || formData.services.length === 0) {
+      alert("Please fill all required fields.");
+      return;
+    }
 
     const payload = {
       name: formData.name.trim(),
       phone: formData.phone.trim(),
-      service_id: [formData.service], // ✅ send as array
-      date: formData.date,
       salon_id: salonId,
       services: formData.services.map((id) => ({ service_id: id })),
       date: formData.date,
@@ -86,17 +80,10 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       if (res.data.success) {
         alert(`Appointment booked successfully for ${formData.name}!`);
+        setFormData({ name: "", phone: "", services: [], date: today, note: "" });
       } else {
-        alert(res.data.message || "Something went wrong. Please try again.");
+        alert(res.data.message || "Something went wrong.");
       }
-
-      setFormData({
-        name: "",
-        phone: "",
-        services: [],
-        date: today,
-        note: "",
-      });
     } catch (err) {
       console.error("Failed to create appointment:", err);
       alert("Something went wrong. Please try again later.");
@@ -106,9 +93,12 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
   return (
     <section
       id="book"
-      className="relative py-24 px-6 md:px-20 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
+      className="relative py-20 px-6 md:px-16 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
     >
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-15"></div>
+      {/* Subtle pattern & blurs */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-10 pointer-events-none"></div>
+      <div className="absolute top-0 left-0 w-[250px] h-[250px] bg-[#FCD8CD]/40 blur-[120px] rounded-full"></div>
+      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-[#687FE5]/40 blur-[120px] rounded-full"></div>
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -120,44 +110,53 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
           Book Your Appointment
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-          Select your service and preferred date. We’ll make sure you get the best care possible.
+          Select your services, choose your date, and we’ll handle the rest 💆‍♀️
         </p>
       </motion.div>
 
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex justify-center">
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 max-w-3xl w-full bg-white/90 backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-[#EBD6FB]"
+          className="relative z-10 max-w-3xl w-full bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl border border-[#EBD6FB]"
         >
           <div className="grid md:grid-cols-2 gap-6">
-            <input
-              name="name"
-              type="text"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            />
+            {/* Name */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-medium mb-1 ml-1">Full Name</label>
+              <input
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400"
+                placeholder="Enter your name"
+              />
+            </div>
 
-            <input
-              name="phone"
-              type="tel"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-              className="border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            />
+            {/* Phone */}
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-medium mb-1 ml-1">Phone Number</label>
+              <input
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400"
+                placeholder="+91 9999911111"
+              />
+            </div>
 
-            {/* Service Dropdown */}
-            <div className="relative md:col-span-2" ref={dropdownRef}>
+            {/* Services Dropdown */}
+            <div className="relative md:col-span-2 flex flex-col" ref={dropdownRef}>
+              <label className="text-gray-700 font-medium mb-1 ml-1">Select Services</label>
               <div
                 onClick={() => setOpenDropdown((prev) => !prev)}
-                className="flex justify-between items-center border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] cursor-pointer select-none focus:ring-2 focus:ring-[#687FE5]"
+                className="flex justify-between items-center border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] cursor-pointer focus:ring-2 focus:ring-[#687FE5] transition-all"
               >
                 <span className="text-gray-700">
                   {formData.services.length > 0
@@ -166,14 +165,12 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
                 </span>
                 <ChevronDown
                   size={18}
-                  className={`transition-transform ${
-                    openDropdown ? "rotate-180" : "rotate-0"
-                  }`}
+                  className={`transition-transform ${openDropdown ? "rotate-180" : "rotate-0"}`}
                 />
               </div>
 
               {openDropdown && (
-                <div className="absolute mt-2 w-full bg-white border border-[#EBD6FB] rounded-xl shadow-lg z-50 max-h-56 overflow-y-auto">
+                <div className="absolute mt-2 w-full bg-white border border-[#EBD6FB] rounded-xl shadow-xl z-50 max-h-56 overflow-y-auto">
                   {services.map((s) => (
                     <label
                       key={s._id}
@@ -192,26 +189,35 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
               )}
             </div>
 
-            <input
-              name="date"
-              type="date"
-              value={formData.date}
-              onChange={handleChange}
-              required
-              min={today}
-              className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            />
+            {/* Date */}
+            <div className="md:col-span-2 flex flex-col">
+              <label className="text-gray-700 font-medium mb-1 ml-1">Preferred Date</label>
+              <input
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleChange}
+                required
+                min={today}
+                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
+              />
+            </div>
 
-            <textarea
-              name="note"
-              value={formData.note}
-              onChange={handleChange}
-              placeholder="Any special requests?"
-              rows={3}
-              className="md:col-span-2 border border-[#FEEBF6] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all"
-            />
+            {/* Notes */}
+            <div className="md:col-span-2 flex flex-col">
+              <label className="text-gray-700 font-medium mb-1 ml-1">Special Requests</label>
+              <textarea
+                name="note"
+                value={formData.note}
+                onChange={handleChange}
+                placeholder="Any additional details or preferences..."
+                rows={3}
+                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400"
+              />
+            </div>
           </div>
 
+          {/* Buttons */}
           <div className="text-center mt-10 flex flex-col sm:flex-row justify-center gap-5">
             <motion.button
               type="submit"
@@ -233,9 +239,6 @@ if (!formData.name.trim() || !formData.phone.trim() || formData.services.length 
           </div>
         </motion.form>
       </div>
-
-      <div className="absolute top-20 left-10 w-72 h-72 bg-[#FCD8CD] rounded-full blur-3xl opacity-40 animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-72 h-72 bg-[#687FE5] rounded-full blur-3xl opacity-40 animate-pulse"></div>
     </section>
   );
 };
