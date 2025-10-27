@@ -10,7 +10,7 @@ import BookingsPage from "./pages/Bookings/BookingsPage";
 import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CustomerPage from "./pages/customerpage.jsx";
-import CustomerPageNew from "./pages/CustomerPageNew.jsx";
+import CustomerPageNew from "./pages/CustomerPage.jsx";
 import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
 
 // Auth
