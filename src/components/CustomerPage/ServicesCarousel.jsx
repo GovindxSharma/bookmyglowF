@@ -1,29 +1,11 @@
 import React from "react";
-import Slider from "react-slick";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
-// Custom Arrows
-const NextArrow = ({ onClick }) => (
-  <div
-    onClick={onClick}
-    className="absolute right-[-35px] top-1/2 -translate-y-1/2 bg-[#687FE5] hover:bg-[#5a6fd8] text-white p-3 rounded-full cursor-pointer shadow-lg z-20 transition-all duration-300 hidden md:flex"
-  >
-    <ChevronRight size={22} />
-  </div>
-);
-
-const PrevArrow = ({ onClick }) => (
-  <div
-    onClick={onClick}
-    className="absolute left-[-35px] top-1/2 -translate-y-1/2 bg-[#687FE5] hover:bg-[#5a6fd8] text-white p-3 rounded-full cursor-pointer shadow-lg z-20 transition-all duration-300 hidden md:flex"
-  >
-    <ChevronLeft size={22} />
-  </div>
-);
-
-// Services Data
 const services = [
   {
     id: 1,
@@ -70,57 +52,63 @@ const services = [
 ];
 
 const ServicesCarousel = () => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 700,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2800,
-    pauseOnHover: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    adaptiveHeight: true,
-    responsive: [
-      { breakpoint: 1280, settings: { slidesToShow: 2 } },
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 768, settings: { slidesToShow: 1, arrows: false, dots: true } },
-    ],
-  };
-
   return (
     <section
       id="services"
-      className="py-20 px-4 sm:px-6 md:px-12 bg-gradient-to-br from-[#FDFBFF] via-[#FEEBF6] to-[#EBD6FB]"
+      className="py-16 px-4 sm:px-6 md:px-12 bg-gradient-to-br from-[#FDFBFF] via-[#FEEBF6] to-[#EBD6FB] overflow-hidden"
     >
       <h2 className="text-3xl md:text-5xl font-extrabold text-center mb-12 text-gray-900">
         Our <span className="text-[#687FE5]">Signature Services</span>
       </h2>
 
       <div className="max-w-6xl mx-auto relative">
-        <Slider {...settings}>
+        {/* Professional Navigation Arrows */}
+        <div className="hidden md:flex justify-between items-center absolute inset-y-1/2 -translate-y-1/2 w-full px-4 z-20">
+          <div className="swiper-button-prev group w-12 h-12 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-md text-[#687FE5] shadow-md cursor-pointer hover:bg-[#687FE5] hover:text-white transition-all duration-300">
+            <ChevronLeft size={26} className="transition-transform group-hover:-translate-x-0.5" />
+          </div>
+          <div className="swiper-button-next group w-12 h-12 flex items-center justify-center rounded-full bg-white/30 backdrop-blur-md text-[#687FE5] shadow-md cursor-pointer hover:bg-[#687FE5] hover:text-white transition-all duration-300">
+            <ChevronRight size={26} className="transition-transform group-hover:translate-x-0.5" />
+          </div>
+        </div>
+
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={20}
+          slidesPerView={3}
+          navigation={{
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          }}
+          pagination={{ clickable: true }}
+          autoplay={{
+            delay: 2800,
+            disableOnInteraction: false,
+          }}
+          loop={true}
+          breakpoints={{
+            0: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1280: { slidesPerView: 3 },
+          }}
+          className="!pb-12"
+        >
           {services.map((service) => (
-            <div key={service.id} className="px-3">
-              <div className="relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 group min-h-[430px]">
-                {/* Image Layer */}
+            <SwiperSlide key={service.id}>
+              <div className="relative rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-700 group h-[430px]">
                 <div
                   className="absolute inset-0 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"
                   style={{ backgroundImage: `url(${service.image})` }}
                 ></div>
 
-                {/* Subtle Top Gradient (no blur) */}
-                <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/50 via-black/20 to-transparent transition-all duration-500 group-hover:from-black/60 group-hover:via-black/25"></div>
-
-                {/* Bottom Gradient for Text Contrast */}
+                <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-black/50 via-black/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
 
-                {/* Text Content */}
-                <div className="absolute bottom-0 z-10 w-full p-8 text-center text-white">
-                  <h3 className="text-2xl md:text-3xl font-semibold mb-3 tracking-wide drop-shadow-[0_3px_6px_rgba(0,0,0,0.7)]">
+                <div className="absolute bottom-0 z-10 w-full p-6 sm:p-8 text-center text-white">
+                  <h3 className="text-2xl sm:text-3xl font-semibold mb-3 drop-shadow-[0_3px_6px_rgba(0,0,0,0.7)]">
                     {service.name}
                   </h3>
-                  <p className="text-sm md:text-base mb-5 leading-relaxed text-gray-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                  <p className="text-sm sm:text-base mb-5 leading-relaxed text-gray-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
                     {service.description}
                   </p>
                   <a
@@ -131,9 +119,9 @@ const ServicesCarousel = () => {
                   </a>
                 </div>
               </div>
-            </div>
+            </SwiperSlide>
           ))}
-        </Slider>
+        </Swiper>
       </div>
     </section>
   );
