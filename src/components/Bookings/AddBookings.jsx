@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import axios from "axios";
 import Toast from "../Toast";
-import { BASE_URL } from "../../data/data"; // ✅ import common base URL
+import { BASE_URL } from "../../data/data";
 
 const AddBooking = () => {
   const [services, setServices] = useState([]);
@@ -26,13 +26,12 @@ const AddBooking = () => {
     email: "",
     phone: "",
     gender: "",
+    dob: "",
     address: "",
     note: "",
     source: "walk-in",
     date: today,
     payment_mode: "",
-    salon_id: "6708dc20b54f5c6a4d0cf9a2",
-    // confirmation_status: true
   });
 
   // Fetch services
@@ -40,17 +39,17 @@ const AddBooking = () => {
     axios
       .get(`${BASE_URL}/services`)
       .then((res) => {
-        const formattedServices = res.data.map((service) => ({
-          label: service.name,
-          value: service._id,
-          sub_services: service.sub_services.map((sub) => ({
+        const formatted = res.data.map((s) => ({
+          label: s.name,
+          value: s._id,
+          sub_services: s.sub_services.map((sub) => ({
             label: `${sub.name} - ₹${sub.price}`,
             value: sub._id,
             price: sub.price,
             duration: sub.duration || "",
           })),
         }));
-        setServices(formattedServices);
+        setServices(formatted);
       })
       .catch(() =>
         setToast({ message: "Failed to load services", type: "error" })
@@ -60,24 +59,73 @@ const AddBooking = () => {
   // Fetch employees
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/auth/employees`)
+      .get(`${BASE_URL}/employee`)
       .then((res) => {
-        const formattedEmployees = res.data.employees.map((emp) => ({
+        const formatted = res.data.employees.map((emp) => ({
           label: emp.name,
           value: emp._id,
         }));
-        setEmployees(formattedEmployees);
+        setEmployees(formatted);
       })
       .catch(() =>
         setToast({ message: "Failed to load employees", type: "error" })
       );
   }, []);
 
-  // Handlers
+  // Handle input changes
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // When phone reaches 10 digits → search customer
+    if (name === "phone" && value.length === 10) {
+      searchCustomerByPhone(value);
+    }
   };
 
+  // Search customer by phone
+  // 🔍 Search customer by phone
+  const searchCustomerByPhone = async (phone) => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/appointments/customer/search?phone=${phone}`
+      );
+
+      // 🟢 Check if backend returned a customer
+      if (res.data.success && res.data.customer) {
+        const c = res.data.customer;
+
+        setFormData((prev) => ({
+          ...prev,
+          name: c.name || "",
+          email: c.email || "",
+          gender: c.gender || "",
+          dob: c.dob ? c.dob.split("T")[0] : "",
+          address: c.address || "",
+          note: c.note || "",
+        }));
+
+        setToast({
+          message: "Customer found ✅",
+          type: "info",
+        });
+      } else {
+        setToast({
+          message: "New customer — please fill details.",
+          type: "info",
+        });
+      }
+    } catch (err) {
+      console.error("Error searching customer:", err);
+      setToast({
+        message: "Error searching customer.",
+        type: "error",
+      });
+    }
+  };
+
+  // Handle service change
   const handleServiceChange = (index, selectedService) => {
     const updated = [...serviceList];
     updated[index].service = selectedService;
@@ -90,6 +138,7 @@ const AddBooking = () => {
     setServiceList(updated);
   };
 
+  // Handle sub-service change
   const handleSubServiceChange = (index, selectedSubService) => {
     const updated = [...serviceList];
     updated[index].subService = selectedSubService;
@@ -98,7 +147,8 @@ const AddBooking = () => {
     setServiceList(updated);
   };
 
-  const addServiceBlock = () => {
+  // Add / Remove services
+  const addServiceBlock = () =>
     setServiceList([
       ...serviceList,
       {
@@ -109,7 +159,6 @@ const AddBooking = () => {
         duration: "",
       },
     ]);
-  };
 
   const removeServiceBlock = (index) => {
     const updated = [...serviceList];
@@ -122,6 +171,7 @@ const AddBooking = () => {
     0
   );
 
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -153,7 +203,7 @@ const AddBooking = () => {
       employee_id: selectedEmployee.value,
       services: servicesPayload,
       amount: totalAmount,
-      // confirmation_status: true,
+      // confirmation_status not sent — default true in schema
     };
 
     try {
@@ -171,18 +221,19 @@ const AddBooking = () => {
     }
   };
 
+  // Reset form
   const resetForm = () => {
     setFormData({
       name: "",
       email: "",
       phone: "",
       gender: "",
+      dob: "",
       address: "",
       note: "",
-      source: "online",
+      source: "walk-in",
       date: today,
       payment_mode: "",
-      salon_id: "6708dc20b54f5c6a4d0cf9a2",
     });
     setSelectedEmployee(null);
     setServiceList([
@@ -209,6 +260,15 @@ const AddBooking = () => {
         {/* Customer Info */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Phone *"
+            className={requiredClass}
+            required
+          />
+          <input
             type="text"
             name="name"
             value={formData.name}
@@ -226,13 +286,12 @@ const AddBooking = () => {
             className={optionalClass}
           />
           <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
+            type="date"
+            name="dob"
+            value={formData.dob}
             onChange={handleChange}
-            placeholder="Phone *"
-            className={requiredClass}
-            required
+            placeholder="Date of Birth (optional)"
+            className={optionalClass}
           />
           <select
             name="gender"
@@ -263,7 +322,7 @@ const AddBooking = () => {
           className={optionalClass}
         />
 
-        {/* Multiple Services */}
+        {/* Services */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-700">
             Select Services *

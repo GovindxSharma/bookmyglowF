@@ -4,7 +4,7 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { BASE_URL } from "../../data/data";
 
 const EmployeeManagement = () => {
-  const token = localStorage.getItem("token"); // get token
+  const token = localStorage.getItem("token");
 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,23 +12,24 @@ const EmployeeManagement = () => {
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
-    role: "employee",
+    countryCode: "+91",
+    phone: "",
+    gender: "",
     address: "",
     status: true,
-    password: "123456",
   });
 
-  // Axios config with token
+  const [errors, setErrors] = useState({});
+
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  // Fetch Employees
+  // Fetch employees
   const fetchEmployees = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${BASE_URL}/auth/employees`, config);
+      const res = await axios.get(`${BASE_URL}/employee`, config);
       setEmployees(res.data.employees || []);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -41,7 +42,7 @@ const EmployeeManagement = () => {
     fetchEmployees();
   }, []);
 
-  // Handle form input
+  // Input change handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -50,26 +51,47 @@ const EmployeeManagement = () => {
     });
   };
 
-  // Add / Update Employee
+  // Validation function
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Name validation — only alphabets and spaces
+    if (!/^[A-Za-z\s]+$/.test(formData.name.trim())) {
+      newErrors.name = "Name should contain only letters and spaces.";
+    }
+
+    // Phone validation — must be 10 digits
+    if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = "Phone number must be exactly 10 digits.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Save (Add / Update)
   const handleSave = async () => {
+    if (!validateForm()) return;
+
     try {
+      const payload = {
+        name: formData.name.trim(),
+        phone: `${formData.countryCode}${formData.phone}`,
+        gender: formData.gender,
+        address: formData.address,
+        status: formData.status,
+      };
+
       if (editingEmployee) {
-        const payload = {
-          name: formData.name,
-          email: formData.email,
-          address: formData.address,
-          status: formData.status,
-        };
-        await axios.put(`${BASE_URL}/auth/${editingEmployee._id}`, payload, config);
+        await axios.put(
+          `${BASE_URL}/employee/${editingEmployee._id}`,
+          payload,
+          config
+        );
       } else {
-        const payload = {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: "employee",
-        };
-        await axios.post(`${BASE_URL}/auth/register`, payload, config);
+        await axios.post(`${BASE_URL}/employee`, payload, config);
       }
+
       fetchEmployees();
       closeModal();
     } catch (err) {
@@ -78,12 +100,12 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Delete Employee
+  // Delete
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
       try {
-        await axios.delete(`${BASE_URL}/auth/${id}`, config);
-        setEmployees(employees.filter((emp) => emp._id !== id));
+        await axios.delete(`${BASE_URL}/employee/${id}`, config);
+        setEmployees((prev) => prev.filter((emp) => emp._id !== id));
       } catch (err) {
         console.error("Delete failed:", err);
         alert("Failed to delete employee.");
@@ -91,11 +113,11 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Toggle Active/Inactive
+  // Toggle Status
   const toggleStatus = async (emp) => {
     try {
       await axios.put(
-        `${BASE_URL}/auth/${emp._id}`,
+        `${BASE_URL}/employee/${emp._id}`,
         { ...emp, status: !emp.status },
         config
       );
@@ -106,19 +128,29 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Modal controls
+  // Modal handlers
   const openModal = (emp = null) => {
     setEditingEmployee(emp);
     setFormData(
-      emp || {
-        name: "",
-        email: "",
-        role: "employee",
-        address: "",
-        status: true,
-        password: "123456",
-      }
+      emp
+        ? {
+            name: emp.name,
+            countryCode: emp.phone?.startsWith("+91") ? "+91" : "+1",
+            phone: emp.phone?.replace("+91", "").replace("+1", ""),
+            gender: emp.gender,
+            address: emp.address,
+            status: emp.status,
+          }
+        : {
+            name: "",
+            countryCode: "+91",
+            phone: "",
+            gender: "",
+            address: "",
+            status: true,
+          }
     );
+    setErrors({});
     setShowModal(true);
   };
 
@@ -142,7 +174,7 @@ const EmployeeManagement = () => {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Employee Table */}
       <div className="overflow-x-auto bg-white/90 backdrop-blur-md shadow-md rounded-3xl border border-[#f5d3eb]">
         {loading ? (
           <div className="text-center py-10 text-gray-600 text-lg">
@@ -153,8 +185,8 @@ const EmployeeManagement = () => {
             <thead className="bg-[#FEEBF6] text-[#687FE5] uppercase tracking-wider">
               <tr>
                 <th className="px-6 py-4 text-left">Name</th>
-                <th className="px-6 py-4 text-left">Email</th>
-                <th className="px-6 py-4 text-left">Role</th>
+                <th className="px-6 py-4 text-left">Phone</th>
+                <th className="px-6 py-4 text-left">Gender</th>
                 <th className="px-6 py-4 text-left">Address</th>
                 <th className="px-6 py-4 text-center">Status</th>
                 <th className="px-6 py-4 text-center">Actions</th>
@@ -181,9 +213,9 @@ const EmployeeManagement = () => {
                     <td className="px-6 py-4 font-semibold text-gray-800">
                       {emp.name}
                     </td>
-                    <td className="px-6 py-4 text-gray-700">{emp.email}</td>
-                    <td className="px-6 py-4 capitalize text-gray-700">
-                      {emp.role}
+                    <td className="px-6 py-4 text-gray-700">{emp.phone}</td>
+                    <td className="px-6 py-4 text-gray-700 capitalize">
+                      {emp.gender || "—"}
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {emp.address || "—"}
@@ -231,29 +263,60 @@ const EmployeeManagement = () => {
             </h3>
 
             <div className="space-y-4">
-              <input
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
-              />
-              <input
-                name="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
-              />
-              {!editingEmployee && (
+              {/* Name */}
+              <div>
                 <input
-                  name="password"
-                  placeholder="Password"
-                  value={formData.password}
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
                   onChange={handleChange}
                   className="w-full border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
                 />
-              )}
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
+              </div>
+
+              {/* Phone */}
+              <div>
+                <div className="flex gap-2">
+                  <select
+                    name="countryCode"
+                    value={formData.countryCode}
+                    onChange={handleChange}
+                    className="border border-[#EBD6FB] rounded-xl p-3 bg-white text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none w-24"
+                  >
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                  </select>
+                  <input
+                    name="phone"
+                    placeholder="10-digit Phone Number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="flex-1 border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
+
+              {/* Gender */}
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="w-full border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
+              >
+                <option value="">Select Gender</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="other">Other</option>
+              </select>
+
+              {/* Address */}
               <input
                 name="address"
                 placeholder="Address"
@@ -261,6 +324,8 @@ const EmployeeManagement = () => {
                 onChange={handleChange}
                 className="w-full border border-[#EBD6FB] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#FBB6D6] outline-none"
               />
+
+              {/* Status */}
               <div className="flex items-center gap-2 pt-2">
                 <input
                   type="checkbox"
@@ -275,6 +340,7 @@ const EmployeeManagement = () => {
               </div>
             </div>
 
+            {/* Buttons */}
             <div className="flex justify-end gap-4 mt-8">
               <button
                 onClick={closeModal}
