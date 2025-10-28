@@ -127,7 +127,7 @@ const Navbar = () => {
           transition={{ duration: 0.5 }}
           className="text-2xl font-semibold tracking-wide text-[#7D83E0]"
         >
-          Bunty <span className="text-gray-800">Salon</span>
+        Bunty's Unisex <span className="text-gray-800">Saloon</span>
         </motion.a>
 
         {/* 💻 Desktop Menu */}
