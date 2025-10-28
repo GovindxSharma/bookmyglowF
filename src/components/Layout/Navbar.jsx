@@ -1,15 +1,41 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Users, CalendarDays, LogOut } from "lucide-react";
+import DashboardIcon from "@/assets/icons/dashboard.png";
+import AttendanceIcon from "@/assets/icons/attendance.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const isLoginPage = location.pathname === "/login";
+  // ✅ Load token + role on route change
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
+    if (token) {
+      setIsLoggedIn(true);
+      setRole(storedRole);
+    } else {
+      setIsLoggedIn(false);
+      setRole(null);
+    }
+  }, [location]);
 
-  const navLinks = [
+  // ✅ Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setIsLoggedIn(false);
+    setRole(null);
+    navigate("/login");
+  };
+
+  // 🌐 Public navbar links
+  const publicLinks = [
     { name: "Home", href: "/" },
     { name: "Services", href: "/#services" },
     { name: "About Us", href: "/#about" },
@@ -17,31 +43,83 @@ const Navbar = () => {
     { name: "Staff Login", href: "/login" },
   ];
 
-  // Smooth scroll if on same page
-  const handleLinkClick = (href) => {
+  // 👥 Role-based menus
+  const allMenus = {
+    admin: [
+      {
+        icon: (
+          <img
+            src={DashboardIcon}
+            alt="Dashboard"
+            className="w-[22px] h-[22px]"
+          />
+        ),
+        path: "/dashboard",
+        label: "Dashboard",
+      },
+      { icon: <Users size={22} />, path: "/employees", label: "Employees" },
+      {
+        icon: <LogOut size={22} className="text-red-500" />,
+        path: "#logout",
+        label: "Logout",
+        onClick: handleLogout,
+      },
+    ],
+    receptionist: [
+      { icon: <CalendarDays size={22} />, path: "/bookings", label: "Bookings" },
+      {
+        icon: (
+          <img
+            src={AttendanceIcon}
+            alt="Attendance"
+            className="w-[22px] h-[22px]"
+          />
+        ),
+        path: "/attendance",
+        label: "Attendance",
+      },
+      {
+        icon: <Users size={22} />,
+        path: "/employees",
+        label: "Employees",
+      },
+      {
+        icon: <LogOut size={22} className="text-red-500" />,
+        path: "#logout",
+        label: "Logout",
+        onClick: handleLogout,
+      },
+    ],
+  };
+
+  // ✅ Handle link navigation without reload
+  const handleLinkClick = (href, onClick) => {
     setIsOpen(false);
+    if (onClick) return onClick();
+    if (href === "#logout") return handleLogout();
+
     const [path, hash] = href.split("#");
 
     if (hash) {
+      // Smooth scroll within same page
       if (location.pathname === path || path === "/") {
         const el = document.getElementById(hash);
-        if (el) {
-          el.scrollIntoView({ behavior: "smooth" });
-        } else {
-          window.location.href = href; // fallback
-        }
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+        else navigate(href);
       } else {
-        window.location.href = href;
+        navigate(href);
       }
     } else {
-      window.location.href = href;
+      navigate(href);
     }
   };
+
+  // ✅ Determine which links to render
+  const linksToRender = isLoggedIn ? allMenus[role] || [] : publicLinks;
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-[#636CCB]/10 backdrop-blur-lg border-b border-[#636CCB]/20">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-10 py-4">
-        {/* Logo */}
         <motion.a
           href="/"
           initial={{ opacity: 0, x: -20 }}
@@ -52,21 +130,22 @@ const Navbar = () => {
           Bunty <span className="text-gray-800">Salon</span>
         </motion.a>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link, index) => (
+        {/* 💻 Desktop Menu */}
+        <div className="hidden md:flex items-center gap-6">
+          {linksToRender.map((link, idx) => (
             <motion.button
-              key={index}
-              onClick={() => handleLinkClick(link.href)}
+              key={idx}
+              onClick={() => handleLinkClick(link.path || link.href, link.onClick)}
               whileHover={{ scale: 1.05 }}
-              className={`text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-[#A3A8F0]/20 hover:text-[#7D83E0] transition-all duration-300`}
+              className="flex items-center gap-2 text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-[#A3A8F0]/20 hover:text-[#7D83E0] transition-all duration-300"
             >
-              {link.name}
+              {link.icon && <span>{link.icon}</span>}
+              {link.label || link.name}
             </motion.button>
           ))}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* 📱 Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="md:hidden text-[#7D83E0] focus:outline-none"
@@ -75,7 +154,7 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Dropdown */}
+      {/* 📱 Mobile Menu */}
       {isOpen && (
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -83,13 +162,14 @@ const Navbar = () => {
           transition={{ duration: 0.3 }}
           className="md:hidden bg-white/95 backdrop-blur-xl shadow-lg rounded-b-2xl mx-4 p-4 flex flex-col gap-3 border-t border-gray-200"
         >
-          {navLinks.map((link, index) => (
+          {linksToRender.map((link, idx) => (
             <button
-              key={index}
-              onClick={() => handleLinkClick(link.href)}
-              className="text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-[#A3A8F0]/20 hover:text-[#7D83E0] transition-all duration-300 text-left"
+              key={idx}
+              onClick={() => handleLinkClick(link.path || link.href, link.onClick)}
+              className="flex items-center gap-2 text-gray-700 font-medium px-4 py-2 rounded-full hover:bg-[#A3A8F0]/20 hover:text-[#7D83E0] transition-all duration-300 text-left"
             >
-              {link.name}
+              {link.icon && <span>{link.icon}</span>}
+              {link.label || link.name}
             </button>
           ))}
         </motion.div>

@@ -1,9 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-// Layouts
-import DashboardLayout from "@/components/Layout/DashboardLayout";
-
 // Pages
 import Login from "./components/Auth/login.jsx";
 import BookingsPage from "./pages/Bookings/BookingsPage";
@@ -20,7 +17,8 @@ import Footer from "./components/Layout/Footer.jsx";
 const App = () => {
   return (
     <Router>
-    <Navbar/>
+      <Navbar />
+      <div className="pt-[64px] md:pt-[64px]"></div>
       <Routes>
         {/* 🏠 Public Routes */}
         <Route path="/" element={<CustomerPage />} />
@@ -31,9 +29,7 @@ const App = () => {
           path="/dashboard"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
-              <DashboardLayout>
-                <AdminDashboard />
-              </DashboardLayout>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
@@ -43,9 +39,7 @@ const App = () => {
           path="/bookings"
           element={
             <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
-              <DashboardLayout>
-                <BookingsPage />
-              </DashboardLayout>
+              <BookingsPage />
             </ProtectedRoute>
           }
         />
@@ -55,22 +49,22 @@ const App = () => {
           path="/attendance"
           element={
             <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
-              <DashboardLayout>
-                <AttendancePage />
-              </DashboardLayout>
+              <AttendancePage />
             </ProtectedRoute>
           }
         />
+
+        {/* 🧑‍💼 Employee Management — assume protected for admin */}
         <Route
           path="/employees"
           element={
-            <DashboardLayout>
+            <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
               <EmployeeManagement />
-            </DashboardLayout>
+            </ProtectedRoute>
           }
         />
       </Routes>
-      <Footer/>
+      <Footer />
     </Router>
   );
 };
