@@ -52,10 +52,10 @@ const handleSubmit = async (e) => {
       >
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#687FE5] font-[Poppins]">
-            Salon Admin Login
+            Staff Login
           </h1>
           <p className="text-gray-600 mt-2 text-sm font-[Poppins]">
-            Access your internal salon management dashboard
+            Access your internal saloon management dashboard
           </p>
         </div>
 
@@ -67,7 +67,7 @@ const handleSubmit = async (e) => {
             <input
               type="email"
               name="email"
-              placeholder="you@salon.com"
+              placeholder="you@saloon.com"
               value={formData.email}
               onChange={handleChange}
               required
@@ -112,7 +112,7 @@ const handleSubmit = async (e) => {
         </form>
 
         <div className="text-center mt-6 text-sm text-gray-600 font-[Poppins]">
-          © {new Date().getFullYear()} GlowUp Salon — Internal Access Only
+          © {new Date().getFullYear()} Buntys Unisex Saloon  — Internal Access Only
         </div>
       </motion.div>
     </div>
