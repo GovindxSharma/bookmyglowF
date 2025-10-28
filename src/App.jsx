@@ -5,23 +5,25 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 
 // Pages
-import Login from "./components/login";
+import Login from "./components/Auth/login.jsx";
 import BookingsPage from "./pages/Bookings/BookingsPage";
 import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
-import CustomerPage from "./pages/customerpage.jsx";
-import CustomerPageNew from "./pages/CustomerPage.jsx";
+import CustomerPage from "./pages/Home/CustomerPage.jsx";
 import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
 
 // Auth
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
+import Navbar from "./components/Layout/Navbar.jsx";
+import Footer from "./components/Layout/Footer.jsx";
 
 const App = () => {
   return (
     <Router>
+    <Navbar/>
       <Routes>
         {/* 🏠 Public Routes */}
-        <Route path="/" element={<CustomerPageNew />} />
+        <Route path="/" element={<CustomerPage />} />
         <Route path="/login" element={<Login />} />
 
         {/* 🧭 Admin Dashboard — only for admin */}
@@ -68,6 +70,7 @@ const App = () => {
           }
         />
       </Routes>
+      <Footer/>
     </Router>
   );
 };

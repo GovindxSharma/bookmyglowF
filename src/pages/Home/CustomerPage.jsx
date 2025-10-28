@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import HeroSection from "../components/CustomerPage/HeroSection.jsx";
-import ServicesCarousel from "../components/CustomerPage/ServicesCarousel.jsx";
-import AppointmentForm from "../components/CustomerPage/AppointmentForm.jsx";
+import HeroSection from "../../components/Landing/HeroSection.jsx";
+import ServicesSection from "../../components/Landing/ServicesSection.jsx";
+import AppointmentForm  from "../../components/Landing/AppointmentForm.jsx";
 import axios from "axios";
-import { BASE_URL } from "../data/data.js";
+import { BASE_URL } from "../../data/data.js";
+import AboutUs from "../../components/Landing/About.jsx";
+import Reviews from "../../components/Landing/Reviews.jsx";
+
 
 const CustomerPage = () => {
   const [services, setServices] = useState([]);
@@ -23,8 +26,10 @@ const CustomerPage = () => {
   return (
     <div className="font-poppins text-gray-800 overflow-hidden">
       <HeroSection />
-      <ServicesCarousel services={services} />
+      <ServicesSection services={services} />
       <AppointmentForm />
+      <AboutUs />
+      <Reviews/>
     </div>
   );
 };
