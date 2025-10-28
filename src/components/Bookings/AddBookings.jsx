@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
+import Loader from "../Layout/Loader"; // Make sure you have a Loader component
 import { BASE_URL } from "../../data/data";
 
 const AddBooking = () => {
@@ -12,7 +13,8 @@ const AddBooking = () => {
   ]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [toast, setToast] = useState(null);
-  const [loading, setLoading] = useState(false); // ✅ new loading state
+  const [loading, setLoading] = useState(false);
+  const [fetchingData, setFetchingData] = useState(true); // loader for initial fetch
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
@@ -28,12 +30,15 @@ const AddBooking = () => {
     payment_mode: "",
   });
 
-  // Fetch services
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/services`)
-      .then((res) => {
-        const formatted = res.data.map((s) => ({
+    const fetchInitialData = async () => {
+      try {
+        const [servicesRes, employeesRes] = await Promise.all([
+          axios.get(`${BASE_URL}/services`),
+          axios.get(`${BASE_URL}/employee`),
+        ]);
+
+        const formattedServices = servicesRes.data.map((s) => ({
           label: s.name,
           value: s._id,
           sub_services: s.sub_services.map((sub) => ({
@@ -43,37 +48,29 @@ const AddBooking = () => {
             duration: sub.duration || "",
           })),
         }));
-        setServices(formatted);
-      })
-      .catch(() =>
-        setToast({ message: "Failed to load services", type: "error" })
-      );
-  }, []);
+        setServices(formattedServices);
 
-  // Fetch employees
-  useEffect(() => {
-    axios
-      .get(`${BASE_URL}/employee`)
-      .then((res) => {
-        const formatted = res.data.employees.map((emp) => ({
+        const formattedEmployees = employeesRes.data.employees.map((emp) => ({
           label: emp.name,
           value: emp._id,
         }));
-        setEmployees(formatted);
-      })
-      .catch(() =>
-        setToast({ message: "Failed to load employees", type: "error" })
-      );
+        setEmployees(formattedEmployees);
+      } catch {
+        setToast({ message: "Failed to load initial data", type: "error" });
+      } finally {
+        setFetchingData(false);
+      }
+    };
+
+    fetchInitialData();
   }, []);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "phone" && value.length === 10) searchCustomerByPhone(value);
   };
 
-  // Search by phone
   const searchCustomerByPhone = async (phone) => {
     try {
       const res = await axios.get(
@@ -99,7 +96,6 @@ const AddBooking = () => {
     }
   };
 
-  // Service handlers
   const handleServiceChange = (i, val) => {
     const updated = [...serviceList];
     updated[i].service = val;
@@ -135,10 +131,9 @@ const AddBooking = () => {
     0
   );
 
-  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (loading) return; // ✅ prevent multiple clicks
+    if (loading) return;
 
     if (!formData.name || !formData.phone || !selectedEmployee)
       return setToast({
@@ -169,7 +164,7 @@ const AddBooking = () => {
     };
 
     try {
-      setLoading(true); // ✅ disable button
+      setLoading(true);
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       setToast({
         message: res.data.message || "Booking created!",
@@ -182,7 +177,7 @@ const AddBooking = () => {
         type: "error",
       });
     } finally {
-      setLoading(false); // ✅ re-enable button
+      setLoading(false);
     }
   };
 
@@ -206,20 +201,29 @@ const AddBooking = () => {
   };
 
   const inputBase =
-    "p-3 rounded-xl border focus:ring-2 w-full transition text-gray-800 placeholder-gray-500";
+    "p-3 rounded-xl border focus:ring-2 w-full transition text-gray-800 placeholder-gray-500 text-sm sm:text-base";
   const requiredClass = `${inputBase} border-[#4A6CF7] focus:ring-[#4A6CF7]/50 bg-[#EEF2FF]`;
   const optionalClass = `${inputBase} border-gray-200 focus:ring-gray-300 bg-gray-50`;
 
+  // Show loader while fetching initial data
+  if (fetchingData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader size={100} />
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-br from-[#EEF3FF] to-white min-h-screen py-10 px-6">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-6xl mx-auto p-10 border border-gray-100">
-        <h2 className="text-3xl font-bold text-[#4A6CF7] mb-10 text-center tracking-tight">
+    <div className="bg-gradient-to-br from-[#EEF3FF] to-white min-h-screen py-6 px-4 sm:px-6">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-3xl mx-auto p-6 sm:p-10 border border-gray-100 w-full">
+        <h2 className="text-2xl sm:text-3xl font-bold text-[#4A6CF7] mb-6 sm:mb-8 text-center tracking-tight">
           Create New Booking
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
           {/* Customer Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <input
               type="tel"
               name="phone"
@@ -283,16 +287,16 @@ const AddBooking = () => {
           />
 
           {/* Services */}
-          <div className="space-y-5">
-            <h3 className="text-xl font-semibold text-gray-800 border-b pb-2 border-gray-200">
+          <div className="space-y-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 border-b pb-2 border-gray-200">
               Select Services *
             </h3>
             {serviceList.map((item, index) => (
               <div
                 key={index}
-                className="p-5 border border-gray-200 rounded-2xl bg-[#F8FAFF] relative shadow-sm"
+                className="p-4 sm:p-5 border border-gray-200 rounded-2xl bg-[#F8FAFF] relative shadow-sm"
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                   <Select
                     options={services}
                     value={item.service}
@@ -307,7 +311,7 @@ const AddBooking = () => {
                     isDisabled={!item.subServices.length}
                   />
                   {item.price && (
-                    <div className="flex items-center justify-between text-sm text-[#4A6CF7] font-medium bg-white rounded-xl px-3 py-2 border border-[#4A6CF7]/20 shadow-sm">
+                    <div className="flex items-center justify-between text-sm sm:text-base text-[#4A6CF7] font-medium bg-white rounded-xl px-3 py-2 border border-[#4A6CF7]/20 shadow-sm">
                       <span>₹{item.price}</span>
                       {item.duration && <span>{item.duration}</span>}
                     </div>
@@ -317,7 +321,7 @@ const AddBooking = () => {
                   <button
                     type="button"
                     onClick={() => removeServiceBlock(index)}
-                    className="absolute top-3 right-4 text-red-500 hover:text-red-600 font-bold text-lg"
+                    className="absolute top-2 right-3 sm:top-3 sm:right-4 text-red-500 hover:text-red-600 font-bold text-lg"
                   >
                     ✕
                   </button>
@@ -343,7 +347,7 @@ const AddBooking = () => {
           />
 
           {/* Date + Payment */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-2">
             <input
               type="date"
               name="date"

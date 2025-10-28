@@ -3,17 +3,22 @@ import axios from "@/api/axiosInstance";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../../data/data";
 import { CalendarDays, Phone, User2, Scissors } from "lucide-react";
+import Loader from "../Layout/Loader"; // Make sure you have a Loader component
 
 const OnlineBooking = () => {
   const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchBookings = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/appointments/?for_notification=true`);
       const data = res.data.appointments || [];
       setBookings(data);
     } catch (err) {
       console.error("Error fetching online appointments", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,6 +48,14 @@ const OnlineBooking = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader size={100} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 min-h-[400px]">

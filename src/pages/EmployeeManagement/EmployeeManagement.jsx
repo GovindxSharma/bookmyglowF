@@ -1,10 +1,9 @@
-// src/pages/Admin/EmployeeManagement.jsx
 import React, { useState, useEffect } from "react";
 import axios from "../../api/axiosInstance";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BASE_URL } from "../../data/data";
-import Loader from "../../components/Layout/Loader.jsx"; // Custom fullscreen loader
+import Loader from "../../components/Layout/Loader.jsx";
 
 const EmployeeManagement = () => {
   const token = localStorage.getItem("token");
@@ -12,7 +11,7 @@ const EmployeeManagement = () => {
 
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [operationLoading, setOperationLoading] = useState(false); // For save/update/delete
+  const [operationLoading, setOperationLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [errors, setErrors] = useState({});
@@ -42,7 +41,6 @@ const EmployeeManagement = () => {
     fetchEmployees();
   }, []);
 
-  // Input handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -51,7 +49,6 @@ const EmployeeManagement = () => {
     }));
   };
 
-  // Validation
   const validateForm = () => {
     const newErrors = {};
     if (!/^[A-Za-z\s]+$/.test(formData.name.trim()))
@@ -62,7 +59,6 @@ const EmployeeManagement = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Save employee
   const handleSave = async () => {
     if (!validateForm()) return;
     setOperationLoading(true);
@@ -89,7 +85,6 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Delete employee
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
     setOperationLoading(true);
@@ -104,7 +99,6 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Toggle active/inactive
   const toggleStatus = async (emp) => {
     setOperationLoading(true);
     try {
@@ -118,7 +112,6 @@ const EmployeeManagement = () => {
     }
   };
 
-  // Modal handlers
   const openModal = (emp = null) => {
     setEditingEmployee(emp);
     setFormData(
@@ -150,26 +143,23 @@ const EmployeeManagement = () => {
   };
 
   return (
-    <div className="p-6 md:p-8 min-h-screen bg-gradient-to-br from-[#EEF1FF] via-[#F5F6FF] to-white relative">
-      {/* Fullscreen loader */}
+    <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-[#EEF1FF] via-[#F5F6FF] to-white relative">
       {(loading || operationLoading) && <Loader fullscreen={true} size={150} />}
 
       {/* Add Button */}
-      <div className="flex justify-end mb-8">
+      <div className="flex justify-end mb-6">
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#636CCB] text-white font-medium hover:bg-[#535bc1] transition-all shadow-md"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#636CCB] text-white font-medium hover:bg-[#5057b6] transition-all shadow-md"
         >
           <Plus size={20} /> Add Employee
         </button>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto bg-white shadow-xl rounded-3xl border border-[#DDE1FF] relative">
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto bg-white shadow-xl rounded-3xl border border-[#DDE1FF]">
         {!loading && employees.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 text-lg italic">
-            No employees found 
-          </div>
+          <div className="text-center py-12 text-gray-500 text-lg italic">No employees found</div>
         ) : (
           <table className="min-w-full text-base font-medium border-collapse">
             <thead className="bg-[#636CCB]/10 text-[#3A3A3A] uppercase tracking-wider">
@@ -182,7 +172,6 @@ const EmployeeManagement = () => {
                 <th className="px-6 py-4 text-center w-[15%]">Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {employees.map((emp, i) => (
                 <tr
@@ -222,6 +211,49 @@ const EmployeeManagement = () => {
         )}
       </div>
 
+      {/* Mobile Cards */}
+      <div className="md:hidden flex flex-col gap-4">
+        {employees.length === 0 && !loading ? (
+          <div className="text-center py-6 text-gray-500 text-base italic">No employees found</div>
+        ) : (
+          employees.map((emp) => (
+            <motion.div
+              key={emp._id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl shadow-md p-4 border-l-4 border-[#636CCB] flex flex-col gap-2"
+            >
+              <div className="flex justify-between items-center">
+                <h4 className="font-semibold text-lg text-[#3A3A3A]">{emp.name}</h4>
+                <div className="flex gap-3">
+                  <button onClick={() => openModal(emp)} className="text-[#636CCB] hover:text-[#4f56b0]">
+                    <Pencil size={20} />
+                  </button>
+                  <button onClick={() => handleDelete(emp._id)} className="text-[#F87171] hover:text-[#dc2626]">
+                    <Trash2 size={20} />
+                  </button>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm">{emp.phone}</p>
+              <p className="text-gray-600 text-sm capitalize">{emp.gender || "—"}</p>
+              <p className="text-gray-600 text-sm">{emp.address || "—"}</p>
+              <button
+                onClick={() => toggleStatus(emp)}
+                className={`mt-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                  emp.status
+                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-red-100 text-red-700 hover:bg-red-200"
+                }`}
+              >
+                {emp.status ? "Active" : "Inactive"}
+              </button>
+            </motion.div>
+          ))
+        )}
+      </div>
+
       {/* Modal */}
       <AnimatePresence>
         {showModal && (
@@ -235,50 +267,43 @@ const EmployeeManagement = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white/95 rounded-3xl shadow-2xl border border-[#DDE1FF] w-full max-w-lg p-8"
+              className="bg-white/95 rounded-3xl shadow-2xl border border-[#DDE1FF] w-full max-w-lg p-6 sm:p-8"
             >
               <h3 className="text-2xl font-semibold text-[#636CCB] mb-6 text-center">
-                {editingEmployee ? "Edit Employee " : "Add New Employee "}
+                {editingEmployee ? "Edit Employee" : "Add New Employee"}
               </h3>
 
               <div className="space-y-4">
-                {/* Name */}
-                <div>
-                  <input
-                    name="name"
-                    placeholder="Full Name"
-                    value={formData.name}
+                <input
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
+                />
+                {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+
+                <div className="flex gap-2">
+                  <select
+                    name="countryCode"
+                    value={formData.countryCode}
                     onChange={handleChange}
-                    className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
+                    className="border border-[#DDE1FF] rounded-xl p-3 bg-white text-base focus:ring-2 focus:ring-[#636CCB] outline-none w-24"
+                  >
+                    <option value="+91">🇮🇳 +91</option>
+                    <option value="+1">🇺🇸 +1</option>
+                    <option value="+44">🇬🇧 +44</option>
+                  </select>
+                  <input
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="flex-1 border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
                   />
-                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
                 </div>
+                {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
 
-                {/* Phone */}
-                <div>
-                  <div className="flex gap-2">
-                    <select
-                      name="countryCode"
-                      value={formData.countryCode}
-                      onChange={handleChange}
-                      className="border border-[#DDE1FF] rounded-xl p-3 bg-white text-base focus:ring-2 focus:ring-[#636CCB] outline-none w-24"
-                    >
-                      <option value="+91">🇮🇳 +91</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+44">🇬🇧 +44</option>
-                    </select>
-                    <input
-                      name="phone"
-                      placeholder="10-digit Phone Number"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="flex-1 border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
-                    />
-                  </div>
-                  {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                </div>
-
-                {/* Gender */}
                 <select
                   name="gender"
                   value={formData.gender}
@@ -291,7 +316,6 @@ const EmployeeManagement = () => {
                   <option value="other">Other</option>
                 </select>
 
-                {/* Address */}
                 <input
                   name="address"
                   placeholder="Address"
@@ -300,7 +324,6 @@ const EmployeeManagement = () => {
                   className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
                 />
 
-                {/* Status */}
                 <div className="flex items-center gap-2 pt-2">
                   <input
                     type="checkbox"
@@ -313,17 +336,16 @@ const EmployeeManagement = () => {
                 </div>
               </div>
 
-              {/* Buttons */}
-              <div className="flex justify-end gap-4 mt-8">
+              <div className="flex justify-end gap-4 mt-6">
                 <button
                   onClick={closeModal}
-                  className="px-5 py-2.5 rounded-2xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all text-base font-medium"
+                  className="px-4 py-2 rounded-2xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-5 py-2.5 rounded-2xl bg-[#636CCB] text-white hover:bg-[#5057b6] transition-all text-base font-medium"
+                  className="px-4 py-2 rounded-2xl bg-[#636CCB] text-white hover:bg-[#5057b6] transition-all font-medium"
                 >
                   {editingEmployee ? "Update" : "Save"}
                 </button>
