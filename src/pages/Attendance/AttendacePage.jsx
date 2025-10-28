@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { BASE_URL } from "../../data/data";
+import Loader from "../../components/Layout/Loader.jsx"; // Custom fullscreen loader
 
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
@@ -10,25 +11,50 @@ const AttendancePage = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [editRecord, setEditRecord] = useState(null); // {id, leave, date}
+  const [editRecord, setEditRecord] = useState(null);
+  const [loading, setLoading] = useState(true); // Fullscreen loader
 
+  // Fetch employees and initialize attendance map
   const fetchEmployees = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/employee`);
-      setEmployees(res.data.employees);
-      const initialMap = {};
-      res.data.employees.forEach((emp) => (initialMap[emp._id] = false));
-      setAttendanceMap(initialMap);
+      setEmployees(res.data.employees || []);
+      const map = {};
+      (res.data.employees || []).forEach((emp) => (map[emp._id] = false));
+      setAttendanceMap(map);
     } catch (err) {
       console.error("Error fetching employees:", err);
+      alert("❌ Failed to load employees.");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Fetch attendance for a specific employee
+  const fetchEmployeeAttendance = async (empId) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${BASE_URL}/attendance/employee/${empId}`);
+      setAttendanceRecords(res.data || []);
+    } catch (err) {
+      console.error("Error fetching attendance:", err);
+      alert("❌ Failed to load attendance.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
 
   const handleCheckboxChange = (id) => {
     setAttendanceMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const markAttendance = async () => {
+    setLoading(true);
     const today = new Date().toISOString().split("T")[0];
     try {
       for (const empId in attendanceMap) {
@@ -38,27 +64,18 @@ const AttendancePage = () => {
           leave: !attendanceMap[empId],
         });
       }
-      alert("Attendance marked successfully!");
+      alert("✅ Attendance marked successfully!");
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
     } catch (err) {
       console.error("Error marking attendance:", err);
-      alert("Failed to mark attendance.");
-    }
-  };
-
-  const fetchEmployeeAttendance = async (empId) => {
-    try {
-      const res = await axios.get(
-        `${BASE_URL}/attendance/employee/${empId}`
-      );
-      setAttendanceRecords(res.data);
-    } catch (err) {
-      console.error("Error fetching employee attendance:", err);
+      alert("❌ Failed to mark attendance.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEmployeeClick = (emp) => {
-    if (selectedEmployee && selectedEmployee._id === emp._id) {
+    if (selectedEmployee?._id === emp._id) {
       setSelectedEmployee(null);
       setAttendanceRecords([]);
     } else {
@@ -85,11 +102,13 @@ const AttendancePage = () => {
     const record = attendanceRecords.find(
       (r) => new Date(r.date).toDateString() === date.toDateString()
     );
-    if (!record) return; // no record to edit
-    setEditRecord({ id: record._id, leave: record.leave, date });
+    if (record) {
+      setEditRecord({ id: record._id, leave: record.leave, date });
+    }
   };
 
   const saveEdit = async () => {
+    setLoading(true);
     try {
       await axios.put(`${BASE_URL}/attendance/${editRecord.id}`, {
         leave: editRecord.leave,
@@ -98,7 +117,9 @@ const AttendancePage = () => {
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
     } catch (err) {
       console.error("Error editing attendance:", err);
-      alert("Failed to update attendance.");
+      alert("❌ Failed to update attendance.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,152 +129,167 @@ const AttendancePage = () => {
     const month = currentMonth.getMonth();
     const lastDay = new Date(year, month + 1, 0);
     for (let d = 1; d <= lastDay.getDate(); d++) {
-      const dayDate = new Date(year, month, d);
-      days.push(dayDate);
+      days.push(new Date(year, month, d));
     }
     return days;
   };
 
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
+  if (loading) return <Loader fullscreen={true} size={150} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FCD8CD] via-[#FEEBF6] to-[#EBD6FB] p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          Employee Attendance
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#E8EDFF] via-[#F5F6FF] to-[#FFFFFF] p-6 md:p-10">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
+        {/* Employee List */}
+        <div className="w-full md:w-1/3 bg-white shadow-xl border border-[#E0E7FF] rounded-3xl p-6 backdrop-blur-md">
+          <h2 className="text-lg font-semibold text-[#3A3A3A] mb-4">
+            Employee List
+          </h2>
 
-        <div className="flex gap-6">
-          {/* Employee List */}
-          <div className="w-1/3 bg-white shadow-lg rounded-2xl p-6 space-y-3">
+          <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-2">
             {employees.map((emp) => (
               <div
                 key={emp._id}
-                className="flex items-center justify-between p-3 border-b last:border-b-0 hover:bg-[#FEEBF6] transition-all cursor-pointer"
                 onClick={() => handleEmployeeClick(emp)}
+                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                  selectedEmployee?._id === emp._id
+                    ? "bg-[#E7ECFF] border-[#687FE5]"
+                    : "bg-white hover:bg-[#F5F6FF] border-gray-200"
+                }`}
               >
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
                     checked={attendanceMap[emp._id]}
                     onChange={() => handleCheckboxChange(emp._id)}
-                    className="w-5 h-5 accent-[#687FE5]"
                     onClick={(e) => e.stopPropagation()}
+                    className="w-5 h-5 accent-[#687FE5]"
                   />
                   <span className="font-medium text-gray-800">{emp.name}</span>
                 </div>
               </div>
             ))}
-
-            <button
-              onClick={markAttendance}
-              className="mt-4 w-full py-2 bg-[#687FE5] text-white rounded-xl hover:bg-indigo-600 transition-all"
-            >
-              Mark Attendance
-            </button>
           </div>
 
-          {/* Calendar */}
-          {selectedEmployee && (
-            <div className="w-2/3 bg-white shadow-lg rounded-2xl p-6 relative">
-              <h2 className="text-xl font-semibold mb-4">
-                {selectedEmployee.name}'s Attendance
-              </h2>
+          <button
+            onClick={markAttendance}
+            className="mt-6 w-full py-3 bg-[#687FE5] text-white rounded-xl font-medium shadow-md hover:bg-[#5A6FD8] transition-all"
+          >
+            Mark Attendance
+          </button>
+        </div>
 
-              {/* Color Guide */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-1">
-                  <span className="w-4 h-4 rounded-full bg-green-400 block"></span>{" "}
-                  Present
+        {/* Attendance Calendar */}
+        {selectedEmployee && (
+          <div className="w-full md:w-2/3 bg-white shadow-xl border border-[#E0E7FF] rounded-3xl p-6 relative">
+            <h2 className="text-xl font-semibold text-[#3A3A3A] mb-3">
+              {selectedEmployee.name}'s Attendance
+            </h2>
+
+            {/* Legend */}
+            <div className="flex items-center gap-6 mb-5 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 bg-green-400 rounded-full"></span>{" "}
+                Present
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-4 h-4 bg-red-400 rounded-full"></span> Leave
+              </div>
+            </div>
+
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-5">
+              <button
+                onClick={() => changeMonth(-1)}
+                className="p-2 rounded-lg hover:bg-[#F5F6FF] text-[#687FE5]"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="font-medium text-gray-700">
+                {currentMonth.toLocaleString("default", { month: "long" })}{" "}
+                {currentMonth.getFullYear()}
+              </span>
+              <button
+                onClick={() => changeMonth(1)}
+                className="p-2 rounded-lg hover:bg-[#F5F6FF] text-[#687FE5]"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-2 text-center">
+              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div
+                  key={day}
+                  className="font-semibold text-sm text-gray-500 uppercase"
+                >
+                  {day}
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="w-4 h-4 rounded-full bg-red-400 block"></span>{" "}
-                  Leave
-                </div>
-              </div>
+              ))}
+              {generateCalendarDays().map((day) => {
+                const status = getDayStatus(day);
+                const classes =
+                  status === "present"
+                    ? "bg-green-400 text-white"
+                    : status === "leave"
+                    ? "bg-red-400 text-white"
+                    : "bg-gray-100 text-gray-600";
+                return (
+                  <div
+                    key={day}
+                    onClick={() => handleDateClick(day)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full cursor-pointer ${classes} hover:ring-2 hover:ring-[#687FE5]/40 transition-transform hover:scale-105`}
+                  >
+                    {day.getDate()}
+                  </div>
+                );
+              })}
+            </div>
 
-              {/* Calendar Header */}
-              <div className="flex items-center justify-between mb-4">
-                <button onClick={() => changeMonth(-1)}>
-                  <ChevronLeft size={20} />
-                </button>
-                <span className="font-medium">
-                  {currentMonth.toLocaleString("default", { month: "long" })}{" "}
-                  {currentMonth.getFullYear()}
-                </span>
-                <button onClick={() => changeMonth(1)}>
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2">
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                  (day) => (
-                    <div key={day} className="text-center font-medium">
-                      {day}
-                    </div>
-                  )
-                )}
-                {generateCalendarDays().map((day) => {
-                  const status = getDayStatus(day);
-                  const color =
-                    status === "present"
-                      ? "bg-green-400"
-                      : status === "leave"
-                      ? "bg-red-400"
-                      : "bg-gray-200";
-                  return (
-                    <div
-                      key={day}
-                      className={`w-8 h-8 flex items-center justify-center rounded-full ${color} cursor-pointer`}
-                      onClick={() => handleDateClick(day)}
-                    >
-                      {day.getDate()}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Edit Modal */}
-              {editRecord && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg rounded-xl p-6 z-50 w-80">
+            {/* Edit Modal */}
+            {editRecord && (
+              <>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 border border-[#E0E7FF] rounded-3xl shadow-2xl p-6 z-50 w-80">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Edit Attendance</h3>
-                    <button onClick={() => setEditRecord(null)}>
+                    <h3 className="text-lg font-semibold text-[#3A3A3A]">
+                      Edit Attendance
+                    </h3>
+                    <button
+                      onClick={() => setEditRecord(null)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
                       <X size={20} />
                     </button>
                   </div>
-                  <p className="mb-3">Date: {editRecord.date.toDateString()}</p>
-                  <div className="flex items-center gap-2 mb-4">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={editRecord.leave}
-                        onChange={(e) =>
-                          setEditRecord((prev) => ({
-                            ...prev,
-                            leave: e.target.checked,
-                          }))
-                        }
-                        className="w-5 h-5 accent-red-400"
-                      />
-                      Mark as Leave
-                    </label>
-                  </div>
+                  <p className="text-gray-600 mb-3">
+                    Date: {editRecord.date.toDateString()}
+                  </p>
+                  <label className="flex items-center gap-2 mb-5 text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={editRecord.leave}
+                      onChange={(e) =>
+                        setEditRecord((prev) => ({
+                          ...prev,
+                          leave: e.target.checked,
+                        }))
+                      }
+                      className="w-5 h-5 accent-[#687FE5]"
+                    />
+                    Mark as Leave
+                  </label>
                   <button
                     onClick={saveEdit}
-                    className="w-full py-2 bg-[#687FE5] text-white rounded-xl hover:bg-indigo-600 transition-all"
+                    className="w-full py-2.5 bg-[#687FE5] text-white rounded-xl hover:bg-[#5A6FD8] transition-all shadow-md"
                   >
-                    Save
+                    Save Changes
                   </button>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

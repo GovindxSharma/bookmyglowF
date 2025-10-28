@@ -1,7 +1,9 @@
+// src/pages/Auth/Login.jsx
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "@/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import Loader from "@/components/Layout/Loader.jsx"; // Fullscreen loader
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,37 +15,41 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    const res = await axios.post("/auth/login", formData);
-    const { token, role } = res.data;
+    try {
+      const res = await axios.post("/auth/login", formData);
+      const { token, role } = res.data;
 
-    // Store token + role
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
+      // Store token + role
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
-    // Redirect based on role
-    if (role === "admin") navigate("/dashboard");
-    else if (role === "receptionist") navigate("/bookings");
-    else navigate("/login");
-  } catch (err) {
-    console.error("Login Error:", err);
-    setError(err.response?.data?.message || "Invalid credentials");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      // Redirect based on role
+      if (role === "admin") navigate("/dashboard");
+      else if (role === "receptionist") navigate("/bookings");
+      else navigate("/login");
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError(err.response?.data?.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FEEBF6] via-[#EBD6FB] to-[#FCD8CD] overflow-hidden relative">
+      {/* Background Blurs */}
       <div className="absolute top-[-10%] left-[-10%] w-[350px] h-[350px] bg-[#687FE5]/30 rounded-full blur-[100px]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#FCD8CD]/50 rounded-full blur-[120px]" />
 
+      {/* Fullscreen Loader */}
+      <AnimatePresence>{loading && <Loader fullscreen={true} size={150} />}</AnimatePresence>
+
+      {/* Login Form */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -60,6 +66,7 @@ const handleSubmit = async (e) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 font-[Poppins]">
+          {/* Email */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Email Address
@@ -75,6 +82,7 @@ const handleSubmit = async (e) => {
             />
           </div>
 
+          {/* Password */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Password
@@ -90,12 +98,14 @@ const handleSubmit = async (e) => {
             />
           </div>
 
+          {/* Error Message */}
           {error && (
             <p className="text-red-500 text-sm font-medium text-center mt-2">
               {error}
             </p>
           )}
 
+          {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
@@ -111,8 +121,9 @@ const handleSubmit = async (e) => {
           </motion.button>
         </form>
 
+        {/* Footer */}
         <div className="text-center mt-6 text-sm text-gray-600 font-[Poppins]">
-          © {new Date().getFullYear()} Buntys Unisex Saloon  — Internal Access Only
+          © {new Date().getFullYear()} Buntys Unisex Saloon — Internal Access Only
         </div>
       </motion.div>
     </div>
