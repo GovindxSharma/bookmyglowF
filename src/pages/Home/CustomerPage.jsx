@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import HeroSection from "../../components/Landing/HeroSection.jsx";
 import ServicesSection from "../../components/Landing/ServicesSection.jsx";
 import AppointmentForm  from "../../components/Landing/AppointmentForm.jsx";
-import axios from "axios";
+import axios from "../../api/axiosInstance";
 import { BASE_URL } from "../../data/data.js";
 import AboutUs from "../../components/Landing/About.jsx";
 import Reviews from "../../components/Landing/Reviews.jsx";

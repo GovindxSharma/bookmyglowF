@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "@/api/axiosInstance";
+import axios from "../../api/axiosInstance";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { BASE_URL } from "../../data/data";
 

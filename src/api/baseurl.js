@@ -1,1 +1,1 @@
-base_url=https://bookyourglowforbeauty.onrender.com
+// base_url=https://bookyourglowforbeauty.onrender.com
