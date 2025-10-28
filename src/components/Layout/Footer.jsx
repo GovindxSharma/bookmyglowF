@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
         {/* Brand / About */}
         <div className="space-y-3">
-          <h3 className="text-2xl font-bold text-[#636CCB]">Bunty Unisex Salon</h3>
+          <h3 className="text-2xl font-bold text-[#636CCB]">Bunty's Unisex Saloon</h3>
           <p className="text-sm text-[#2A2A2A]/80">
             Experience the art of beauty and grooming with our professional stylists.  
             Style, confidence, and care — all under one roof. Visit now.
@@ -53,7 +53,7 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="hover:text-[#4E56B2] leading-relaxed"
             >
-              Bunty Unisex Salon, above Deep Chinese, near HDFC Bank,  
+              Bunty's Unisex Saloon, above Deep Chinese, near HDFC Bank,  
               Baroi Rd, Mundra
             </a>
           </div>
@@ -98,7 +98,7 @@ const Footer = () => {
 
       {/* Copyright */}
       <div className="mt-10 border-t border-[#636CCB]/20 pt-4 text-center text-xs text-[#2A2A2A]/60">
-        &copy; {new Date().getFullYear()} Bunty Unisex Salon. All rights reserved.
+        &copy; {new Date().getFullYear()} Bunty's Unisex Saloon. All rights reserved.
       </div>
     </footer>
   );

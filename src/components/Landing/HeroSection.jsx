@@ -22,7 +22,7 @@ const HeroSection = () => {
           </span>{" "}
           &{" "}
           <span className="text-[#4E56B2] font-pacifico drop-shadow-sm">
-            Unisex Salon
+            Unisex Saloon
           </span>{" "}
           Experience
         </h1>
@@ -30,7 +30,7 @@ const HeroSection = () => {
         <p className="text-[#2A2A2A]/80 text-sm sm:text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
           Experience the luxurious haircare services at our premium salon.
           Highly trained staff and top-quality hair products available at our
-          new premise — exclusive at <strong>Bunty’s Unisex Salon</strong> near you.
+          new premise — exclusive at <strong>Bunty’s Unisex Saloon</strong> near you.
           Visit now to redefine your style!
         </p>
 

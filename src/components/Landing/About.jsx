@@ -13,7 +13,7 @@ const AboutUs = () => {
           About <span className="text-[#636CCB]">Us</span>
         </h2>
         <p className="text-[#2A2A2A]/80 mt-2 max-w-xl mx-auto text-sm sm:text-base">
-          Welcome to <strong>Bunty Unisex Salon</strong>, where style meets perfection.
+          Welcome to <strong>Bunty's Unisex Saloon</strong>, where style meets perfection.
           Premium hair & beauty services designed just for you.
         </p>
       </div>
