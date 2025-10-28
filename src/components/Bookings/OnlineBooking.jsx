@@ -37,11 +37,13 @@ const OnlineBooking = () => {
   }, []);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 min-h-[400px] flex flex-col gap-4">
       {bookings.length === 0 ? (
-        <p className="text-gray-500 text-center">
-          No new online appointments 🎉
-        </p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-gray-500 text-center text-lg">
+            No new online appointments 🎉
+          </p>
+        </div>
       ) : (
         bookings.map((b, idx) => (
           <motion.div
