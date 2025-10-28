@@ -8,10 +8,11 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  LabelList,
 } from "recharts";
 import { Users, DollarSign, CalendarDays } from "lucide-react";
 import { BASE_URL } from "../data/data";
-import Loader from "../components/Layout/Loader.jsx"; // Loader import
+import Loader from "../components/Layout/Loader.jsx";
 
 const PAYMENTS_API = `${BASE_URL}/payments`;
 const EMPLOYEE_API = `${BASE_URL}/auth/employees`;
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
         setTodayRevenue(todayPayments.reduce((sum, p) => sum + (p.amount || 0), 0));
         setTodayAppointments(todayPayments.length);
 
-        // Staff performance
+        // Fetch staff performance
         const staffData = await Promise.all(
           employees.map(async (emp) => {
             try {
@@ -60,7 +61,7 @@ const AdminDashboard = () => {
         );
         setStaffPerformance(staffData);
 
-        // Monthly revenue
+        // Fetch monthly revenue
         const groupedRes = await axios.get(`${PAYMENTS_API}/grouped`);
         const grouped = groupedRes.data || [];
         const revenueMap = new Map();
@@ -73,7 +74,6 @@ const AdminDashboard = () => {
           revenue: revenueMap.get(i) || 0,
         }));
         setMonthlyRevenue(allMonths);
-
       } catch (err) {
         console.error("Dashboard error:", err);
       } finally {
@@ -84,111 +84,150 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  // ===== Loader while fetching =====
   if (loading) return <Loader />;
 
   return (
-    <div className="p-8 min-h-screen bg-gradient-to-br from-[#E7E9FB] via-[#F4F5FF] to-[#E7E9FB] text-[#3A3A3A] font-poppins">
+    <div className="p-4 sm:p-6 md:p-10 min-h-screen bg-gradient-to-b from-[#f0f4ff] to-[#ffffff] font-poppins text-[#3A3A3A]">
 
-      {/* TOP METRIC CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+      {/* ===== TOP METRIC CARDS ===== */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {[
           {
             title: "Today's Revenue",
-            icon: <DollarSign className="text-[#5058B5]" />,
+            icon: <DollarSign className="text-white w-6 h-6" />,
             value: `₹${todayRevenue.toLocaleString()}`,
-            gradient: "from-[#E7E9FB]/90 to-[#F4F5FF]/90",
+            bg: "bg-gradient-to-r from-[#636CCB] to-[#5058B5]",
           },
           {
             title: "Today's Appointments",
-            icon: <CalendarDays className="text-[#5058B5]" />,
+            icon: <CalendarDays className="text-white w-6 h-6" />,
             value: todayAppointments,
-            gradient: "from-[#F4F5FF]/90 to-[#E7E9FB]/90",
+            bg: "bg-gradient-to-r from-[#FF7E5F] to-[#FD3A69]",
           },
           {
             title: "Total Employees",
-            icon: <Users className="text-[#5058B5]" />,
+            icon: <Users className="text-white w-6 h-6" />,
             value: employeeCount,
-            gradient: "from-[#E7E9FB]/90 to-[#F4F5FF]/90",
+            bg: "bg-gradient-to-r from-[#00C6FF] to-[#0072FF]",
           },
         ].map((card, i) => (
-          <div
-            key={i}
-            className={`p-6 rounded-2xl shadow-lg bg-gradient-to-r ${card.gradient} border border-white/60 backdrop-blur-md hover:shadow-xl transition-all`}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-[#5058B5]">
-                {card.title}
-              </h2>
-              {card.icon}
+          <div key={i} className={`${card.bg} rounded-2xl shadow-xl p-6 flex items-center justify-between transition transform hover:-translate-y-1 hover:shadow-2xl`}>
+            <div>
+              <h3 className="text-white font-medium text-sm sm:text-base">{card.title}</h3>
+              <p className="text-white font-bold text-xl sm:text-2xl mt-1">{card.value}</p>
             </div>
-            <p className="text-3xl font-bold text-[#3A3A3A]">{card.value}</p>
+            <div className="p-3 bg-white/20 rounded-full">{card.icon}</div>
           </div>
         ))}
       </div>
 
-      {/* STAFF PERFORMANCE */}
-      <div className="bg-white/70 rounded-2xl shadow-md border border-white/60 backdrop-blur-md p-6 mb-12">
-        <h2 className="text-2xl font-semibold text-[#5058B5] mb-5">
-          Staff Performance (Today)
-        </h2>
-        <div className="overflow-x-auto rounded-xl">
-          <table className="min-w-full table-auto border-collapse">
+      {/* ===== STAFF PERFORMANCE ===== */}
+      <div className="mb-10">
+        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">Staff Performance (Today)</h2>
+
+        {/* Desktop Table */}
+        <div className="hidden md:block bg-white rounded-2xl shadow-md p-4">
+          <table className="w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-[#E7E9FB] text-left text-[#5058B5] text-sm uppercase">
-                <th className="px-5 py-3 border-b border-[#E7E9FB]">Staff Name</th>
-                <th className="px-5 py-3 border-b border-[#E7E9FB]">Revenue (₹)</th>
-                <th className="px-5 py-3 border-b border-[#E7E9FB]">Appointments</th>
+              <tr className="bg-[#f0f4ff] text-left text-[#5058B5] text-sm uppercase">
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">Staff Name</th>
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">Revenue (₹)</th>
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">Appointments</th>
               </tr>
             </thead>
             <tbody>
               {staffPerformance.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="text-center py-5 text-gray-500 font-medium">
-                    No performance data available for today.
+                  <td colSpan="3" className="text-center py-6 text-gray-500 font-medium">
+                    No performance data available.
                   </td>
                 </tr>
               ) : (
-                staffPerformance.map((staff, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-[#F4F5FF] transition-all border-b last:border-b-0"
-                  >
-                    <td className="px-5 py-3 font-medium">{staff.name}</td>
-                    <td className="px-5 py-3">₹{staff.revenue.toLocaleString()}</td>
-                    <td className="px-5 py-3">{staff.totalAppointments}</td>
+                staffPerformance.map((staff, idx) => (
+                  <tr key={idx} className="hover:bg-[#f5f8ff] transition-all border-b last:border-b-0">
+                    <td className="px-4 py-3 font-medium">{staff.name}</td>
+                    <td className="px-4 py-3 font-semibold text-[#636CCB]">₹{staff.revenue.toLocaleString()}</td>
+                    <td className="px-4 py-3">{staff.totalAppointments}</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden grid grid-cols-1 gap-4">
+          {staffPerformance.length === 0 ? (
+            <div className="text-center text-gray-500 font-medium py-6 rounded-xl bg-white shadow-md">
+              No performance data available.
+            </div>
+          ) : (
+            staffPerformance.map((staff, idx) => (
+              <div key={idx} className="p-4 rounded-xl bg-white shadow-md border-l-4 border-[#636CCB]">
+                <h3 className="font-semibold text-[#5058B5]">{staff.name}</h3>
+                <p className="text-gray-700 mt-1 text-sm">Revenue: ₹{staff.revenue.toLocaleString()}</p>
+                <p className="text-gray-700 text-sm">Appointments: {staff.totalAppointments}</p>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
-      {/* MONTHLY REVENUE CHART */}
-      <div className="bg-white/70 rounded-2xl shadow-md border border-white/60 backdrop-blur-md p-6">
-        <h2 className="text-2xl font-semibold text-[#5058B5] mb-6">
-          Monthly Revenue Overview
-        </h2>
-        <div className="h-80">
+      {/* ===== MONTHLY REVENUE ===== */}
+      <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 mb-10">
+        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">Monthly Revenue Overview</h2>
+
+        {/* Desktop Chart */}
+        <div className="hidden md:block h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyRevenue}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E7E9FB" />
+            <BarChart data={monthlyRevenue} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
               <XAxis dataKey="month" stroke="#5058B5" />
               <YAxis stroke="#5058B5" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#F4F5FF",
+                  backgroundColor: "#f0f4ff",
                   borderRadius: "10px",
-                  border: "1px solid #E7E9FB",
+                  border: "1px solid #e0e0e0",
                   color: "#3A3A3A",
                 }}
+                formatter={(value) => `₹${value.toLocaleString()}`}
               />
-              <Bar dataKey="revenue" fill="#636CCB" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="revenue" fill="#636CCB" radius={[6, 6, 0, 0]}>
+                <LabelList
+                  dataKey="revenue"
+                  position="top"
+                  formatter={(val) => `₹${val.toLocaleString()}`}
+                  style={{ fill: "#5058B5", fontSize: 12, fontWeight: 600 }}
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        {/* Mobile: Monthly Cards */}
+        <div className="md:hidden grid grid-cols-1 gap-3">
+          {monthlyRevenue.map((m, idx) => {
+            const maxRevenue = Math.max(...monthlyRevenue.map((r) => r.revenue)) || 1;
+            const widthPercent = (m.revenue / maxRevenue) * 100;
+            return (
+              <div key={idx} className="bg-[#f0f4ff] rounded-xl p-3 shadow-sm flex flex-col">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-[#5058B5] font-semibold">{m.month}</span>
+                  <span className="text-[#636CCB] font-bold">₹{m.revenue.toLocaleString()}</span>
+                </div>
+                <div className="w-full bg-[#d0d4eb] h-3 rounded-full">
+                  <div
+                    className="bg-[#636CCB] h-3 rounded-full"
+                    style={{ width: `${widthPercent}%` }}
+                  ></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
     </div>
   );
 };

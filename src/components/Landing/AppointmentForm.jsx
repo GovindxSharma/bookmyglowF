@@ -4,8 +4,6 @@ import { Phone, ChevronDown } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../../data/data";
 
-const salonId = "68eb4a7fb6c1692cffcf1bcf";
-
 const AppointmentForm = () => {
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
@@ -15,6 +13,13 @@ const AppointmentForm = () => {
     date: today,
     note: "",
   });
+
+  const [errors, setErrors] = useState({
+    name: "",
+    phone: "",
+    services: "",
+  });
+
   const [services, setServices] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -43,8 +48,27 @@ const AppointmentForm = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Real-time validation
+    if (name === "name") {
+      setErrors((prev) => ({
+        ...prev,
+        name: value.trim() === "" ? "Name is required." : "",
+      }));
+    }
+    if (name === "phone") {
+      const phoneRegex = /^[6-9]\d{9}$/; // Indian 10-digit numbers starting 6-9
+      setErrors((prev) => ({
+        ...prev,
+        phone: !phoneRegex.test(value)
+          ? "Enter a valid 10-digit phone number."
+          : "",
+      }));
+    }
+  };
 
   const handleServiceToggle = (id) => {
     setFormData((prev) => {
@@ -54,18 +78,30 @@ const AppointmentForm = () => {
         : [...prev.services, id];
       return { ...prev, services: updated };
     });
+
+    setErrors((prev) => ({
+      ...prev,
+      services: "",
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required.";
+    if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter a valid 10-digit phone number.";
+    if (formData.services.length === 0) newErrors.services = "Please select at least one service.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.phone.trim() || formData.services.length === 0) {
-      alert("Please fill all required fields.");
-      return;
-    }
+    if (!validateForm()) return;
+
     const payload = {
       name: formData.name.trim(),
       phone: formData.phone.trim(),
-      salon_id: salonId,
       services: formData.services.map((id) => ({ service_id: id })),
       date: formData.date,
       source: "online",
@@ -73,11 +109,13 @@ const AppointmentForm = () => {
       confirmation_status: false,
       note: formData.note.trim() || "",
     };
+
     try {
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       if (res.data.success) {
         alert(`Appointment booked successfully for ${formData.name}!`);
         setFormData({ name: "", phone: "", services: [], date: today, note: "" });
+        setErrors({});
       } else {
         alert(res.data.message || "Something went wrong.");
       }
@@ -132,9 +170,11 @@ const AppointmentForm = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="Enter your name"
-                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
-                required
+                className={`border rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 outline-none transition-all text-sm sm:text-base ${
+                  errors.name ? "border-red-500 focus:ring-red-400" : "border-[#A3B0FF]/40 focus:ring-[#687FE5]"
+                }`}
               />
+              {errors.name && <span className="text-red-500 text-sm mt-1">{errors.name}</span>}
             </div>
 
             {/* Phone */}
@@ -147,10 +187,12 @@ const AppointmentForm = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={handleChange}
-                placeholder="+91 99999 11111"
-                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
-                required
+                placeholder="99999 11111"
+                className={`border rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 outline-none transition-all text-sm sm:text-base ${
+                  errors.phone ? "border-red-500 focus:ring-red-400" : "border-[#A3B0FF]/40 focus:ring-[#687FE5]"
+                }`}
               />
+              {errors.phone && <span className="text-red-500 text-sm mt-1">{errors.phone}</span>}
             </div>
 
             {/* Services Dropdown */}
@@ -160,7 +202,9 @@ const AppointmentForm = () => {
               </label>
               <div
                 onClick={() => setOpenDropdown(!openDropdown)}
-                className="flex justify-between items-center border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] cursor-pointer hover:ring-2 hover:ring-[#687FE5] transition-all"
+                className={`flex justify-between items-center border rounded-xl px-4 py-3 bg-[#F5F6FF] cursor-pointer hover:ring-2 transition-all ${
+                  errors.services ? "border-red-500 hover:ring-red-400" : "border-[#A3B0FF]/40 hover:ring-[#687FE5]"
+                }`}
               >
                 <span className="text-[#2A2A2A] text-sm sm:text-base">
                   {formData.services.length > 0
@@ -195,6 +239,7 @@ const AppointmentForm = () => {
                   )}
                 </div>
               )}
+              {errors.services && <span className="text-red-500 text-sm mt-1">{errors.services}</span>}
             </div>
 
             {/* Date */}

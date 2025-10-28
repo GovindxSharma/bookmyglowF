@@ -3,11 +3,13 @@ import axios from "@/api/axiosInstance";
 import AddBooking from "./AddBookings";
 import BookingList from "./BookingList";
 import OnlineBooking from "./OnlineBooking";
+import Loader from "../Layout/Loader";
 import { BASE_URL } from "../../data/data";
 
 const BookingTabs = () => {
   const [activeTab, setActiveTab] = useState("add");
   const [hasUnread, setHasUnread] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // 🔹 Fetch new online appointments
   const fetchOnlineNotifications = async () => {
@@ -37,27 +39,36 @@ const BookingTabs = () => {
     { key: "online", label: "Online Appointments" },
   ];
 
+  // ✅ Handle tab change with loader
+  const handleTabChange = (tabKey) => {
+    setLoading(true);
+    setTimeout(() => {
+      setActiveTab(tabKey);
+      setLoading(false);
+    }, 200); // small delay for smooth loader
+  };
+
   return (
-    <div className="p-6 bg-white rounded-2xl shadow-md border border-[#e6e9ff]">
+    <div className="p-4 sm:p-6 bg-white rounded-2xl shadow-md border border-[#e6e9ff]">
       {/* Tabs Header */}
-      <div className="flex flex-wrap border-b border-gray-200 mb-5">
+      <div className="flex flex-wrap gap-2 mb-5 border-b border-gray-200">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`relative px-6 py-2.5 text-sm sm:text-base font-medium transition-all duration-200 
+              onClick={() => handleTabChange(tab.key)}
+              className={`relative flex-1 text-center px-4 py-2.5 text-sm sm:text-base font-medium transition-all duration-200
                 ${isActive
                   ? "text-[#687FE5] border-b-2 border-[#687FE5] bg-[#F5F6FF]"
-                  : "text-gray-600 hover:text-[#687FE5]/80"
-                }`}
+                  : "text-gray-600 hover:text-[#687FE5]/80 bg-white"
+                } rounded-lg sm:rounded-none`}
             >
               {tab.label}
 
               {/* 🔸 Unread Notification Dot */}
               {tab.key === "online" && hasUnread && (
-                <span className="absolute top-1.5 right-4 w-2.5 h-2.5 bg-[#C66A1F] rounded-full shadow-sm animate-pulse" />
+                <span className="absolute top-2 right-3 w-2.5 h-2.5 bg-[#C66A1F] rounded-full shadow-sm animate-pulse" />
               )}
 
               {/* Active Tab Indicator Glow */}
@@ -70,10 +81,18 @@ const BookingTabs = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="mt-2">
-        {activeTab === "add" && <AddBooking />}
-        {activeTab === "list" && <BookingList />}
-        {activeTab === "online" && <OnlineBooking />}
+      <div className="mt-2 min-h-[300px]">
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[300px]">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            {activeTab === "add" && <AddBooking />}
+            {activeTab === "list" && <BookingList />}
+            {activeTab === "online" && <OnlineBooking />}
+          </>
+        )}
       </div>
     </div>
   );
