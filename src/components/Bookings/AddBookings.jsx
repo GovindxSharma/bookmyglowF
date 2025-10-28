@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
@@ -12,6 +12,7 @@ const AddBooking = () => {
   ]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false); // ✅ new loading state
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
@@ -137,6 +138,8 @@ const AddBooking = () => {
   // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // ✅ prevent multiple clicks
+
     if (!formData.name || !formData.phone || !selectedEmployee)
       return setToast({
         message: "Please fill all required fields.",
@@ -166,6 +169,7 @@ const AddBooking = () => {
     };
 
     try {
+      setLoading(true); // ✅ disable button
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       setToast({
         message: res.data.message || "Booking created!",
@@ -177,6 +181,8 @@ const AddBooking = () => {
         message: err.response?.data?.message || "Failed to create booking.",
         type: "error",
       });
+    } finally {
+      setLoading(false); // ✅ re-enable button
     }
   };
 
@@ -214,29 +220,67 @@ const AddBooking = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Customer Info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
-              placeholder="Phone *" className={requiredClass} required />
-            <input type="text" name="name" value={formData.name} onChange={handleChange}
-              placeholder="Full Name *" className={requiredClass} required />
-            <input type="email" name="email" value={formData.email} onChange={handleChange}
-              placeholder="Email (optional)" className={optionalClass} />
-            <input type="date" name="dob" value={formData.dob} onChange={handleChange}
-              className={optionalClass} />
-            <select name="gender" value={formData.gender} onChange={handleChange}
-              className={optionalClass}>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Phone *"
+              className={requiredClass}
+              required
+            />
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name *"
+              className={requiredClass}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email (optional)"
+              className={optionalClass}
+            />
+            <input
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleChange}
+              className={optionalClass}
+            />
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className={optionalClass}
+            >
               <option value="">Gender (optional)</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-            <input type="text" name="address" value={formData.address}
-              onChange={handleChange} placeholder="Address (optional)"
-              className={optionalClass} />
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="Address (optional)"
+              className={optionalClass}
+            />
           </div>
 
-          <textarea name="note" value={formData.note} onChange={handleChange}
+          <textarea
+            name="note"
+            value={formData.note}
+            onChange={handleChange}
             placeholder="Notes (optional)"
-            className={`${optionalClass} h-24`} />
+            className={`${optionalClass} h-24`}
+          />
 
           {/* Services */}
           <div className="space-y-5">
@@ -244,15 +288,24 @@ const AddBooking = () => {
               Select Services *
             </h3>
             {serviceList.map((item, index) => (
-              <div key={index} className="p-5 border border-gray-200 rounded-2xl bg-[#F8FAFF] relative shadow-sm">
+              <div
+                key={index}
+                className="p-5 border border-gray-200 rounded-2xl bg-[#F8FAFF] relative shadow-sm"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Select options={services} value={item.service}
+                  <Select
+                    options={services}
+                    value={item.service}
                     onChange={(val) => handleServiceChange(index, val)}
-                    placeholder="Select Service *" />
-                  <Select options={item.subServices} value={item.subService}
+                    placeholder="Select Service *"
+                  />
+                  <Select
+                    options={item.subServices}
+                    value={item.subService}
                     onChange={(val) => handleSubServiceChange(index, val)}
                     placeholder="Select Sub-Service *"
-                    isDisabled={!item.subServices.length} />
+                    isDisabled={!item.subServices.length}
+                  />
                   {item.price && (
                     <div className="flex items-center justify-between text-sm text-[#4A6CF7] font-medium bg-white rounded-xl px-3 py-2 border border-[#4A6CF7]/20 shadow-sm">
                       <span>₹{item.price}</span>
@@ -261,34 +314,59 @@ const AddBooking = () => {
                   )}
                 </div>
                 {serviceList.length > 1 && (
-                  <button type="button" onClick={() => removeServiceBlock(index)}
-                    className="absolute top-3 right-4 text-red-500 hover:text-red-600 font-bold text-lg">
+                  <button
+                    type="button"
+                    onClick={() => removeServiceBlock(index)}
+                    className="absolute top-3 right-4 text-red-500 hover:text-red-600 font-bold text-lg"
+                  >
                     ✕
                   </button>
                 )}
               </div>
             ))}
-            <button type="button" onClick={addServiceBlock}
-              className="w-full p-3 rounded-xl bg-[#4A6CF7]/10 text-[#4A6CF7] font-medium hover:bg-[#4A6CF7]/20 transition">
+            <button
+              type="button"
+              onClick={addServiceBlock}
+              className="w-full p-3 rounded-xl bg-[#4A6CF7]/10 text-[#4A6CF7] font-medium hover:bg-[#4A6CF7]/20 transition"
+            >
               ➕ Add Another Service
             </button>
           </div>
 
           {/* Employee */}
-          <Select options={employees} value={selectedEmployee}
+          <Select
+            options={employees}
+            value={selectedEmployee}
             onChange={setSelectedEmployee}
-            placeholder="Assign Employee *" className="mt-2" />
+            placeholder="Assign Employee *"
+            className="mt-2"
+          />
 
           {/* Date + Payment */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <input type="date" name="date" value={formData.date} onChange={handleChange}
-              className={requiredClass} required />
-            <input type="number" name="amount" value={formData.amount}
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className={requiredClass}
+              required
+            />
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
               onChange={(e) => setFormData((p) => ({ ...p, amount: e.target.value }))}
               placeholder={`Total Amount (₹${totalAmount})`}
-              className={`${optionalClass} font-semibold no-spinner`} min="0" />
-            <select name="payment_mode" value={formData.payment_mode} onChange={handleChange}
-              className={optionalClass}>
+              className={`${optionalClass} font-semibold no-spinner`}
+              min="0"
+            />
+            <select
+              name="payment_mode"
+              value={formData.payment_mode}
+              onChange={handleChange}
+              className={optionalClass}
+            >
               <option value="">Payment Mode (optional)</option>
               <option value="cash">Cash</option>
               <option value="upi">UPI</option>
@@ -297,9 +375,16 @@ const AddBooking = () => {
           </div>
 
           {/* Submit */}
-          <button type="submit"
-            className="w-full p-4 rounded-2xl bg-[#4A6CF7] text-white font-semibold hover:bg-[#3855D1] transition duration-300 shadow-md">
-            Create Booking
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full p-4 rounded-2xl font-semibold transition duration-300 shadow-md ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed text-gray-200"
+                : "bg-[#4A6CF7] text-white hover:bg-[#3855D1]"
+            }`}
+          >
+            {loading ? "Creating..." : "Create Booking"}
           </button>
         </form>
 
