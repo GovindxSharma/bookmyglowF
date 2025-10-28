@@ -13,7 +13,8 @@ const AboutUs = () => {
           About <span className="text-[#636CCB]">Us</span>
         </h2>
         <p className="text-[#2A2A2A]/80 mt-2 max-w-xl mx-auto text-sm sm:text-base">
-          Welcome to <strong>Our Salon</strong>, where style meets perfection. Premium hair, beauty, and wellness services just for you.
+          Welcome to <strong>Bunty Unisex Salon</strong>, where style meets perfection.
+          Premium hair, beauty, and wellness services designed just for you.
         </p>
       </div>
 
@@ -21,10 +22,12 @@ const AboutUs = () => {
         {/* Text Column */}
         <div className="flex-1 space-y-4">
           <p className="text-[#2A2A2A]/90 text-sm sm:text-base">
-            Our mission is to enhance your natural beauty with expert care and luxurious treatments. We ensure every client leaves confident and rejuvenated.
+            Our mission is to enhance your natural beauty with expert care and
+            luxurious treatments. Every client leaves feeling confident and rejuvenated.
           </p>
           <p className="text-[#2A2A2A]/90 text-sm sm:text-base">
-            Our vision is to be the city's leading salon, known for exceptional service, innovative styling, and a warm environment.
+            Our vision is to be Mundra’s most trusted salon — known for our quality,
+            creativity, and care.
           </p>
 
           {/* Map */}
@@ -34,8 +37,8 @@ const AboutUs = () => {
             </h4>
             <div className="w-full h-64 sm:h-72 rounded-xl overflow-hidden shadow-md border border-[#EBD6FB]">
               <iframe
-                title="Salon Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31113.79358421627!2d77.5946!3d12.9716!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c1234567%3A0xabcdef1234567890!2s123%20Style%20Street%2C%20Glamour%20City!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+                title="Bunty Unisex Salon Location"
+                src="https://www.google.com/maps?q=Bunty+Unisex+Salon,+above+Deep+Chinese,+near+HDFC+bank,+Baroi+Rd,+Mundra&output=embed"
                 className="w-full h-full border-0"
                 allowFullScreen=""
                 loading="lazy"
