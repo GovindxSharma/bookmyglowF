@@ -2,15 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "@/api/axiosInstance";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../../data/data";
+import { CalendarDays, Phone, User2, Scissors } from "lucide-react";
 
 const OnlineBooking = () => {
   const [bookings, setBookings] = useState([]);
 
   const fetchBookings = async () => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/appointments/?for_notification=true`
-      );
+      const res = await axios.get(`${BASE_URL}/appointments/?for_notification=true`);
       const data = res.data.appointments || [];
       setBookings(data);
     } catch (err) {
@@ -25,10 +24,19 @@ const OnlineBooking = () => {
         seen: true,
       });
       setBookings((prev) => prev.filter((b) => b._id !== id));
-      alert("Appointment approved successfully!");
     } catch (err) {
       console.error(err);
       alert("Failed to approve appointment.");
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}/appointments/${id}`);
+      setBookings((prev) => prev.filter((b) => b._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reject appointment.");
     }
   };
 
@@ -37,48 +45,66 @@ const OnlineBooking = () => {
   }, []);
 
   return (
-    <div className="p-6 min-h-[400px] flex flex-col gap-4">
+    <div className="p-6 min-h-[400px]">
       {bookings.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500 text-center text-lg">
-            No new online appointments 🎉
-          </p>
+        <div className="flex flex-col items-center justify-center text-center text-gray-500 py-16">
+          <CalendarDays size={36} className="mb-3 text-[#687FE5]" />
+          <p className="text-base">No new online appointments</p>
         </div>
       ) : (
-        bookings.map((b, idx) => (
-          <motion.div
-            key={b._id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            className="flex justify-between items-center p-5 bg-white rounded-2xl shadow border border-[#EBD6FB]"
-          >
-            <div>
-              <h3 className="font-semibold text-gray-900">
-                {b.customer_id?.name || "Unknown"}
-              </h3>
-              <p className="text-sm text-gray-600">
-                📞 {b.customer_id?.phone || "N/A"}
-              </p>
-              <p className="text-sm text-gray-600">
-                💇‍♀️{" "}
-                {b.services?.length > 0
-                  ? b.services.map((s) => s.service_id?.name).join(", ")
-                  : "Service Unavailable"}
-              </p>
-              <p className="text-sm text-gray-500">
-                📅 {new Date(b.date).toLocaleDateString()}
-              </p>
-            </div>
-
-            <button
-              onClick={() => handleApprove(b._id)}
-              className="bg-[#687FE5] text-white px-6 py-2 rounded-full hover:bg-[#5a6fd8] transition-all"
+        <div className="space-y-4">
+          {bookings.map((b, idx) => (
+            <motion.div
+              key={b._id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              className="p-5 bg-white border border-[#E6E9FF] rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
             >
-              Approve
-            </button>
-          </motion.div>
-        ))
+              {/* Booking Info */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-1.5">
+                    <User2 size={16} className="text-[#687FE5]" />
+                    {b.customer_id?.name || "Unknown"}
+                  </h3>
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
+                    <Phone size={15} className="text-[#687FE5]" />
+                    {b.customer_id?.phone || "N/A"}
+                  </p>
+                  <p className="text-sm text-gray-600 flex items-center gap-1.5">
+                    <Scissors size={15} className="text-[#687FE5]" />
+                    {b.services?.length > 0
+                      ? b.services.map((s) => s.service_id?.name).join(", ")
+                      : "Service Unavailable"}
+                  </p>
+                  <p className="text-sm text-gray-500 flex items-center gap-1.5">
+                    <CalendarDays size={15} className="text-[#687FE5]" />
+                    {new Date(b.date).toLocaleDateString()}
+                  </p>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 sm:gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleApprove(b._id)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-[#687FE5] rounded-md hover:bg-[#586fdd] transition-all"
+                  >
+                    Approve
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleReject(b._id)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md border border-gray-200 hover:bg-red-50 hover:text-red-600 transition-all"
+                  >
+                    Reject
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       )}
     </div>
   );

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Info, X } from "lucide-react";
 
 const BookingExploreModal = ({ booking, onClose }) => {
-  // Close on outside click
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (e.target.classList.contains("explore-overlay")) {
@@ -13,91 +12,88 @@ const BookingExploreModal = ({ booking, onClose }) => {
     return () => window.removeEventListener("click", handleOutsideClick);
   }, [onClose]);
 
+  const getStatusBadge = (status) => {
+    const base =
+      "px-2.5 py-0.5 rounded-full text-xs font-medium capitalize";
+    switch (status) {
+      case "completed":
+        return <span className={`${base} bg-green-100 text-green-700`}>Completed</span>;
+      case "pending":
+        return <span className={`${base} bg-yellow-100 text-yellow-700`}>Pending</span>;
+      case "refunded":
+        return <span className={`${base} bg-red-100 text-red-700`}>Refunded</span>;
+      default:
+        return <span className={`${base} bg-gray-100 text-gray-700`}>Unknown</span>;
+    }
+  };
+
   return (
-    <div
-      className="explore-overlay fixed inset-0 backdrop-blur-md bg-white/30 flex justify-center items-center z-50 overflow-hidden"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-    >
-      <div
-        className="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl border border-[#d1d9ff] w-full max-w-2xl p-10 relative transition-all duration-300 overflow-y-auto"
-        style={{
-          maxHeight: "90vh",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
+    <div className="explore-overlay fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 px-3">
+      <div className="relative bg-white rounded-xl shadow-lg border border-[#E1E6FF] w-full max-w-md p-5 overflow-y-auto max-h-[80vh] transition-all">
         {/* Close Button */}
         <button
-          className="absolute top-5 right-6 text-[#687FE5] hover:text-[#4c5dd4] transition-all"
           onClick={onClose}
+          className="absolute top-3.5 right-4 text-[#687FE5] hover:text-[#4c5dd4] transition"
         >
-          <X size={26} />
+          <X size={20} />
         </button>
 
         {/* Header */}
-        <h2 className="text-3xl font-semibold mb-6 text-[#687FE5] flex items-center gap-3">
-          <Info size={26} /> Appointment Details
-        </h2>
+        <div className="flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
+          <Info size={20} className="text-[#687FE5]" />
+          <h2 className="text-lg font-semibold text-[#3A3A3A]">
+            Appointment Details
+          </h2>
+        </div>
 
-        {/* Details Section */}
-        <div className="space-y-4 text-[15px] leading-relaxed text-gray-800">
-          <p>
-            <strong>👤 Customer:</strong> {booking.customer_id?.name}
-          </p>
-          <p>
-            <strong>📞 Phone:</strong> {booking.customer_id?.phone}
-          </p>
-          <p>
-            <strong>✉️ Email:</strong> {booking.customer_id?.email || "N/A"}
-          </p>
-          <p>
-            <strong>🚻 Gender:</strong> {booking.customer_id?.gender || "N/A"}
-          </p>
-          <p>
-            <strong>🏠 Address:</strong> {booking.customer_id?.address || "N/A"}
-          </p>
-          <p>
-            <strong>💆‍♀️ Services:</strong>{" "}
-            {booking.services?.map((s) => s.service_id?.name).join(", ") ||
-              "N/A"}
-          </p>
-          <p>
-            <strong>💼 Employee:</strong> {booking.employee_id?.name || "N/A"}
-          </p>
-          <p>
-            <strong>💰 Amount:</strong> ₹{booking.amount}
-          </p>
-          <p>
-            <strong>💳 Payment Mode:</strong> {booking.payment_mode || "N/A"}
-          </p>
-          <p>
-            <strong>📋 Status:</strong>{" "}
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                booking.payment_status === "completed"
-                  ? "bg-green-100 text-green-700"
-                  : booking.payment_status === "pending"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {booking.payment_status}
-            </span>
-          </p>
-          <p>
-            <strong>📅 Date:</strong>{" "}
-            {booking.date ? booking.date.split("T")[0] : "N/A"}
-          </p>
-          <p>
-            <strong>🌐 Source:</strong> {booking.source || "N/A"}
-          </p>
-          <p>
-            <strong>📝 Notes:</strong> {booking.customer_id?.note || "N/A"}
-          </p>
+        {/* Details */}
+        <div className="space-y-2.5 text-sm text-gray-700">
+          <Detail label="Customer" value={booking.customer_id?.name} />
+          <Detail label="Phone" value={booking.customer_id?.phone} />
+          <Detail label="Email" value={booking.customer_id?.email} />
+          <Detail label="Employee" value={booking.employee_id?.name} />
+          <Detail
+            label="Services"
+            value={
+              booking.services?.map((s) => s.service_id?.name).join(", ") || "N/A"
+            }
+          />
+          <Detail label="Amount" value={`₹${booking.amount || "0"}`} />
+          <Detail label="Payment Mode" value={booking.payment_mode} />
+          <div className="flex justify-between items-center">
+            <span className="font-medium text-gray-800">Payment Status</span>
+            {getStatusBadge(booking.payment_status)}
+          </div>
+          <Detail
+            label="Date"
+            value={booking.date ? booking.date.split("T")[0] : "N/A"}
+          />
+          <Detail label="Source" value={booking.source} />
+          <Detail label="Notes" value={booking.customer_id?.note} />
+        </div>
+
+        {/* Close Button */}
+        <div className="mt-5 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-4 py-1.5 bg-[#687FE5] text-white text-sm rounded-md hover:bg-[#586fdd] transition font-medium"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
+// Small reusable subcomponent for cleaner code
+const Detail = ({ label, value }) => (
+  <div className="flex justify-between items-start">
+    <span className="font-medium text-gray-800">{label}</span>
+    <p className="text-gray-600 text-right max-w-[55%] truncate">
+      {value || "N/A"}
+    </p>
+  </div>
+);
 
 export default BookingExploreModal;
