@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#FFFDFE] via-[#FEEBF6] to-[#EBD6FB] min-h-screen flex flex-col md:flex-row items-center justify-center px-5 sm:px-8 md:px-14 lg:px-20 py-16 sm:py-20 md:py-24">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#F5F6FF] via-[#E8EAFF] to-[#FFFFFF] min-h-screen flex flex-col md:flex-row items-center justify-center px-6 sm:px-10 md:px-16 lg:px-20 py-16 sm:py-20 md:py-24">
       {/* Decorative blurred circles */}
-      <div className="absolute top-[-20%] left-[-25%] w-[260px] sm:w-[340px] md:w-[400px] h-[260px] sm:h-[340px] md:h-[400px] bg-[#FCD8CD]/50 rounded-full blur-[100px] animate-pulse"></div>
-      <div className="absolute bottom-[-20%] right-[-25%] w-[280px] sm:w-[400px] md:w-[460px] h-[280px] sm:h-[400px] md:h-[460px] bg-[#687FE5]/40 rounded-full blur-[110px] animate-pulse"></div>
+      <div className="absolute top-[-15%] left-[-20%] w-[260px] sm:w-[340px] md:w-[400px] h-[260px] sm:h-[340px] md:h-[400px] bg-[#636CCB]/25 rounded-full blur-[100px] animate-pulse"></div>
+      <div className="absolute bottom-[-15%] right-[-20%] w-[280px] sm:w-[400px] md:w-[460px] h-[280px] sm:h-[400px] md:h-[460px] bg-[#4E56B2]/25 rounded-full blur-[120px] animate-pulse"></div>
 
       {/* Text Content */}
       <motion.div
@@ -15,21 +15,20 @@ const HeroSection = () => {
         transition={{ duration: 0.8 }}
         className="z-10 flex flex-col gap-6 max-w-lg text-center md:text-left"
       >
-        <h1 className="text-[2rem] sm:text-[2.5rem] md:text-[3rem] lg:text-[3.8rem] font-extrabold leading-tight text-gray-900 tracking-tight break-words">
-          The best place to{" "}
-          <span className="text-[#687FE5] font-pacifico drop-shadow-sm">
-            relax
+        <h1 className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.4rem] lg:text-[4rem] font-extrabold leading-tight text-[#2A2A2A] tracking-tight break-words">
+          Discover{" "}
+          <span className="text-[#636CCB] font-pacifico drop-shadow-sm">
+            Timeless Beauty
           </span>{" "}
-          and{" "}
-          <span className="text-[#FCD8CD] font-pacifico drop-shadow-sm">
-            glow
-          </span>{" "}
-          ✨
+          at{" "}
+          <span className="text-[#4E56B2] font-pacifico drop-shadow-sm">
+            Bunty Salon
+          </span>
         </h1>
 
-        <p className="text-gray-700 text-sm sm:text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
-          Discover premium salon experiences designed to help you unwind,
-          refresh, and reveal your natural beauty — because you deserve it.
+        <p className="text-[#2A2A2A]/80 text-sm sm:text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
+          Experience elegance and calm — where our expert stylists blend art
+          and care to bring out your unique charm.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-4">
@@ -37,7 +36,7 @@ const HeroSection = () => {
             href="#book"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#687FE5] text-white px-6 sm:px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl hover:bg-[#5a70d6] transition-all duration-300 text-center text-sm sm:text-base"
+            className="bg-[#636CCB] text-white px-6 sm:px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg hover:bg-[#4E56B2] transition-all duration-300 text-center text-sm sm:text-base"
           >
             Book Appointment
           </motion.a>
@@ -46,7 +45,7 @@ const HeroSection = () => {
             href="#services"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className="border-2 border-[#687FE5] text-[#687FE5] px-6 sm:px-8 py-3 rounded-full font-semibold hover:bg-[#687FE5]/10 shadow-md hover:shadow-lg transition-all duration-300 text-center text-sm sm:text-base"
+            className="border-2 border-[#636CCB] text-[#636CCB] px-6 sm:px-8 py-3 rounded-full font-semibold hover:bg-[#636CCB]/10 shadow-sm hover:shadow-md transition-all duration-300 text-center text-sm sm:text-base"
           >
             Explore Services
           </motion.a>
@@ -72,7 +71,7 @@ const HeroSection = () => {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute inset-0 bg-gradient-to-tr from-[#687FE5] via-[#EBD6FB] to-[#FCD8CD] rounded-[55%_45%_65%_45%/55%_60%_45%_55%] blur-[3px]"
+            className="absolute inset-0 bg-gradient-to-tr from-[#636CCB] via-[#A3A8E6] to-[#4E56B2] rounded-[55%_45%_65%_45%/55%_60%_45%_55%] blur-[3px]"
           ></motion.div>
 
           {/* PNG Image */}
@@ -83,8 +82,8 @@ const HeroSection = () => {
           />
         </div>
 
-        {/* Soft Reflection Glow */}
-        <div className="absolute bottom-[-25px] left-1/2 transform -translate-x-1/2 w-[70%] sm:w-[80%] h-[25px] bg-gradient-to-t from-[#EBD6FB]/50 to-transparent blur-2xl rounded-full"></div>
+        {/* Reflection */}
+        <div className="absolute bottom-[-25px] left-1/2 transform -translate-x-1/2 w-[70%] sm:w-[80%] h-[25px] bg-gradient-to-t from-[#636CCB]/40 to-transparent blur-2xl rounded-full"></div>
       </motion.div>
     </section>
   );

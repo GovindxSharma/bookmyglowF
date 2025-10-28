@@ -58,12 +58,10 @@ const AppointmentForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.name.trim() || !formData.phone.trim() || formData.services.length === 0) {
       alert("Please fill all required fields.");
       return;
     }
-
     const payload = {
       name: formData.name.trim(),
       phone: formData.phone.trim(),
@@ -75,7 +73,6 @@ const AppointmentForm = () => {
       confirmation_status: false,
       note: formData.note.trim() || "",
     };
-
     try {
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       if (res.data.success) {
@@ -93,39 +90,40 @@ const AppointmentForm = () => {
   return (
     <section
       id="book"
-      className="relative py-16 sm:py-20 md:py-24 px-5 sm:px-10 md:px-16 bg-gradient-to-br from-[#FEEBF6] via-[#FDFBFF] to-[#EBD6FB] overflow-hidden"
+      className="relative py-20 px-5 sm:px-10 md:px-16 bg-gradient-to-br from-[#E5EBFF] via-[#F5F6FF] to-[#EBD6FB] overflow-hidden"
     >
-      {/* Subtle background */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/symphony.png')] opacity-10 pointer-events-none"></div>
-      <div className="absolute top-0 left-0 w-[200px] sm:w-[250px] h-[200px] sm:h-[250px] bg-[#FCD8CD]/40 blur-[100px] rounded-full"></div>
-      <div className="absolute bottom-0 right-0 w-[250px] sm:w-[300px] h-[250px] sm:h-[300px] bg-[#687FE5]/40 blur-[100px] rounded-full"></div>
+      {/* Decorative Blurs */}
+      <div className="absolute top-[-50px] left-[-50px] w-[250px] h-[250px] bg-[#687FE5]/40 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-[-60px] right-[-60px] w-[300px] h-[300px] bg-[#636CCB]/40 rounded-full blur-[150px] animate-pulse"></div>
 
+      {/* Heading */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center relative z-10 mb-12 sm:mb-14"
+        transition={{ duration: 0.7 }}
+        className="text-center relative z-10 mb-12 sm:mb-16"
       >
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-3 sm:mb-4">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#4E56B2] mb-3">
           Book Your Appointment
         </h2>
-        <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">
-          Select your services, choose your date, and we’ll handle the rest 💆‍♀️
+        <p className="text-[#2A2A2A]/80 max-w-2xl mx-auto text-base sm:text-lg">
+          Choose your services, select a date, and relax — we’ll take care of the rest 💆‍♀️
         </p>
       </motion.div>
 
+      {/* Form */}
       <div className="flex justify-center">
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 w-full max-w-3xl bg-white/90 backdrop-blur-xl p-6 sm:p-8 md:p-10 rounded-3xl shadow-2xl border border-[#EBD6FB]"
+          transition={{ duration: 0.7 }}
+          className="relative z-10 w-full max-w-3xl bg-white/90 backdrop-blur-xl border border-[#A3B0FF]/30 p-8 sm:p-10 md:p-12 rounded-3xl shadow-2xl"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Name */}
             <div className="flex flex-col">
-              <label className="text-gray-700 font-medium mb-1 ml-1 text-sm sm:text-base">
+              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
                 Full Name
               </label>
               <input
@@ -133,15 +131,15 @@ const AppointmentForm = () => {
                 type="text"
                 value={formData.name}
                 onChange={handleChange}
-                required
                 placeholder="Enter your name"
-                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
+                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
+                required
               />
             </div>
 
             {/* Phone */}
             <div className="flex flex-col">
-              <label className="text-gray-700 font-medium mb-1 ml-1 text-sm sm:text-base">
+              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
                 Phone Number
               </label>
               <input
@@ -149,22 +147,22 @@ const AppointmentForm = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={handleChange}
+                placeholder="+91 99999 11111"
+                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
                 required
-                placeholder="+91 9999911111"
-                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
               />
             </div>
 
             {/* Services Dropdown */}
-            <div className="relative md:col-span-2 flex flex-col" ref={dropdownRef}>
-              <label className="text-gray-700 font-medium mb-1 ml-1 text-sm sm:text-base">
+            <div className="md:col-span-2 relative" ref={dropdownRef}>
+              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
                 Select Services
               </label>
               <div
-                onClick={() => setOpenDropdown((prev) => !prev)}
-                className="flex justify-between items-center border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] cursor-pointer focus:ring-2 focus:ring-[#687FE5] transition-all"
+                onClick={() => setOpenDropdown(!openDropdown)}
+                className="flex justify-between items-center border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] cursor-pointer hover:ring-2 hover:ring-[#687FE5] transition-all"
               >
-                <span className="text-gray-700 text-sm sm:text-base">
+                <span className="text-[#2A2A2A] text-sm sm:text-base">
                   {formData.services.length > 0
                     ? `${formData.services.length} service(s) selected`
                     : "Choose Services"}
@@ -176,12 +174,12 @@ const AppointmentForm = () => {
               </div>
 
               {openDropdown && (
-                <div className="absolute mt-2 w-full bg-white border border-[#EBD6FB] rounded-xl shadow-lg z-50 max-h-56 sm:max-h-64 overflow-y-auto">
+                <div className="absolute mt-2 w-full bg-white border border-[#A3B0FF]/30 rounded-xl shadow-lg max-h-64 overflow-y-auto z-50">
                   {services.length > 0 ? (
                     services.map((s) => (
                       <label
                         key={s._id}
-                        className="flex items-center px-4 py-2 hover:bg-[#F8F4FF] cursor-pointer text-sm sm:text-base"
+                        className="flex items-center px-4 py-2 hover:bg-[#E8EBFF] cursor-pointer text-sm sm:text-base"
                       >
                         <input
                           type="checkbox"
@@ -201,7 +199,7 @@ const AppointmentForm = () => {
 
             {/* Date */}
             <div className="md:col-span-2 flex flex-col">
-              <label className="text-gray-700 font-medium mb-1 ml-1 text-sm sm:text-base">
+              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
                 Preferred Date
               </label>
               <input
@@ -209,15 +207,14 @@ const AppointmentForm = () => {
                 type="date"
                 value={formData.date}
                 onChange={handleChange}
-                required
                 min={today}
-                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all text-sm sm:text-base"
+                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all text-sm sm:text-base"
               />
             </div>
 
             {/* Notes */}
             <div className="md:col-span-2 flex flex-col">
-              <label className="text-gray-700 font-medium mb-1 ml-1 text-sm sm:text-base">
+              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
                 Special Requests
               </label>
               <textarea
@@ -226,18 +223,18 @@ const AppointmentForm = () => {
                 onChange={handleChange}
                 placeholder="Any additional details or preferences..."
                 rows={3}
-                className="border border-[#EBD6FB] rounded-xl px-4 py-3 bg-[#FFF8FB] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all placeholder-gray-400 text-sm sm:text-base"
+                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all text-sm sm:text-base placeholder-gray-400"
               />
             </div>
           </div>
 
           {/* Buttons */}
-          <div className="text-center mt-10 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center text-center">
             <motion.button
               type="submit"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="px-8 sm:px-10 py-3 bg-[#687FE5] text-white font-semibold rounded-full shadow-md hover:shadow-lg hover:bg-[#5a6fd8] transition-all duration-300 text-sm sm:text-base w-full sm:w-auto"
+              className="px-8 sm:px-10 py-3 bg-gradient-to-r from-[#636CCB] to-[#687FE5] text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transition-all duration-300 w-full sm:w-auto"
             >
               Confirm Appointment
             </motion.button>
@@ -246,7 +243,7 @@ const AppointmentForm = () => {
               href="tel:+919999999999"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center justify-center gap-2 px-8 sm:px-10 py-3 border-2 border-[#687FE5] text-[#687FE5] rounded-full font-semibold hover:bg-[#687FE5]/10 transition-all duration-300 text-sm sm:text-base w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 px-8 sm:px-10 py-3 border-2 border-[#636CCB] text-[#636CCB] rounded-full font-semibold hover:bg-[#636CCB]/10 transition-all duration-300 w-full sm:w-auto"
             >
               <Phone size={20} /> Call to Book
             </motion.a>
