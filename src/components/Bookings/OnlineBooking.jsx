@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/api/axiosInstance";
 import { motion } from "framer-motion";
 import { BASE_URL } from "../../data/data";
 

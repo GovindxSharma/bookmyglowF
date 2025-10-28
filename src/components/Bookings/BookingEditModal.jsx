@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
-import axios from "axios";
+import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
 import { BASE_URL } from "../../data/data";
 

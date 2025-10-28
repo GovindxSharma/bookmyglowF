@@ -1,6 +1,6 @@
 // src/pages/Attendance/AttendancePage.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../api/axiosInstance";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { BASE_URL } from "../../data/data";
 
@@ -14,7 +14,7 @@ const AttendancePage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/auth/employees`);
+      const res = await axios.get(`${BASE_URL}/employee`);
       setEmployees(res.data.employees);
       const initialMap = {};
       res.data.employees.forEach((emp) => (initialMap[emp._id] = false));

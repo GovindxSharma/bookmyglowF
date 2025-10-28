@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/api/axiosInstance";
 import AddBooking from "./AddBookings";
 import BookingList from "./BookingList";
 import OnlineBooking from "./OnlineBooking"; // 👈 new component
