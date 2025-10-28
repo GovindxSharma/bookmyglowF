@@ -15,30 +15,35 @@ const HeroSection = () => {
         transition={{ duration: 0.8 }}
         className="z-10 flex flex-col gap-6 max-w-lg text-center md:text-left"
       >
-        <h1 className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.4rem] lg:text-[4rem] font-extrabold leading-tight text-[#2A2A2A] tracking-tight break-words">
+        <h1 className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.6rem] lg:text-[4.2rem] font-extrabold leading-tight text-[#2A2A2A] tracking-tight break-words">
           Discover{" "}
           <span className="text-[#636CCB] font-pacifico drop-shadow-sm">
-            Timeless Beauty
+            Luxurious
           </span>{" "}
-          at{" "}
+          &{" "}
           <span className="text-[#4E56B2] font-pacifico drop-shadow-sm">
-            Bunty Salon
-          </span>
+            Unisex Salon
+          </span>{" "}
+          Experience
         </h1>
 
         <p className="text-[#2A2A2A]/80 text-sm sm:text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
-          Experience elegance and calm — where our expert stylists blend art
-          and care to bring out your unique charm.
+          Experience the luxurious haircare services at our premium salon.
+          Highly trained staff and top-quality hair products available at our
+          new premise — exclusive at <strong>Bunty’s Unisex Salon</strong> near you.
+          Visit now to redefine your style!
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-4">
           <motion.a
-            href="#book"
+            href="https://www.google.com/maps?q=Bunty's+Unisex+Salon"
+            target="_blank"
+            rel="noopener noreferrer"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             className="bg-[#636CCB] text-white px-6 sm:px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg hover:bg-[#4E56B2] transition-all duration-300 text-center text-sm sm:text-base"
           >
-            Book Appointment
+            Visit Now
           </motion.a>
 
           <motion.a

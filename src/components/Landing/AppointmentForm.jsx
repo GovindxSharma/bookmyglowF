@@ -107,7 +107,7 @@ const AppointmentForm = () => {
           Book Your Appointment
         </h2>
         <p className="text-[#2A2A2A]/80 max-w-2xl mx-auto text-base sm:text-lg">
-          Choose your services, select a date, and relax — we’ll take care of the rest 💆‍♀️
+          Choose your services, select a date, and relax — we’ll take care of the rest 
         </p>
       </motion.div>
 
@@ -240,7 +240,7 @@ const AppointmentForm = () => {
             </motion.button>
 
             <motion.a
-              href="tel:+919999999999"
+              href="tel:+919904334450"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex items-center justify-center gap-2 px-8 sm:px-10 py-3 border-2 border-[#636CCB] text-[#636CCB] rounded-full font-semibold hover:bg-[#636CCB]/10 transition-all duration-300 w-full sm:w-auto"

@@ -5,7 +5,7 @@ import AppointmentForm  from "../../components/Landing/AppointmentForm.jsx";
 import axios from "../../api/axiosInstance";
 import { BASE_URL } from "../../data/data.js";
 import AboutUs from "../../components/Landing/About.jsx";
-import Reviews from "../../components/Landing/Reviews.jsx";
+// import Reviews from "../../components/Landing/Reviews.jsx";
 
 
 const CustomerPage = () => {
@@ -29,7 +29,6 @@ const CustomerPage = () => {
       <ServicesSection services={services} />
       <AppointmentForm />
       <AboutUs />
-      <Reviews/>
     </div>
   );
 };
