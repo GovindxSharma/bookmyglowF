@@ -36,7 +36,7 @@ const HeroSection = () => {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-4">
           <motion.a
-            href="https://www.google.com/maps?q=Bunty's+Unisex+Salon"
+            href="https://maps.app.goo.gl/NQ282MRtTZpuYnw8A"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.08 }}
