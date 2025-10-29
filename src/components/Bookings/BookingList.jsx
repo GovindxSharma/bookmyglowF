@@ -12,7 +12,9 @@ import {
 import BookingEditModal from "./BookingEditModal";
 import BookingExploreModal from "./BookingExploreModal";
 import { BASE_URL } from "../../data/data";
-import Loader from "../Layout/Loader"
+import Loader from "../Layout/Loader";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const BookingList = () => {
   const [bookings, setBookings] = useState([]);
@@ -23,6 +25,7 @@ const BookingList = () => {
   const [employees, setEmployees] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 8;
@@ -83,110 +86,107 @@ const BookingList = () => {
       "px-2.5 py-1 text-xs font-medium rounded-full flex items-center justify-center gap-1";
     switch (status) {
       case "completed":
-        return (
-          <span className={`${base} bg-green-100 text-green-700`}>
-            <CheckCircle size={14} /> Completed
-          </span>
-        );
+        return <span className={`${base} bg-green-100 text-green-700`}><CheckCircle size={14} /> Completed</span>;
       case "pending":
-        return (
-          <span className={`${base} bg-yellow-100 text-yellow-700`}>
-            <AlertCircle size={14} /> Pending
-          </span>
-        );
+        return <span className={`${base} bg-yellow-100 text-yellow-700`}><AlertCircle size={14} /> Pending</span>;
       case "refunded":
-        return (
-          <span className={`${base} bg-red-100 text-red-700`}>
-            <XCircle size={14} /> Refunded
-          </span>
-        );
+        return <span className={`${base} bg-red-100 text-red-700`}><XCircle size={14} /> Refunded</span>;
       default:
-        return (
-          <span className={`${base} bg-gray-100 text-gray-600`}>Unknown</span>
-        );
+        return <span className={`${base} bg-gray-100 text-gray-600`}>Unknown</span>;
+    }
+  };
+
+  const exportExcel = async () => {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const data = filteredBookings.map((b) => ({
+        Customer: b.customer_id?.name,
+        Phone: b.customer_id?.phone,
+        "Service(s)": b.services?.map((s) => s.service_id?.name).join(", ") || "N/A",
+        Employee: b.employee_id?.name || "N/A",
+        Amount: b.amount,
+        Payment: b.payment_status,
+        Confirmation: b.confirmation_status ? "Confirmed" : "Pending",
+      }));
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+      saveAs(blob, "bookings.xlsx");
+    } catch (err) {
+      console.error("Excel export failed", err);
+    } finally {
+      setExporting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f3f6ff] via-[#eef1ff] to-white py-10 px-4 sm:px-6 relative">
-      {/* Loader */}
+    <div className="min-h-screen bg-gradient-to-br from-[#f3f6ff] via-[#eef1ff] to-white py-10 px-4 sm:px-6">
       {loading && <Loader fullscreen={true} size={250} />}
 
-      <div className="max-w-7xl mx-auto relative">
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 w-full">
-          {/* Search Input */}
-          <div className="relative w-full sm:w-1/2">
-            <input
-              type="text"
-              placeholder="Search by name, phone, service..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 pl-10 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#687FE5]/50 focus:border-[#687FE5] outline-none transition placeholder-gray-400"
-            />
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
-            </svg>
-          </div>
-
-          {/* Status Dropdown */}
-          <div className="relative w-full sm:w-64">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-2 focus:ring-[#687FE5]/50 focus:border-[#687FE5] outline-none transition hover:ring-[#687FE5]/40 cursor-pointer"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="refunded">Refunded</option>
-            </select>
-          </div>
+      <div className="max-w-7xl mx-auto">
+        {/* Filters + Excel */}
+        <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 justify-between items-center mb-6">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search by name, phone, service..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full sm:flex-1 px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-[#687FE5]/50 focus:border-[#687FE5] outline-none placeholder-gray-400"
+        />
+      
+        {/* Status Filter + Export grouped for mobile */}
+        <div className="flex w-full sm:w-auto gap-3 sm:gap-4 mt-2 sm:mt-0">
+          {/* Status Filter */}
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="flex-1 px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm bg-white focus:ring-2 focus:ring-[#687FE5]/50 focus:border-[#687FE5] outline-none cursor-pointer"
+          >
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="refunded">Refunded</option>
+          </select>
+      
+          {/* Export Excel */}
+          <button
+            onClick={exportExcel}
+            disabled={exporting}
+            className={`px-4 py-3 rounded-lg text-sm font-medium transition ${
+              exporting
+                ? "bg-gray-300 text-gray-700 cursor-not-allowed"
+                : "bg-[#dce3ff] text-[#687FE5] hover:bg-[#c5d1ff]"
+            }`}
+          >
+            {exporting ? "Exporting..." : "Export Excel"}
+          </button>
         </div>
+      </div>
+      
 
         {/* Table for desktop */}
         <div className="hidden md:block overflow-x-auto bg-white shadow-lg rounded-2xl border border-gray-100">
           <table className="min-w-full text-sm text-gray-700 border-collapse">
             <thead className="bg-[#687FE5] text-white text-xs uppercase tracking-wide">
               <tr>
-                {[
-                  "Customer",
-                  "Phone",
-                  "Service(s)",
-                  "Employee",
-                  "Amount",
-                  "Payment",
-                  "Status",
-                  "Actions",
-                ].map((h) => (
-                  <th key={h} className="py-3.5 px-4 text-left border-b border-[#e4e7ff]">
-                    {h}
-                  </th>
+                {["Customer", "Phone", "Service(s)", "Employee", "Amount", "Payment", "Status", "Actions"].map((h) => (
+                  <th key={h} className="py-3.5 px-4 text-left border-b border-[#e4e7ff]">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {currentBookings.length > 0 ? (
                 currentBookings.map((b) => (
-                  <tr
-                    key={b._id}
-                    className="hover:bg-[#f1f4ff] transition-all border-b last:border-0"
-                  >
+                  <tr key={b._id} className="hover:bg-[#f1f4ff] transition-all border-b last:border-0">
                     <td className="py-3 px-4">{b.customer_id?.name}</td>
                     <td className="py-3 px-4">{b.customer_id?.phone}</td>
-                    <td className="py-3 px-4">
-                      {b.services?.map((s) => s.service_id?.name).join(", ") || "N/A"}
-                    </td>
+                    <td className="py-3 px-4">{b.services?.map((s) => s.service_id?.name).join(", ") || "N/A"}</td>
                     <td className="py-3 px-4">{b.employee_id?.name || "N/A"}</td>
-                    <td className="py-3 px-4 text-center font-medium text-gray-800">
-                      ₹{b.amount}
-                    </td>
+                    <td className="py-3 px-4 text-center font-medium text-gray-800">₹{b.amount}</td>
                     <td className="py-3 px-4 text-center">{getStatusBadge(b.payment_status)}</td>
                     <td className="py-3 px-4 text-center">
                       {b.confirmation_status ? (
@@ -199,21 +199,19 @@ const BookingList = () => {
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => setSelectedBooking(b)}
-                          className="px-2.5 py-1.5 bg-[#687FE5] text-white text-xs rounded-lg hover:bg-[#556dd8] transition flex items-center gap-1"
-                        >
-                          <Info size={14} /> View
-                        </button>
-                        <button
-                          onClick={() => setEditBooking(b)}
-                          className="px-2.5 py-1.5 bg-[#dce3ff] text-[#687FE5] text-xs rounded-lg hover:bg-[#c5d1ff] transition flex items-center gap-1"
-                        >
-                          <Pencil size={14} /> Edit
-                        </button>
-                      </div>
+                    <td className="py-3 px-4 text-center flex justify-center gap-2">
+                      <button
+                        onClick={() => setSelectedBooking(b)}
+                        className="px-2.5 py-1.5 bg-[#687FE5] text-white text-xs rounded-lg hover:bg-[#556dd8] transition flex items-center gap-1"
+                      >
+                        <Info size={14} /> View
+                      </button>
+                      <button
+                        onClick={() => setEditBooking(b)}
+                        className="px-2.5 py-1.5 bg-[#dce3ff] text-[#687FE5] text-xs rounded-lg hover:bg-[#c5d1ff] transition flex items-center gap-1"
+                      >
+                        <Pencil size={14} /> Edit
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -300,12 +298,7 @@ const BookingList = () => {
         )}
 
         {/* Modals */}
-        {selectedBooking && (
-          <BookingExploreModal
-            booking={selectedBooking}
-            onClose={() => setSelectedBooking(null)}
-          />
-        )}
+        {selectedBooking && <BookingExploreModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />}
         {editBooking && (
           <BookingEditModal
             editBooking={editBooking}
