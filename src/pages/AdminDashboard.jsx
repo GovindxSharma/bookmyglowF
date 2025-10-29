@@ -84,7 +84,7 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  if (loading) return <Loader />;
+  if (loading) return <Loader size={250}/>;
 
   return (
     <div className="p-4 sm:p-6 md:p-10 min-h-screen bg-gradient-to-b from-[#f0f4ff] to-[#ffffff] font-poppins text-[#3A3A3A]">

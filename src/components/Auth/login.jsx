@@ -47,7 +47,7 @@ const Login = () => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#FCD8CD]/50 rounded-full blur-[120px]" />
 
       {/* Fullscreen Loader */}
-      <AnimatePresence>{loading && <Loader fullscreen={true} size={150} />}</AnimatePresence>
+      <AnimatePresence>{loading && <Loader fullscreen={true} size={250} />}</AnimatePresence>
 
       {/* Login Form */}
       <motion.div

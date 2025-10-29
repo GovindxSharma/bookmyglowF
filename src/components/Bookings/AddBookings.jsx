@@ -209,7 +209,7 @@ const AddBooking = () => {
   if (fetchingData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader size={100} />
+        <Loader size={250} />
       </div>
     );
   }

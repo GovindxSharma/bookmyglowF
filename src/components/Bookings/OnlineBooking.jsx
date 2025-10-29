@@ -52,7 +52,7 @@ const OnlineBooking = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader size={100} />
+        <Loader size={250} />
       </div>
     );
   }
