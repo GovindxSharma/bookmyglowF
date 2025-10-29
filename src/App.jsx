@@ -8,6 +8,7 @@ import AttendancePage from "./pages/Attendance/AttendacePage.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import CustomerPage from "./pages/Home/CustomerPage.jsx";
 import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
+import Settings from "@/pages/Settings/Settings";
 
 // Auth
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
@@ -60,6 +61,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["admin", "receptionist"]}>
               <EmployeeManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Settings />
             </ProtectedRoute>
           }
         />

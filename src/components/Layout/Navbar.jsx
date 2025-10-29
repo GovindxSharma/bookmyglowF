@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Users, CalendarDays, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  Users,
+  CalendarDays,
+  LogOut,
+  SettingsIcon,
+} from "lucide-react";
 import DashboardIcon from "@/assets/icons/dashboard.png";
 import AttendanceIcon from "@/assets/icons/attendance.png";
 import Loader from "@/components/Layout/Loader.jsx"; // Fullscreen loader
@@ -52,18 +59,53 @@ const Navbar = () => {
   const allMenus = {
     admin: [
       {
-        icon: <img src={DashboardIcon} alt="Dashboard" className="w-[22px] h-[22px]" />,
+        icon: (
+          <img
+            src={DashboardIcon}
+            alt="Dashboard"
+            className="w-[22px] h-[22px]"
+          />
+        ),
         path: "/dashboard",
         label: "Dashboard",
       },
       { icon: <Users size={22} />, path: "/employees", label: "Employees" },
-      { icon: <LogOut size={22} className="text-red-500" />, path: "#logout", label: "Logout", onClick: handleLogout },
+      {
+        icon: <SettingsIcon size={22} />,
+        path: "/settings",
+        label: "Settings",
+      },
+      {
+        icon: <LogOut size={22} className="text-red-500" />,
+        path: "#logout",
+        label: "Logout",
+        onClick: handleLogout,
+      },
     ],
     receptionist: [
-      { icon: <CalendarDays size={22} />, path: "/bookings", label: "Bookings" },
-      { icon: <img src={AttendanceIcon} alt="Attendance" className="w-[22px] h-[22px]" />, path: "/attendance", label: "Attendance" },
+      {
+        icon: <CalendarDays size={22} />,
+        path: "/bookings",
+        label: "Bookings",
+      },
+      {
+        icon: (
+          <img
+            src={AttendanceIcon}
+            alt="Attendance"
+            className="w-[22px] h-[22px]"
+          />
+        ),
+        path: "/attendance",
+        label: "Attendance",
+      },
       { icon: <Users size={22} />, path: "/employees", label: "Employees" },
-      { icon: <LogOut size={22} className="text-red-500" />, path: "#logout", label: "Logout", onClick: handleLogout },
+      {
+        icon: <LogOut size={22} className="text-red-500" />,
+        path: "#logout",
+        label: "Logout",
+        onClick: handleLogout,
+      },
     ],
   };
 
