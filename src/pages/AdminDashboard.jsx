@@ -15,7 +15,7 @@ import { BASE_URL } from "../data/data";
 import Loader from "../components/Layout/Loader.jsx";
 
 const PAYMENTS_API = `${BASE_URL}/payments`;
-const EMPLOYEE_API = `${BASE_URL}/auth/employees`;
+const EMPLOYEE_API = `${BASE_URL}/employee`;
 
 const AdminDashboard = () => {
   const [todayRevenue, setTodayRevenue] = useState(0);
