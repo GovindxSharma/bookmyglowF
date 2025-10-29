@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import HeroImage from "@/assets/heroimage.png";
 
 const HeroSection = () => {
   return (
@@ -81,7 +82,7 @@ const HeroSection = () => {
 
           {/* PNG Image */}
           <img
-            src="https://png.pngtree.com/png-clipart/20240311/original/pngtree-working-as-hairdresser-hair-salon-and-barber-shop-png-image_14565273.png"
+            src={HeroImage}
             alt="Salon"
             className="absolute inset-0 w-full h-full object-contain rounded-[55%_45%_65%_45%/55%_60%_45%_55%] shadow-2xl"
           />
