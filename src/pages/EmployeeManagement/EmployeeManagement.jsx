@@ -4,6 +4,7 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BASE_URL } from "../../data/data";
 import Loader from "../../components/Layout/Loader.jsx";
+import Alert from "../../components/Layout/Alert.jsx"; // ✅ Added
 
 const EmployeeManagement = () => {
   const token = localStorage.getItem("token");
@@ -15,6 +16,8 @@ const EmployeeManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [errors, setErrors] = useState({});
+  const [alert, setAlert] = useState({ show: false, type: "info", message: "" }); // ✅ Added
+  const [confirmDelete, setConfirmDelete] = useState(null); // ✅ For delete confirmation
   const [formData, setFormData] = useState({
     name: "",
     countryCode: "+91",
@@ -24,6 +27,12 @@ const EmployeeManagement = () => {
     status: true,
   });
 
+  // ✅ Alert helper
+  const showAlert = (type, message) => {
+    setAlert({ show: true, type, message });
+    setTimeout(() => setAlert({ show: false, type: "info", message: "" }), 3000);
+  };
+
   // Fetch employees
   const fetchEmployees = async () => {
     setLoading(true);
@@ -32,6 +41,7 @@ const EmployeeManagement = () => {
       setEmployees(res.data.employees || []);
     } catch (err) {
       console.error("Error fetching employees:", err);
+      showAlert("error", "Failed to fetch employees.");
     } finally {
       setLoading(false);
     }
@@ -72,30 +82,37 @@ const EmployeeManagement = () => {
       };
       if (editingEmployee) {
         await axios.put(`${BASE_URL}/employee/${editingEmployee._id}`, payload, config);
+        showAlert("success", "Employee updated successfully!");
       } else {
         await axios.post(`${BASE_URL}/employee`, payload, config);
+        showAlert("success", "Employee added successfully!");
       }
       fetchEmployees();
       closeModal();
     } catch (err) {
       console.error("Save failed:", err);
-      alert("Something went wrong while saving.");
+      showAlert("error", "Something went wrong while saving.");
     } finally {
       setOperationLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee?")) return;
+    setConfirmDelete(id);
+  };
+
+  const confirmDeleteEmployee = async (id) => {
     setOperationLoading(true);
     try {
       await axios.delete(`${BASE_URL}/employee/${id}`, config);
       setEmployees((prev) => prev.filter((e) => e._id !== id));
+      showAlert("success", "Employee deleted successfully!");
     } catch (err) {
       console.error("Delete failed:", err);
-      alert("Failed to delete employee.");
+      showAlert("error", "Failed to delete employee.");
     } finally {
       setOperationLoading(false);
+      setConfirmDelete(null);
     }
   };
 
@@ -104,9 +121,10 @@ const EmployeeManagement = () => {
     try {
       await axios.put(`${BASE_URL}/employee/${emp._id}`, { ...emp, status: !emp.status }, config);
       fetchEmployees();
+      showAlert("success", "Employee status updated!");
     } catch (err) {
       console.error("Status update failed:", err);
-      alert("Failed to update status.");
+      showAlert("error", "Failed to update status.");
     } finally {
       setOperationLoading(false);
     }
@@ -145,6 +163,54 @@ const EmployeeManagement = () => {
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-[#EEF1FF] via-[#F5F6FF] to-white relative">
       {(loading || operationLoading) && <Loader fullscreen={true} size={250} />}
+
+      {/* ✅ Global Alert */}
+      <Alert
+        type={alert.type}
+        message={alert.message}
+        show={alert.show}
+        onClose={() => setAlert({ show: false, type: "info", message: "" })}
+      />
+
+      {/* ✅ Delete Confirmation */}
+      <AnimatePresence>
+        {confirmDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-sm text-center border border-[#DDE1FF]"
+            >
+              <h3 className="text-xl font-semibold text-[#636CCB] mb-3">
+                Delete Employee?
+              </h3>
+              <p className="text-gray-600 mb-5">
+                Are you sure you want to remove this employee? This action cannot be undone.
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => setConfirmDelete(null)}
+                  className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => confirmDeleteEmployee(confirmDelete)}
+                  className="px-4 py-2 rounded-lg bg-[#E03131] text-white hover:bg-[#c92a2a] transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Add Button */}
       <div className="flex justify-end mb-6">

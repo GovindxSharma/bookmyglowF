@@ -1,9 +1,9 @@
-// src/pages/Attendance/AttendancePage.jsx
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { BASE_URL } from "../../data/data";
-import Loader from "../../components/Layout/Loader.jsx"; // Custom fullscreen loader
+import Loader from "../../components/Layout/Loader.jsx";
+import Alert from "../../components/Layout/Alert.jsx";
 
 const AttendancePage = () => {
   const [employees, setEmployees] = useState([]);
@@ -12,9 +12,20 @@ const AttendancePage = () => {
   const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [editRecord, setEditRecord] = useState(null);
-  const [loading, setLoading] = useState(true); // Fullscreen loader
+  const [loading, setLoading] = useState(true);
 
-  // Fetch employees and initialize attendance map
+  // ✅ alert state
+  const [alertData, setAlertData] = useState({
+    show: false,
+    type: "info",
+    message: "",
+  });
+
+  const showAlert = (type, message) => {
+    setAlertData({ show: true, type, message });
+  };
+
+  // Fetch employees
   const fetchEmployees = async () => {
     setLoading(true);
     try {
@@ -25,13 +36,13 @@ const AttendancePage = () => {
       setAttendanceMap(map);
     } catch (err) {
       console.error("Error fetching employees:", err);
-      alert("❌ Failed to load employees.");
+      showAlert("error", "Failed to load employees.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch attendance for a specific employee
+  // Fetch attendance for selected employee
   const fetchEmployeeAttendance = async (empId) => {
     setLoading(true);
     try {
@@ -39,7 +50,7 @@ const AttendancePage = () => {
       setAttendanceRecords(res.data || []);
     } catch (err) {
       console.error("Error fetching attendance:", err);
-      alert("❌ Failed to load attendance.");
+      showAlert("error", "Failed to load attendance.");
     } finally {
       setLoading(false);
     }
@@ -64,11 +75,11 @@ const AttendancePage = () => {
           leave: !attendanceMap[empId],
         });
       }
-      alert("✅ Attendance marked successfully!");
+      showAlert("success", "Attendance marked successfully!");
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
     } catch (err) {
       console.error("Error marking attendance:", err);
-      alert("❌ Failed to mark attendance.");
+      showAlert("error", "Failed to mark attendance.");
     } finally {
       setLoading(false);
     }
@@ -115,9 +126,10 @@ const AttendancePage = () => {
       });
       setEditRecord(null);
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
+      showAlert("success", "Attendance updated successfully!");
     } catch (err) {
       console.error("Error editing attendance:", err);
-      alert("❌ Failed to update attendance.");
+      showAlert("error", "Failed to update attendance.");
     } finally {
       setLoading(false);
     }
@@ -185,7 +197,6 @@ const AttendancePage = () => {
               {selectedEmployee.name}'s Attendance
             </h2>
 
-            {/* Legend */}
             <div className="flex items-center gap-6 mb-5 text-sm text-gray-600">
               <div className="flex items-center gap-2">
                 <span className="w-4 h-4 bg-green-400 rounded-full"></span>{" "}
@@ -196,7 +207,6 @@ const AttendancePage = () => {
               </div>
             </div>
 
-            {/* Calendar Header */}
             <div className="flex items-center justify-between mb-5">
               <button
                 onClick={() => changeMonth(-1)}
@@ -216,7 +226,6 @@ const AttendancePage = () => {
               </button>
             </div>
 
-            {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-2 text-center">
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
                 <div
@@ -246,7 +255,6 @@ const AttendancePage = () => {
               })}
             </div>
 
-            {/* Edit Modal */}
             {editRecord && (
               <>
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
@@ -291,6 +299,14 @@ const AttendancePage = () => {
           </div>
         )}
       </div>
+
+      {/* ✅ Global Alert */}
+      <Alert
+        type={alertData.type}
+        message={alertData.message}
+        show={alertData.show}
+        onClose={() => setAlertData((prev) => ({ ...prev, show: false }))}
+      />
     </div>
   );
 };
