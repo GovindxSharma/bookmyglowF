@@ -134,7 +134,7 @@ const AttendancePage = () => {
     return days;
   };
 
-  if (loading) return <Loader fullscreen={true} size={150} />;
+  if (loading) return <Loader fullscreen={true} size={250} />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E8EDFF] via-[#F5F6FF] to-[#FFFFFF] p-6 md:p-10">

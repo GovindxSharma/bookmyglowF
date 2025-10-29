@@ -84,7 +84,7 @@ const BookingTabs = () => {
       <div className="mt-2 min-h-[300px]">
         {loading ? (
           <div className="flex justify-center items-center min-h-[300px]">
-            <Loader />
+            <Loader size={250}/>
           </div>
         ) : (
           <>

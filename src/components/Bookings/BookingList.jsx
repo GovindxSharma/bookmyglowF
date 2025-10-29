@@ -110,7 +110,7 @@ const BookingList = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f3f6ff] via-[#eef1ff] to-white py-10 px-4 sm:px-6 relative">
       {/* Loader */}
-      {loading && <Loader fullscreen={true} size={120} />}
+      {loading && <Loader fullscreen={true} size={250} />}
 
       <div className="max-w-7xl mx-auto relative">
         {/* Filters */}

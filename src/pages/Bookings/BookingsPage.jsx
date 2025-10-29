@@ -16,7 +16,7 @@ const BookingsPage = () => {
   }, []);
 
   if (loading) {
-    return <Loader fullscreen={true} size={150} />;
+    return <Loader fullscreen={true} size={250} />;
   }
 
   return (

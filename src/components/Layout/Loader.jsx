@@ -1,9 +1,9 @@
 // src/components/Layout/Loader.jsx
 import React from "react";
 import Lottie from "lottie-react";
-import loader from "../../assets/loader.json"; // your Lottie JSON
+import loader from "../../assets/loader.json";
 
-const Loader = ({ fullscreen = true, size = 150 }) => {
+const Loader = ({ fullscreen = true, size = 250 }) => { // 🔼 increased from 150 → 250
   return (
     <div
       className={`flex items-center justify-center ${

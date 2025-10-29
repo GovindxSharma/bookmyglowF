@@ -144,7 +144,7 @@ const EmployeeManagement = () => {
 
   return (
     <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-[#EEF1FF] via-[#F5F6FF] to-white relative">
-      {(loading || operationLoading) && <Loader fullscreen={true} size={150} />}
+      {(loading || operationLoading) && <Loader fullscreen={true} size={250} />}
 
       {/* Add Button */}
       <div className="flex justify-end mb-6">

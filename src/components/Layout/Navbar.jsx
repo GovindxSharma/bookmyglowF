@@ -97,7 +97,7 @@ const Navbar = () => {
   return (
     <>
       {/* Fullscreen Loader */}
-      <AnimatePresence>{loading && <Loader fullscreen={true} size={120} />}</AnimatePresence>
+      <AnimatePresence>{loading && <Loader fullscreen={true} size={250} />}</AnimatePresence>
 
       <nav className="fixed top-0 left-0 w-full z-50 bg-[#636CCB]/10 backdrop-blur-lg border-b border-[#636CCB]/20">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-10 py-4">
