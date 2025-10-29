@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Phone, ChevronDown } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../../data/data";
+import CustomerAlert from "../Layout/CustomerAlert";
 
 const AppointmentForm = () => {
   const today = new Date().toISOString().split("T")[0];
@@ -14,14 +15,11 @@ const AppointmentForm = () => {
     note: "",
   });
 
-  const [errors, setErrors] = useState({
-    name: "",
-    phone: "",
-    services: "",
-  });
-
+  const [errors, setErrors] = useState({});
   const [services, setServices] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [alert, setAlert] = useState({ show: false, type: "info", message: "" });
+
   const dropdownRef = useRef(null);
 
   // Fetch services
@@ -32,12 +30,17 @@ const AppointmentForm = () => {
         setServices(res.data);
       } catch (err) {
         console.error("Failed to fetch services:", err);
+        setAlert({
+          show: true,
+          type: "error",
+          message: "Failed to load services. Please refresh.",
+        });
       }
     };
     fetchServices();
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -52,15 +55,14 @@ const AppointmentForm = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Real-time validation
-    if (name === "name") {
+    if (name === "name")
       setErrors((prev) => ({
         ...prev,
         name: value.trim() === "" ? "Name is required." : "",
       }));
-    }
+
     if (name === "phone") {
-      const phoneRegex = /^[6-9]\d{9}$/; // Indian 10-digit numbers starting 6-9
+      const phoneRegex = /^[6-9]\d{9}$/;
       setErrors((prev) => ({
         ...prev,
         phone: !phoneRegex.test(value)
@@ -78,19 +80,16 @@ const AppointmentForm = () => {
         : [...prev.services, id];
       return { ...prev, services: updated };
     });
-
-    setErrors((prev) => ({
-      ...prev,
-      services: "",
-    }));
+    setErrors((prev) => ({ ...prev, services: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required.";
-    if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter a valid 10-digit phone number.";
-    if (formData.services.length === 0) newErrors.services = "Please select at least one service.";
-
+    if (!/^[6-9]\d{9}$/.test(formData.phone))
+      newErrors.phone = "Enter a valid 10-digit phone number.";
+    if (formData.services.length === 0)
+      newErrors.services = "Please select at least one service.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -113,15 +112,27 @@ const AppointmentForm = () => {
     try {
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       if (res.data.success) {
-        alert(`Appointment booked successfully for ${formData.name}!`);
+        setAlert({
+          show: true,
+          type: "success",
+          message: `Appointment booked successfully for ${formData.name}!`,
+        });
         setFormData({ name: "", phone: "", services: [], date: today, note: "" });
         setErrors({});
       } else {
-        alert(res.data.message || "Something went wrong.");
+        setAlert({
+          show: true,
+          type: "error",
+          message: res.data.message || "Something went wrong.",
+        });
       }
     } catch (err) {
       console.error("Failed to create appointment:", err);
-      alert("Something went wrong. Please try again later.");
+      setAlert({
+        show: true,
+        type: "error",
+        message: "Server error. Please try again later.",
+      });
     }
   };
 
@@ -130,6 +141,14 @@ const AppointmentForm = () => {
       id="book"
       className="relative py-20 px-5 sm:px-10 md:px-16 bg-gradient-to-br from-[#E5EBFF] via-[#F5F6FF] to-[#EBD6FB] overflow-hidden"
     >
+      {/* Alert Component */}
+      <CustomerAlert
+        show={alert.show}
+        type={alert.type}
+        message={alert.message}
+        onClose={() => setAlert({ ...alert, show: false })}
+      />
+
       {/* Decorative Blurs */}
       <div className="absolute top-[-50px] left-[-50px] w-[250px] h-[250px] bg-[#687FE5]/40 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-[-60px] right-[-60px] w-[300px] h-[300px] bg-[#636CCB]/40 rounded-full blur-[150px] animate-pulse"></div>
@@ -145,7 +164,7 @@ const AppointmentForm = () => {
           Book Your Appointment
         </h2>
         <p className="text-[#2A2A2A]/80 max-w-2xl mx-auto text-base sm:text-lg">
-          Choose your services, select a date, and relax — we’ll take care of the rest 
+          Choose your services, select a date, and relax — we’ll take care of the rest.
         </p>
       </motion.div>
 
@@ -158,119 +177,135 @@ const AppointmentForm = () => {
           transition={{ duration: 0.7 }}
           className="relative z-10 w-full max-w-3xl bg-white/90 backdrop-blur-xl border border-[#A3B0FF]/30 p-8 sm:p-10 md:p-12 rounded-3xl shadow-2xl"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {/* Name */}
-            <div className="flex flex-col">
-              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
-                Full Name
-              </label>
-              <input
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                className={`border rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 outline-none transition-all text-sm sm:text-base ${
-                  errors.name ? "border-red-500 focus:ring-red-400" : "border-[#A3B0FF]/40 focus:ring-[#687FE5]"
+          {/* Full Name */}
+          <div className="mb-6">
+            <label className="block text-[#4E56B2] font-semibold mb-2">
+              Full Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your name"
+              className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB]"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Phone */}
+          <div className="mb-6">
+            <label className="block text-[#4E56B2] font-semibold mb-2">
+              Phone Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="Enter 10-digit phone number"
+              className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB]"
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+            )}
+          </div>
+
+          {/* Services Dropdown */}
+          <div className="mb-6 relative" ref={dropdownRef}>
+            <label className="block text-[#4E56B2] font-semibold mb-2">
+              Select Services <span className="text-red-500">*</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => setOpenDropdown((prev) => !prev)}
+              className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl flex justify-between items-center bg-white"
+            >
+              <span>
+                {formData.services.length > 0
+                  ? `${formData.services.length} selected`
+                  : "Choose services"}
+              </span>
+              <ChevronDown
+                className={`transition-transform ${
+                  openDropdown ? "rotate-180" : ""
                 }`}
               />
-              {errors.name && <span className="text-red-500 text-sm mt-1">{errors.name}</span>}
-            </div>
-
-            {/* Phone */}
-            <div className="flex flex-col">
-              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
-                Phone Number
-              </label>
-              <input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="99999 11111"
-                className={`border rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 outline-none transition-all text-sm sm:text-base ${
-                  errors.phone ? "border-red-500 focus:ring-red-400" : "border-[#A3B0FF]/40 focus:ring-[#687FE5]"
-                }`}
-              />
-              {errors.phone && <span className="text-red-500 text-sm mt-1">{errors.phone}</span>}
-            </div>
-
-            {/* Services Dropdown */}
-            <div className="md:col-span-2 relative" ref={dropdownRef}>
-              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
-                Select Services
-              </label>
-              <div
-                onClick={() => setOpenDropdown(!openDropdown)}
-                className={`flex justify-between items-center border rounded-xl px-4 py-3 bg-[#F5F6FF] cursor-pointer hover:ring-2 transition-all ${
-                  errors.services ? "border-red-500 hover:ring-red-400" : "border-[#A3B0FF]/40 hover:ring-[#687FE5]"
-                }`}
-              >
-                <span className="text-[#2A2A2A] text-sm sm:text-base">
-                  {formData.services.length > 0
-                    ? `${formData.services.length} service(s) selected`
-                    : "Choose Services"}
-                </span>
-                <ChevronDown
-                  size={18}
-                  className={`transition-transform ${openDropdown ? "rotate-180" : "rotate-0"}`}
-                />
-              </div>
-
+            </button>
+           
               {openDropdown && (
-                <div className="absolute mt-2 w-full bg-white border border-[#A3B0FF]/30 rounded-xl shadow-lg max-h-64 overflow-y-auto z-50">
-                  {services.length > 0 ? (
-                    services.map((s) => (
-                      <label
-                        key={s._id}
-                        className="flex items-center px-4 py-2 hover:bg-[#E8EBFF] cursor-pointer text-sm sm:text-base"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.services.includes(s._id)}
-                          onChange={() => handleServiceToggle(s._id)}
-                          className="mr-3 accent-[#687FE5]"
-                        />
-                        {s.name}
-                      </label>
-                    ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-3 text-sm">Loading...</p>
-                  )}
+                <div className="absolute mt-2 w-full bg-white border border-[#A3B0FF]/40 rounded-xl shadow-lg z-50">
+                  <div className="max-h-60 overflow-y-auto">
+                    {services.length > 0 ? (
+                      services.map((s) => (
+                        <label
+                          key={s._id}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-[#EEF0FF] cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formData.services.includes(s._id)}
+                            onChange={() => handleServiceToggle(s._id)}
+                            className="accent-[#636CCB]"
+                          />
+                          <span>{s.name}</span>
+                        </label>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-3">Loading services...</p>
+                    )}
+                  </div>
+              
+                  {/* ✅ Sticky Done button always visible */}
+                  <div className="sticky bottom-0 bg-white border-t border-[#A3B0FF]/30">
+                    <button
+                      type="button"
+                      onClick={() => setOpenDropdown(false)}
+                      className="w-full text-center py-2 font-semibold text-[#636CCB] hover:bg-[#EEF0FF]"
+                    >
+                      Done
+                    </button>
+                  </div>
                 </div>
               )}
-              {errors.services && <span className="text-red-500 text-sm mt-1">{errors.services}</span>}
-            </div>
+              
+            
 
-            {/* Date */}
-            <div className="md:col-span-2 flex flex-col">
-              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
-                Preferred Date
-              </label>
-              <input
-                name="date"
-                type="date"
-                value={formData.date}
-                onChange={handleChange}
-                min={today}
-                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all text-sm sm:text-base"
-              />
-            </div>
+            {errors.services && (
+              <p className="text-red-500 text-sm mt-1">{errors.services}</p>
+            )}
+          </div>
 
-            {/* Notes */}
-            <div className="md:col-span-2 flex flex-col">
-              <label className="text-[#2A2A2A] font-medium mb-2 text-sm sm:text-base">
-                Special Requests
-              </label>
-              <textarea
-                name="note"
-                value={formData.note}
-                onChange={handleChange}
-                placeholder="Any additional details or preferences..."
-                rows={3}
-                className="border border-[#A3B0FF]/40 rounded-xl px-4 py-3 bg-[#F5F6FF] focus:ring-2 focus:ring-[#687FE5] outline-none transition-all text-sm sm:text-base placeholder-gray-400"
-              />
-            </div>
+          {/* Date */}
+          <div className="mb-6">
+            <label className="block text-[#4E56B2] font-semibold mb-2">
+              Preferred Date
+            </label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              min={today}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB]"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="mb-6">
+            <label className="block text-[#4E56B2] font-semibold mb-2">
+              Additional Notes
+            </label>
+            <textarea
+              name="note"
+              value={formData.note}
+              onChange={handleChange}
+              placeholder="Any specific requests?"
+              rows={4}
+              className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB] resize-none"
+            />
           </div>
 
           {/* Buttons */}
