@@ -106,13 +106,6 @@ const OnlineBooking = () => {
                   >
                     Approve
                   </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleReject(b._id)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md border border-gray-200 hover:bg-red-50 hover:text-red-600 transition-all"
-                  >
-                    Reject
-                  </motion.button>
                 </div>
               </div>
             </motion.div>
