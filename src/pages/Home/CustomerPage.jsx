@@ -7,6 +7,7 @@ import AboutUs from "../../components/Landing/About.jsx";
 import axios from "../../api/axiosInstance";
 import { BASE_URL } from "../../data/data.js";
 import Loader from "../../components/Layout/Loader.jsx"; // import your loader
+import Footer from "../../components/Layout/Footer.jsx";
 
 const CustomerPage = () => {
   const [services, setServices] = useState([]);
@@ -37,6 +38,7 @@ const CustomerPage = () => {
       <ServicesSection services={services} />
       <AppointmentForm />
       <AboutUs />
+      <Footer/>
     </div>
   );
 };

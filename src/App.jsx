@@ -12,7 +12,7 @@ import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.js
 // Auth
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
 import Navbar from "./components/Layout/Navbar.jsx";
-import Footer from "./components/Layout/Footer.jsx";
+import Credit from "./components/Layout/Credit.jsx";
 
 const App = () => {
   return (
@@ -64,7 +64,7 @@ const App = () => {
           }
         />
       </Routes>
-      <Footer />
+      <Credit />
     </Router>
   );
 };
