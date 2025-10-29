@@ -1,8 +1,8 @@
-// src/pages/Auth/Login.jsx
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "@/api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import Loader from "@/components/Layout/Loader.jsx"; // Fullscreen loader
 
 const Login = () => {
@@ -10,6 +10,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -82,20 +83,27 @@ const Login = () => {
             />
           </div>
 
-          {/* Password */}
-          <div>
+          {/* Password with eye toggle */}
+          <div className="relative">
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#687FE5] focus:ring-2 focus:ring-[#EBD6FB] outline-none transition-all"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#687FE5] focus:ring-2 focus:ring-[#EBD6FB] outline-none transition-all pr-10"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-[38px] text-gray-500 hover:text-[#687FE5] transition"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           {/* Error Message */}

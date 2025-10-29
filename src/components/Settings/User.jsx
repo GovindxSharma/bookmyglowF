@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "@/api/axiosInstance";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "@/components/Layout/Loader";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Eye, EyeOff } from "lucide-react";
 
 const User = () => {
   const token = localStorage.getItem("token");
@@ -12,6 +12,7 @@ const User = () => {
   const [alert, setAlert] = useState({ show: false, type: "info", message: "" });
   const [deleteUserId, setDeleteUserId] = useState(null);
   const [operationLoading, setOperationLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const showAlert = (type, message) => {
     setAlert({ show: true, type, message });
@@ -113,7 +114,7 @@ const User = () => {
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl font-medium shadow-lg text-white ${
               alert.type === "success"
-                ? "bg-[#4ade80]" // Updated green
+                ? "bg-[#4ade80]"
                 : alert.type === "error"
                 ? "bg-red-600"
                 : "bg-blue-600"
@@ -153,7 +154,7 @@ const User = () => {
 
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
-                u.status ? "bg-[#d1fae5] text-[#4ade80]" : "bg-red-100 text-red-700" // Active status green updated
+                u.status ? "bg-[#d1fae5] text-[#4ade80]" : "bg-red-100 text-red-700"
               }`}
             >
               {u.status ? "Active" : "Inactive"}
@@ -176,6 +177,7 @@ const User = () => {
           </motion.div>
         ))}
       </div>
+
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {form && (
@@ -212,14 +214,26 @@ const User = () => {
                   required
                   className="w-full px-4 py-2 border border-[#DDE1FF] rounded-xl focus:ring-2 focus:ring-[#687FE5] outline-none"
                 />
-                <input
-                  type="password"
-                  name="password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Password"
-                  className="w-full px-4 py-2 border border-[#DDE1FF] rounded-xl focus:ring-2 focus:ring-[#687FE5] outline-none"
-                />
+
+                {/* Password with eye toggle */}
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="Password"
+                    className="w-full px-4 py-2 border border-[#DDE1FF] rounded-xl focus:ring-2 focus:ring-[#687FE5] outline-none pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-2.5 text-gray-500 hover:text-[#687FE5] transition"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+
                 <select
                   name="role"
                   value={form.role}
@@ -273,8 +287,12 @@ const User = () => {
               exit={{ scale: 0.9 }}
               className="bg-white rounded-3xl p-6 shadow-xl w-[90%] max-w-sm text-center"
             >
-              <h3 className="text-xl font-semibold mb-3 text-[#636CCB]">Delete User?</h3>
-              <p className="text-gray-600 mb-5">Are you sure you want to delete this user? This action cannot be undone.</p>
+              <h3 className="text-xl font-semibold mb-3 text-[#636CCB]">
+                Delete User?
+              </h3>
+              <p className="text-gray-600 mb-5">
+                Are you sure you want to delete this user? This action cannot be undone.
+              </p>
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => setDeleteUserId(null)}
