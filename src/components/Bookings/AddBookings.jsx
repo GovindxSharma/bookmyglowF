@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
-import Loader from "../Layout/Loader"; // Make sure you have a Loader component
+import Loader from "../Layout/Loader";
 import { BASE_URL } from "../../data/data";
 
 const AddBooking = () => {
@@ -14,7 +14,7 @@ const AddBooking = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [fetchingData, setFetchingData] = useState(true); // loader for initial fetch
+  const [fetchingData, setFetchingData] = useState(true);
 
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
@@ -28,8 +28,10 @@ const AddBooking = () => {
     source: "walk-in",
     date: today,
     payment_mode: "",
+    amount: "", // added for manual override
   });
 
+  // Fetch services + employees
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -65,12 +67,14 @@ const AddBooking = () => {
     fetchInitialData();
   }, []);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "phone" && value.length === 10) searchCustomerByPhone(value);
   };
 
+  // Search existing customer by phone
   const searchCustomerByPhone = async (phone) => {
     try {
       const res = await axios.get(
@@ -96,6 +100,7 @@ const AddBooking = () => {
     }
   };
 
+  // Handle service and subservice selection
   const handleServiceChange = (i, val) => {
     const updated = [...serviceList];
     updated[i].service = val;
@@ -126,11 +131,13 @@ const AddBooking = () => {
     setServiceList(updated);
   };
 
+  // Calculate total
   const totalAmount = serviceList.reduce(
     (acc, curr) => acc + (parseFloat(curr.price) || 0),
     0
   );
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -156,18 +163,24 @@ const AddBooking = () => {
         type: "error",
       });
 
+    // ✅ Manual override logic
+    const finalAmount =
+      formData.amount && parseFloat(formData.amount) > 0
+        ? parseFloat(formData.amount)
+        : totalAmount;
+
     const payload = {
       ...formData,
       employee_id: selectedEmployee.value,
       services: servicesPayload,
-      amount: totalAmount,
+      amount: finalAmount,
     };
 
     try {
       setLoading(true);
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       setToast({
-        message: res.data.message || "Booking created!",
+        message: res.data.message || "Booking created successfully ✅",
         type: "info",
       });
       resetForm();
@@ -193,6 +206,7 @@ const AddBooking = () => {
       source: "walk-in",
       date: today,
       payment_mode: "",
+      amount: "",
     });
     setSelectedEmployee(null);
     setServiceList([
@@ -205,7 +219,6 @@ const AddBooking = () => {
   const requiredClass = `${inputBase} border-[#4A6CF7] focus:ring-[#4A6CF7]/50 bg-[#EEF2FF]`;
   const optionalClass = `${inputBase} border-gray-200 focus:ring-gray-300 bg-gray-50`;
 
-  // Show loader while fetching initial data
   if (fetchingData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -360,8 +373,10 @@ const AddBooking = () => {
               type="number"
               name="amount"
               value={formData.amount}
-              onChange={(e) => setFormData((p) => ({ ...p, amount: e.target.value }))}
-              placeholder={`Total Amount (₹${totalAmount})`}
+              onChange={(e) =>
+                setFormData((p) => ({ ...p, amount: e.target.value }))
+              }
+              placeholder={` Total Amount (₹${totalAmount})`}
               className={`${optionalClass} font-semibold no-spinner`}
               min="0"
             />
@@ -393,7 +408,11 @@ const AddBooking = () => {
         </form>
 
         {toast && (
-          <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
         )}
       </div>
     </div>
