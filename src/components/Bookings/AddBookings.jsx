@@ -3,7 +3,10 @@ import Select from "react-select";
 import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
 import Loader from "../Layout/Loader";
+<<<<<<< HEAD
 import { X } from "lucide-react";
+=======
+>>>>>>> 31edb7a342e287ebc8fa3481b50b6c192ca7105d
 import { BASE_URL } from "../../data/data";
 
 const AddBooking = () => {
@@ -37,8 +40,10 @@ const AddBooking = () => {
     source: "walk-in",
     date: today,
     payment_mode: "",
+    amount: "", // added for manual override
   });
 
+  // Fetch services + employees
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
@@ -72,12 +77,14 @@ const AddBooking = () => {
     fetchInitialData();
   }, []);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (name === "phone" && value.length === 10) searchCustomerByPhone(value);
   };
 
+  // Search existing customer by phone
   const searchCustomerByPhone = async (phone) => {
     try {
       const res = await axios.get(
@@ -106,6 +113,7 @@ const AddBooking = () => {
     }
   };
 
+  // Handle service and subservice selection
   const handleServiceChange = (i, val) => {
     const updated = [...serviceList];
     updated[i].service = val;
@@ -149,11 +157,13 @@ const AddBooking = () => {
     setServiceList(updated);
   };
 
+  // Calculate total
   const totalAmount = serviceList.reduce(
     (acc, curr) => acc + (parseFloat(curr.price) || 0),
     0
   );
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -181,6 +191,7 @@ const AddBooking = () => {
         type: "error",
       });
 
+<<<<<<< HEAD
     if (assignEachService && servicesPayload.some((s) => !s.employee_id))
       return setToast({
         message: "Please assign an employee for each service.",
@@ -189,19 +200,26 @@ const AddBooking = () => {
 
     if (!assignEachService && !selectedEmployee)
       return setToast({ message: "Please select an employee.", type: "error" });
+=======
+    // ✅ Manual override logic
+    const finalAmount =
+      formData.amount && parseFloat(formData.amount) > 0
+        ? parseFloat(formData.amount)
+        : totalAmount;
+>>>>>>> 31edb7a342e287ebc8fa3481b50b6c192ca7105d
 
     const payload = {
       ...formData,
       employee_id: assignEachService ? null : selectedEmployee.value,
       services: servicesPayload,
-      amount: totalAmount,
+      amount: finalAmount,
     };
 
     try {
       setLoading(true);
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       setToast({
-        message: res.data.message || "Booking created!",
+        message: res.data.message || "Booking created successfully ✅",
         type: "info",
       });
       resetForm();
@@ -227,6 +245,7 @@ const AddBooking = () => {
       source: "walk-in",
       date: today,
       payment_mode: "",
+      amount: "",
     });
     setSelectedEmployee(null);
     setServiceList([
@@ -247,7 +266,11 @@ const AddBooking = () => {
   const requiredClass = `${inputBase} border-[#4A6CF7] focus:ring-[#4A6CF7]/40`;
   const optionalClass = `${inputBase} border-gray-200 focus:ring-gray-300`;
 
+<<<<<<< HEAD
   if (fetchingData)
+=======
+  if (fetchingData) {
+>>>>>>> 31edb7a342e287ebc8fa3481b50b6c192ca7105d
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-[#EEF3FF] to-white">
         <Loader size={250} />
@@ -416,6 +439,7 @@ const AddBooking = () => {
             />
           )}
 
+<<<<<<< HEAD
           {/* PAYMENT SECTION */}
           <div className="space-y-3 border-t pt-4">
             <h3 className="text-lg font-semibold text-gray-700">
@@ -453,6 +477,40 @@ const AddBooking = () => {
                 <option value="card">Card</option>
               </select>
             </div>
+=======
+          {/* Date + Payment */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mt-2">
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              className={requiredClass}
+              required
+            />
+            <input
+              type="number"
+              name="amount"
+              value={formData.amount}
+              onChange={(e) =>
+                setFormData((p) => ({ ...p, amount: e.target.value }))
+              }
+              placeholder={` Total Amount (₹${totalAmount})`}
+              className={`${optionalClass} font-semibold no-spinner`}
+              min="0"
+            />
+            <select
+              name="payment_mode"
+              value={formData.payment_mode}
+              onChange={handleChange}
+              className={optionalClass}
+            >
+              <option value="">Payment Mode (optional)</option>
+              <option value="cash">Cash</option>
+              <option value="upi">UPI</option>
+              <option value="card">Card</option>
+            </select>
+>>>>>>> 31edb7a342e287ebc8fa3481b50b6c192ca7105d
           </div>
 
           <button
