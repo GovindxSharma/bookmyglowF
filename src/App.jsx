@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import axios from "@/api/axiosInstance";
 
 // Pages
 import Login from "./components/Auth/login.jsx";
@@ -10,12 +11,55 @@ import CustomerPage from "./pages/Home/CustomerPage.jsx";
 import EmployeeManagement from "./pages/EmployeeManagement/EmployeeManagement.jsx";
 import Settings from "@/pages/Settings/Settings";
 
-// Auth
+// Components
 import ProtectedRoute from "@/components/Auth/ProtectedRoute";
 import Navbar from "./components/Layout/Navbar.jsx";
 import Credit from "./components/Layout/Credit.jsx";
+import Loader from "./components/Layout/Loader.jsx";
+import { BASE_URL } from "./data/data.js";
 
 const App = () => {
+  const [backendReady, setBackendReady] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkBackend = async () => {
+      try {
+        // Simple ping request — change path if needed
+        await axios.get(`${BASE_URL}/`);
+        setBackendReady(true);
+      } catch (err) {
+        console.error("Backend not ready:", err.message);
+        setBackendReady(false);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkBackend();
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-white">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!backendReady) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center text-center p-6">
+        <p className="text-lg font-semibold text-gray-700">
+          ⚠️ Our servers are warming up...
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Please wait a few moments and refresh the page.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Navbar />
@@ -25,7 +69,7 @@ const App = () => {
         <Route path="/" element={<CustomerPage />} />
         <Route path="/login" element={<Login />} />
 
-        {/* 🧭 Admin Dashboard — only for admin */}
+        {/* 🧭 Admin Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -35,7 +79,7 @@ const App = () => {
           }
         />
 
-        {/* 📅 Bookings — for both admin & receptionist */}
+        {/* 📅 Bookings */}
         <Route
           path="/bookings"
           element={
@@ -45,7 +89,7 @@ const App = () => {
           }
         />
 
-        {/* ✅ Attendance — for both admin & receptionist */}
+        {/* ✅ Attendance */}
         <Route
           path="/attendance"
           element={
@@ -55,7 +99,7 @@ const App = () => {
           }
         />
 
-        {/* 🧑‍💼 Employee Management — assume protected for admin */}
+        {/* 👩‍💼 Employees */}
         <Route
           path="/employees"
           element={
@@ -65,6 +109,7 @@ const App = () => {
           }
         />
 
+        {/* ⚙️ Settings */}
         <Route
           path="/settings"
           element={
