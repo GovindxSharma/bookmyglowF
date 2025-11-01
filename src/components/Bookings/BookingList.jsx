@@ -45,34 +45,56 @@ const BookingList = () => {
     try {
       const now = new Date();
       let date_start, date_end;
-
+    
+      function formatLocalDate(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+      
       if (dateFilter === "Today") {
-        date_start = new Date(now.setHours(0, 0, 0, 0)).toISOString();
-        date_end = new Date(now.setHours(23, 59, 59, 999)).toISOString();
-      } else if (dateFilter === "This Week") {
+        const today = formatLocalDate(now);
+        date_start = today;
+        date_end = today;
+      } 
+      else if (dateFilter === "This Week") {
+        const currentDay = now.getDay(); // 0 = Sunday
+        const diffToMonday = currentDay === 0 ? 6 : currentDay - 1;
+      
         const start = new Date(now);
-        start.setDate(now.getDate() - now.getDay());
-        date_start = new Date(start.setHours(0, 0, 0, 0)).toISOString();
-
+        start.setDate(now.getDate() - diffToMonday);
+      
         const end = new Date(start);
         end.setDate(start.getDate() + 6);
-        date_end = new Date(end.setHours(23, 59, 59, 999)).toISOString();
-      } else if (dateFilter === "This Month") {
+      
+        date_start = formatLocalDate(start);
+        date_end = formatLocalDate(end);
+      } 
+      else if (dateFilter === "This Month") {
         const start = new Date(now.getFullYear(), now.getMonth(), 1);
         const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        date_start = start.toISOString();
-        date_end = new Date(end.setHours(23, 59, 59, 999)).toISOString();
+      
+        date_start = formatLocalDate(start);
+        date_end = formatLocalDate(end);
       }
-
+      
+      console.log("📆 Sending to API:", { date_start, date_end });
+      
+    
+    
+    
       const res = await axios.get(
-        `${BASE_URL}/appointments/?for_notification=false&date_start=${date_start}&date_end=${date_end}`
+        `${BASE_URL}/appointments?for_notification=false&date_start=${date_start}&date_end=${date_end}`
       );
+    
       setBookings(res.data.appointments || []);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error fetching bookings:", err);
     } finally {
       setLoading(false);
     }
+    
   };
 
   const fetchDropdowns = async () => {
@@ -89,20 +111,29 @@ const BookingList = () => {
   };
 
   const filteredBookings = bookings.filter((b) => {
-    const serviceNames = b.services?.map((s) => s.service_id?.name).join(", ") || "";
+    const serviceNames =
+      b.services?.map((s) => s.service_id?.name).join(", ") || "";
+    const employeeNames =
+      b.services?.map((s) => s.employee_name || s.employee_id?.name).join(", ") ||
+      "";
     const matchesSearch =
       b.customer_id?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       b.customer_id?.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       serviceNames.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employeeNames.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (b.payment_status || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      filterStatus === "All" || b.payment_status === filterStatus.toLowerCase();
+      filterStatus === "All" ||
+      b.payment_status === filterStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentBookings = filteredBookings.slice(indexOfFirstRecord, indexOfLastRecord);
+  const currentBookings = filteredBookings.slice(
+    indexOfFirstRecord,
+    indexOfLastRecord
+  );
   const totalPages = Math.ceil(filteredBookings.length / recordsPerPage);
 
   const handlePageChange = (dir) => {
@@ -168,9 +199,11 @@ const BookingList = () => {
         Customer: b.customer_id?.name,
         Phone: b.customer_id?.phone,
         "Service(s)": b.services?.map((s) => s.service_id?.name).join(", ") || "N/A",
-        Employee: b.employee_id?.name || "N/A",
+        "Employee(s)": b.services?.map((s) => s.employee_name || s.employee_id?.name).join(", ") || "N/A",
         Amount: b.amount,
-        "Appointment Date": b.date ? new Date(b.date).toLocaleString() : "N/A",
+        "Appointment Date": b.date
+          ? new Date(b.date).toLocaleDateString("en-IN")
+          : "N/A",
         Payment: b.payment_status,
         Confirmation: b.confirmation_status ? "Confirmed" : "Pending",
       }));
@@ -196,7 +229,7 @@ const BookingList = () => {
         <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 justify-between items-center mb-6">
           <input
             type="text"
-            placeholder="Search by name, phone, service..."
+            placeholder="Search by name, phone, service, or employee..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full sm:flex-1 px-4 py-3 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none placeholder-gray-400"
@@ -232,9 +265,8 @@ const BookingList = () => {
           </div>
         </div>
 
-        {/* ✅ Table on Desktop / Cards on Mobile */}
+        {/* Table */}
         <div className="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
-          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="min-w-full text-sm text-gray-700 border-collapse">
               <thead className="bg-indigo-600 text-white text-xs uppercase tracking-wide">
@@ -242,8 +274,8 @@ const BookingList = () => {
                   {[
                     "Customer",
                     "Phone",
-                    "Service(s)",
-                    "Employee",
+                    "Services",
+                    "Employees",
                     "Amount",
                     "Appointment Date",
                     "Payment",
@@ -263,9 +295,11 @@ const BookingList = () => {
                       <td className="py-3 px-4">{b.customer_id?.name}</td>
                       <td className="py-3 px-4">{b.customer_id?.phone}</td>
                       <td className="py-3 px-4">
-                        {b.services?.map((s) => s.service_id?.name).join(", ") || "N/A"}
+                        {b.services?.map((s) => s.service_id?.name).join(", ")}
                       </td>
-                      <td className="py-3 px-4">{b.employee_id?.name || "N/A"}</td>
+                      <td className="py-3 px-4">
+                        {b.services?.map((s) => s.employee_name || s.employee_id?.name).join(", ")}
+                      </td>
                       <td className="py-3 px-4 font-medium text-gray-800 text-center">
                         ₹{b.amount}
                       </td>
@@ -320,84 +354,6 @@ const BookingList = () => {
                 )}
               </tbody>
             </table>
-          </div>
-
-          {/* Mobile Cards */}
-          <div className="block md:hidden p-4 space-y-4">
-            {currentBookings.length > 0 ? (
-              currentBookings.map((b) => (
-                <div
-                  key={b._id}
-                  className="p-4 rounded-2xl border border-gray-200 shadow-sm bg-gradient-to-tr from-indigo-50 to-white"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-base font-semibold text-gray-800">
-                      {b.customer_id?.name || "Unknown"}
-                    </h3>
-                    <span className="text-xs text-gray-500">
-                      {b.customer_id?.phone || "N/A"}
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Services:</span>{" "}
-                    {b.services?.map((s) => s.service_id?.name).join(", ") || "N/A"}
-                  </p>
-
-                  <p className="text-sm text-gray-700 mt-1">
-                    <span className="font-medium">Employee:</span>{" "}
-                    {b.employee_id?.name || "N/A"}
-                  </p>
-
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-indigo-700 font-semibold">
-                      ₹{b.amount || 0}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {b.date
-                        ? new Date(b.date).toLocaleDateString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "N/A"}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {getStatusBadge(b.payment_status)}
-                    {b.confirmation_status ? (
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full flex items-center gap-1">
-                        <CheckCircle size={12} /> Confirmed
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-full flex items-center gap-1">
-                        <AlertCircle size={12} /> Pending
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 mt-4">
-                    <button
-                      onClick={() => setSelectedBooking(b)}
-                      className="flex-1 py-2 text-xs bg-indigo-600 text-white rounded-lg flex items-center justify-center gap-1 hover:bg-indigo-700"
-                    >
-                      <Info size={14} /> View
-                    </button>
-                    <button
-                      onClick={() => setEditBooking(b)}
-                      className="flex-1 py-2 text-xs bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center gap-1 hover:bg-indigo-200"
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 text-sm font-medium py-6">
-                No bookings found.
-              </p>
-            )}
           </div>
         </div>
       </div>
