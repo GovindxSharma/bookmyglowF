@@ -30,7 +30,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
     return () => (document.body.style.overflow = "auto");
   }, []);
 
-  // Fetch services for dropdown
+  // Fetch services
   useEffect(() => {
     axios
       .get(`${BASE_URL}/services`)
@@ -50,7 +50,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
       .catch(() => setToast({ message: "Failed to load services", type: "error" }));
   }, []);
 
-  // Prefill edit data AFTER services are loaded
+  // Prefill data
   useEffect(() => {
     if (!editBooking || services.length === 0) return;
 
@@ -68,7 +68,6 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
     });
 
     const mappedServices = (editBooking.services || []).map((s) => {
-      // Find main service
       const mainService =
         services.find((ser) => ser.value === s.service_id._id) || {
           label: s.service_id.name,
@@ -76,7 +75,6 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
           sub_services: [],
         };
 
-      // Find sub-service
       const subService =
         mainService.sub_services.find((sub) => sub.value === s.sub_service_id) || {
           label: "Unknown Sub-Service",
@@ -85,7 +83,6 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
           duration: s.duration || "",
         };
 
-      // Preselect employee
       const assignedEmployee = s.employee_id
         ? { label: s.employee_id.name, value: s.employee_id._id }
         : null;
@@ -144,9 +141,9 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
     setServiceList(updated);
   };
 
+  // ✅ Fixed update
   const handleUpdate = async (e) => {
     e.preventDefault();
-
     if (!formData.name || !formData.phone)
       return setToast({ message: "Name & phone are required", type: "error" });
 
@@ -166,26 +163,34 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
     const payload = { ...formData, services: servicesPayload };
 
     try {
-      const res = await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, payload);
+      await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, payload);
       setToast({ message: "Booking updated successfully ✅", type: "info" });
+
+      // ✅ trigger parent refresh
       setTimeout(() => {
-        onUpdated(res.data.appointment); // update parent page
-        onClose(); // close modal
-      }, 800);
+        if (onUpdated) onUpdated();
+        onClose();
+      }, 600);
     } catch (err) {
-      setToast({ message: err.response?.data?.message || "Failed to update booking", type: "error" });
+      setToast({
+        message: err.response?.data?.message || "Failed to update booking",
+        type: "error",
+      });
     }
   };
 
+  // ✅ Fixed delete
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this booking?")) return;
     try {
       await axios.delete(`${BASE_URL}/appointments/${editBooking._id}`);
       setToast({ message: "Booking deleted successfully ✅", type: "info" });
+
+      // ✅ trigger parent refresh
       setTimeout(() => {
-        onUpdated(null); // remove from parent
-        onClose(); // close modal
-      }, 800);
+        if (onUpdated) onUpdated();
+        onClose();
+      }, 600);
     } catch (err) {
       setToast({ message: "Failed to delete booking", type: "error" });
     }
@@ -200,7 +205,6 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
         className="relative p-6 bg-white rounded-3xl shadow-lg max-w-3xl w-full mx-4 overflow-y-auto max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
