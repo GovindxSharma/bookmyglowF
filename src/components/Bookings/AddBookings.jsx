@@ -201,7 +201,8 @@ const AddBooking = () => {
       ...formData,
       employee_id: assignEachService ? null : selectedEmployee.value,
       services: servicesPayload,
-      amount: finalAmount,
+      amount: formData.amount || totalAmount,
+
     };
 
     try {
