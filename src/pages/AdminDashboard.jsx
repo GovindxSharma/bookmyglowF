@@ -13,6 +13,7 @@ import {
 import { Users, DollarSign, CalendarDays } from "lucide-react";
 import { BASE_URL } from "../data/data";
 import Loader from "../components/Layout/Loader.jsx";
+import EmployeePerformanceModal from "../components/Employee/EmployeePerformaceModal.jsx";
 
 const PAYMENTS_API = `${BASE_URL}/payments`;
 const EMPLOYEE_API = `${BASE_URL}/employee`;
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const [monthlyRevenue, setMonthlyRevenue] = useState([]);
   const [employeeCount, setEmployeeCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -38,24 +40,36 @@ const AdminDashboard = () => {
         setEmployeeCount(employees.length);
 
         // Fetch today's payments
-        const todayPaymentsRes = await axios.get(`${PAYMENTS_API}/date/${today}`);
+        const todayPaymentsRes = await axios.get(
+          `${PAYMENTS_API}/date/${today}`
+        );
         const todayPayments = todayPaymentsRes.data || [];
-        setTodayRevenue(todayPayments.reduce((sum, p) => sum + (p.amount || 0), 0));
+        setTodayRevenue(
+          todayPayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+        );
         setTodayAppointments(todayPayments.length);
 
         // Fetch staff performance
         const staffData = await Promise.all(
           employees.map(async (emp) => {
             try {
-              const res = await axios.get(`${PAYMENTS_API}/employee/${emp._id}/${today}`);
+              const res = await axios.get(
+                `${PAYMENTS_API}/employee/${emp._id}/${today}`
+              );
               const summary = res.data.summary || {};
               return {
+                _id: emp._id,
                 name: emp.name,
-                revenue: summary.total_amount || 0,
-                totalAppointments: summary.total_payments || 0,
+                revenue: res.data.total_employee_amount || 0,
+                totalAppointments: res.data.total_appointments || 0,
               };
             } catch {
-              return { name: emp.name, revenue: 0, totalAppointments: 0 };
+              return {
+                _id: emp._id,
+                name: emp.name,
+                revenue: 0,
+                totalAppointments: 0,
+              };
             }
           })
         );
@@ -70,7 +84,9 @@ const AdminDashboard = () => {
           revenueMap.set(monthIndex, g.total_amount || 0);
         });
         const allMonths = Array.from({ length: 12 }, (_, i) => ({
-          month: new Date(2025, i).toLocaleString("default", { month: "short" }),
+          month: new Date(2025, i).toLocaleString("default", {
+            month: "short",
+          }),
           revenue: revenueMap.get(i) || 0,
         }));
         setMonthlyRevenue(allMonths);
@@ -84,11 +100,10 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, []);
 
-  if (loading) return <Loader size={250}/>;
+  if (loading) return <Loader size={250} />;
 
   return (
     <div className="p-4 sm:p-6 md:p-10 min-h-screen bg-gradient-to-b from-[#f0f4ff] to-[#ffffff] font-poppins text-[#3A3A3A]">
-
       {/* ===== TOP METRIC CARDS ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         {[
@@ -111,10 +126,17 @@ const AdminDashboard = () => {
             bg: "bg-gradient-to-r from-[#00C6FF] to-[#0072FF]",
           },
         ].map((card, i) => (
-          <div key={i} className={`${card.bg} rounded-2xl shadow-xl p-6 flex items-center justify-between transition transform hover:-translate-y-1 hover:shadow-2xl`}>
+          <div
+            key={i}
+            className={`${card.bg} rounded-2xl shadow-xl p-6 flex items-center justify-between transition transform hover:-translate-y-1 hover:shadow-2xl`}
+          >
             <div>
-              <h3 className="text-white font-medium text-sm sm:text-base">{card.title}</h3>
-              <p className="text-white font-bold text-xl sm:text-2xl mt-1">{card.value}</p>
+              <h3 className="text-white font-medium text-sm sm:text-base">
+                {card.title}
+              </h3>
+              <p className="text-white font-bold text-xl sm:text-2xl mt-1">
+                {card.value}
+              </p>
             </div>
             <div className="p-3 bg-white/20 rounded-full">{card.icon}</div>
           </div>
@@ -123,30 +145,47 @@ const AdminDashboard = () => {
 
       {/* ===== STAFF PERFORMANCE ===== */}
       <div className="mb-10">
-        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">Staff Performance (Today)</h2>
+        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">
+          Staff Performance (Today)
+        </h2>
 
         {/* Desktop Table */}
         <div className="hidden md:block bg-white rounded-2xl shadow-md p-4">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-[#f0f4ff] text-left text-[#5058B5] text-sm uppercase">
-                <th className="px-4 py-3 border-b border-[#e0e0e0]">Staff Name</th>
-                <th className="px-4 py-3 border-b border-[#e0e0e0]">Revenue (₹)</th>
-                <th className="px-4 py-3 border-b border-[#e0e0e0]">Appointments</th>
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">
+                  Staff Name
+                </th>
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">
+                  Revenue (₹)
+                </th>
+                <th className="px-4 py-3 border-b border-[#e0e0e0]">
+                  Appointments
+                </th>
               </tr>
             </thead>
             <tbody>
               {staffPerformance.length === 0 ? (
                 <tr>
-                  <td colSpan="3" className="text-center py-6 text-gray-500 font-medium">
+                  <td
+                    colSpan="3"
+                    className="text-center py-6 text-gray-500 font-medium"
+                  >
                     No performance data available.
                   </td>
                 </tr>
               ) : (
                 staffPerformance.map((staff, idx) => (
-                  <tr key={idx} className="hover:bg-[#f5f8ff] transition-all border-b last:border-b-0">
+                  <tr
+                    key={idx}
+                    className="hover:bg-[#f5f8ff] transition-all border-b last:border-b-0 cursor-pointer"
+                    onClick={() => setSelectedEmployee(staff)}
+                  >
                     <td className="px-4 py-3 font-medium">{staff.name}</td>
-                    <td className="px-4 py-3 font-semibold text-[#636CCB]">₹{staff.revenue.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-semibold text-[#636CCB]">
+                      ₹{staff.revenue.toLocaleString()}
+                    </td>
                     <td className="px-4 py-3">{staff.totalAppointments}</td>
                   </tr>
                 ))
@@ -163,10 +202,18 @@ const AdminDashboard = () => {
             </div>
           ) : (
             staffPerformance.map((staff, idx) => (
-              <div key={idx} className="p-4 rounded-xl bg-white shadow-md border-l-4 border-[#636CCB]">
+              <div
+                key={idx}
+                className="p-4 rounded-xl bg-white shadow-md border-l-4 border-[#636CCB] cursor-pointer"
+                onClick={() => setSelectedEmployee(staff)}
+              >
                 <h3 className="font-semibold text-[#5058B5]">{staff.name}</h3>
-                <p className="text-gray-700 mt-1 text-sm">Revenue: ₹{staff.revenue.toLocaleString()}</p>
-                <p className="text-gray-700 text-sm">Appointments: {staff.totalAppointments}</p>
+                <p className="text-gray-700 mt-1 text-sm">
+                  Revenue: ₹{staff.revenue.toLocaleString()}
+                </p>
+                <p className="text-gray-700 text-sm">
+                  Appointments: {staff.totalAppointments}
+                </p>
               </div>
             ))
           )}
@@ -175,12 +222,17 @@ const AdminDashboard = () => {
 
       {/* ===== MONTHLY REVENUE ===== */}
       <div className="bg-white rounded-2xl shadow-md p-4 sm:p-6 mb-10">
-        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">Monthly Revenue Overview</h2>
+        <h2 className="text-lg sm:text-2xl font-semibold text-[#5058B5] mb-4">
+          Monthly Revenue Overview
+        </h2>
 
         {/* Desktop Chart */}
         <div className="hidden md:block h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyRevenue} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+            <BarChart
+              data={monthlyRevenue}
+              margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
               <XAxis dataKey="month" stroke="#5058B5" />
               <YAxis stroke="#5058B5" />
@@ -208,13 +260,21 @@ const AdminDashboard = () => {
         {/* Mobile: Monthly Cards */}
         <div className="md:hidden grid grid-cols-1 gap-3">
           {monthlyRevenue.map((m, idx) => {
-            const maxRevenue = Math.max(...monthlyRevenue.map((r) => r.revenue)) || 1;
+            const maxRevenue =
+              Math.max(...monthlyRevenue.map((r) => r.revenue)) || 1;
             const widthPercent = (m.revenue / maxRevenue) * 100;
             return (
-              <div key={idx} className="bg-[#f0f4ff] rounded-xl p-3 shadow-sm flex flex-col">
+              <div
+                key={idx}
+                className="bg-[#f0f4ff] rounded-xl p-3 shadow-sm flex flex-col"
+              >
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-[#5058B5] font-semibold">{m.month}</span>
-                  <span className="text-[#636CCB] font-bold">₹{m.revenue.toLocaleString()}</span>
+                  <span className="text-[#5058B5] font-semibold">
+                    {m.month}
+                  </span>
+                  <span className="text-[#636CCB] font-bold">
+                    ₹{m.revenue.toLocaleString()}
+                  </span>
                 </div>
                 <div className="w-full bg-[#d0d4eb] h-3 rounded-full">
                   <div
@@ -228,6 +288,12 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {selectedEmployee && (
+        <EmployeePerformanceModal
+          employee={selectedEmployee}
+          onClose={() => setSelectedEmployee(null)}
+        />
+      )}
     </div>
   );
 };

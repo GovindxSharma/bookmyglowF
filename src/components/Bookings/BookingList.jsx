@@ -6,10 +6,6 @@ import {
   AlertCircle,
   Pencil,
   Info,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  ChevronDown,
   Loader2,
   Trash2,
 } from "lucide-react";
@@ -33,8 +29,6 @@ const BookingList = () => {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-
-  // ✅ New alert + delete states
   const [alert, setAlert] = useState({ show: false, type: "", message: "" });
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [operationLoading, setOperationLoading] = useState(false);
@@ -128,7 +122,7 @@ const BookingList = () => {
 
     const matchesStatus =
       filterStatus === "All" ||
-      b.payment_status === filterStatus.toLowerCase();
+      (b.payment_status || "").toLowerCase() === filterStatus.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
@@ -139,82 +133,6 @@ const BookingList = () => {
     indexOfFirstRecord,
     indexOfLastRecord
   );
-  const totalPages = Math.ceil(filteredBookings.length / recordsPerPage);
-
-  const handlePageChange = (dir) => {
-    if (dir === "prev" && currentPage > 1) setCurrentPage((p) => p - 1);
-    if (dir === "next" && currentPage < totalPages) setCurrentPage((p) => p + 1);
-  };
-
-  const handleDelete = (id) => {
-    setConfirmDelete(id);
-  };
-
-  const confirmDeleteBooking = async () => {
-    if (!confirmDelete) return;
-    setOperationLoading(true);
-    try {
-      await axios.delete(`${BASE_URL}/appointments/${confirmDelete}`);
-      setBookings((prev) => prev.filter((b) => b._id !== confirmDelete));
-      showAlert("success", "Booking deleted successfully!");
-    } catch (err) {
-      console.error(err);
-      showAlert("error", "Failed to delete booking.");
-    } finally {
-      setOperationLoading(false);
-      setConfirmDelete(null);
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    const base =
-      "px-2.5 py-1 text-xs font-medium rounded-full flex items-center gap-1 justify-center";
-    switch (status) {
-      case "completed":
-        return (
-          <span className={`${base} bg-green-100 text-green-700`}>
-            <CheckCircle size={14} /> Completed
-          </span>
-        );
-      case "pending":
-        return (
-          <span className={`${base} bg-yellow-100 text-yellow-700`}>
-            <AlertCircle size={14} /> Pending
-          </span>
-        );
-      case "refunded":
-        return (
-          <span className={`${base} bg-red-100 text-red-700`}>
-            <XCircle size={14} /> Refunded
-          </span>
-        );
-      default:
-        return <span className={`${base} bg-gray-100 text-gray-700`}>Unknown</span>;
-    }
-  };
-
-  const Dropdown = ({ options, value, onChange }) => (
-    <div className="relative group">
-      <button className="flex items-center justify-between gap-2 bg-white border border-gray-300 px-4 py-2 rounded-lg shadow-sm hover:shadow-md text-gray-700 text-sm transition w-40">
-        <Filter size={14} className="text-indigo-500" />
-        <span className="truncate">{value}</span>
-        <ChevronDown size={16} className="text-gray-500" />
-      </button>
-      <div className="absolute hidden group-hover:block bg-white border border-gray-200 rounded-lg mt-1 w-40 shadow-lg z-20">
-        {options.map((opt) => (
-          <div
-            key={opt}
-            onClick={() => onChange(opt)}
-            className={`px-4 py-2 text-sm cursor-pointer hover:bg-indigo-50 ${
-              value === opt ? "bg-indigo-100 text-indigo-700 font-medium" : ""
-            }`}
-          >
-            {opt}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
   const exportExcel = async () => {
     if (exporting) return;
@@ -223,7 +141,8 @@ const BookingList = () => {
       const data = filteredBookings.map((b) => ({
         Customer: b.customer_id?.name || "N/A",
         Phone: b.customer_id?.phone || "N/A",
-        "Service(s)": b.services?.map((s) => s.service_id?.name).join(", ") || "N/A",
+        "Service(s)":
+          b.services?.map((s) => s.service_id?.name).join(", ") || "N/A",
         "Employee(s)":
           b.services
             ?.map((s) => s.employee_name || s.employee_id?.name)
@@ -239,8 +158,13 @@ const BookingList = () => {
       const worksheet = XLSX.utils.json_to_sheet(data);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Bookings");
-      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-      const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+      const blob = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
       saveAs(blob, "bookings.xlsx");
     } catch (err) {
       console.error("❌ Excel export failed:", err);
@@ -251,9 +175,8 @@ const BookingList = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 flex flex-col">
-      {loading && <Loader fullscreen={true} size={250} />}
+      {loading && <Loader fullscreen size={250} />}
 
-      {/* ✅ Alert */}
       {alert.show && (
         <div
           className={`fixed top-5 right-5 px-4 py-3 rounded-lg shadow-lg text-sm font-medium z-50 ${
@@ -267,14 +190,78 @@ const BookingList = () => {
       )}
 
       <div className="max-w-7xl mx-auto w-full flex-1">
-        {/* Filters */}
-        {/* ... same filters block ... */}
+        {/* Top Bar: Search left, filters+export right */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search bookings..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full md:w-96 px-4 py-3 border border-gray-300 rounded-xl text-base shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-gray-400"
+            />
+          </div>
+
+          <div className="flex gap-3 flex-wrap items-center">
+            <select
+              className="px-4 py-3 border rounded-xl text-base shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="All">Payment Status: All</option>
+              <option value="Pending">Pending</option>
+              <option value="Completed">Completed</option>
+              <option value="Refunded">Refunded</option>
+            </select>
+
+            <select
+              className="px-4 py-3 border rounded-xl text-base shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              value={dateFilter}
+              onChange={(e) => {
+                setDateFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="Today">Date: Today</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+            </select>
+
+            <select
+              className="px-4 py-3 border rounded-xl text-base shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              value={recordsPerPage}
+              onChange={(e) => {
+                setRecordsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={10}>Records: 10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+
+            <button
+              onClick={exportExcel}
+              disabled={exporting}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-xl shadow-md hover:bg-indigo-700 flex items-center gap-2 transition-all"
+            >
+              {exporting ? "Exporting..." : "Export Excel"}
+            </button>
+          </div>
+        </div>
 
         {/* Table */}
         <div className="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full text-sm text-gray-700 border-collapse">
-              <thead className="bg-indigo-600 text-white text-xs uppercase tracking-wide">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-base text-gray-700 border-collapse">
+              <thead className="bg-indigo-600 text-white text-sm uppercase tracking-wide">
                 <tr>
                   {[
                     "Customer",
@@ -284,19 +271,24 @@ const BookingList = () => {
                     "Amount",
                     "Appointment Date",
                     "Payment",
-                    "Status",
                     "Actions",
                   ].map((h) => (
-                    <th key={h} className="py-3.5 px-4 text-left border-b border-indigo-200">
+                    <th
+                      key={h}
+                      className="py-4 px-4 text-left border-b border-indigo-200"
+                    >
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {currentBookings.length > 0 ? (
+                {currentBookings.length ? (
                   currentBookings.map((b) => (
-                    <tr key={b._id} className="hover:bg-indigo-50 border-b last:border-0">
+                    <tr
+                      key={b._id}
+                      className="hover:bg-indigo-50 border-b last:border-0"
+                    >
                       <td className="py-3 px-4">{b.customer_id?.name}</td>
                       <td className="py-3 px-4">{b.customer_id?.phone}</td>
                       <td className="py-3 px-4">
@@ -320,37 +312,38 @@ const BookingList = () => {
                           : "N/A"}
                       </td>
                       <td className="py-3 px-4 text-center">
-                        {getStatusBadge(b.payment_status)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        {b.confirmation_status ? (
-                          <span className="px-2.5 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full flex justify-center items-center gap-1">
-                            <CheckCircle size={14} /> Confirmed
+                        {b.payment_status === "completed" ? (
+                          <span className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex justify-center items-center mx-auto">
+                            <CheckCircle size={20} />
+                          </span>
+                        ) : b.payment_status === "pending" ? (
+                          <span className="w-8 h-8 bg-yellow-100 text-yellow-700 rounded-full flex justify-center items-center mx-auto">
+                            <AlertCircle size={20} />
                           </span>
                         ) : (
-                          <span className="px-2.5 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full flex justify-center items-center gap-1">
-                            <AlertCircle size={14} /> Pending
+                          <span className="w-8 h-8 bg-red-100 text-red-700 rounded-full flex justify-center items-center mx-auto">
+                            <XCircle size={20} />
                           </span>
                         )}
                       </td>
                       <td className="py-3 px-4 flex justify-center gap-2">
                         <button
                           onClick={() => setSelectedBooking(b)}
-                          className="px-2.5 py-1.5 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 flex items-center gap-1"
+                          className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 flex items-center transition"
                         >
-                          <Info size={14} /> View
+                          <Info size={18} />
                         </button>
                         <button
                           onClick={() => setEditBooking(b)}
-                          className="px-2.5 py-1.5 bg-indigo-100 text-indigo-600 text-xs rounded-lg hover:bg-indigo-200 flex items-center gap-1"
+                          className="p-3 bg-indigo-100 text-indigo-600 rounded-xl hover:bg-indigo-200 flex items-center transition"
                         >
-                          <Pencil size={14} /> Edit
+                          <Pencil size={18} />
                         </button>
                         <button
-                          onClick={() => handleDelete(b._id)}
-                          className="px-2.5 py-1.5 bg-red-100 text-red-600 text-xs rounded-lg hover:bg-red-200 flex items-center gap-1"
+                          onClick={() => setConfirmDelete(b._id)}
+                          className="p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 flex items-center transition"
                         >
-                          <Trash2 size={14} /> Delete
+                          <Trash2 size={18} />
                         </button>
                       </td>
                     </tr>
@@ -358,8 +351,8 @@ const BookingList = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan="9"
-                      className="py-8 text-center text-gray-500 text-sm font-medium"
+                      colSpan="8"
+                      className="py-10 text-center text-gray-500 text-base font-medium"
                     >
                       No bookings found.
                     </td>
@@ -371,10 +364,10 @@ const BookingList = () => {
         </div>
       </div>
 
-      {/* ✅ Delete Confirmation Modal */}
+      {/* Confirm Delete Modal */}
       {confirmDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] sm:w-[400px] text-center">
+          <div className="bg-white p-6 rounded-xl shadow-lg w-[90%] sm:w-[400px] text-center">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">
               Delete Booking?
             </h3>
@@ -383,16 +376,34 @@ const BookingList = () => {
             </p>
             <div className="flex justify-center gap-4">
               <button
-                onClick={confirmDeleteBooking}
+                onClick={async () => {
+                  setOperationLoading(true);
+                  try {
+                    await axios.delete(
+                      `${BASE_URL}/appointments/${confirmDelete}`
+                    );
+                    setBookings((prev) =>
+                      prev.filter((b) => b._id !== confirmDelete)
+                    );
+                    showAlert("success", "Booking deleted successfully!");
+                  } catch {
+                    showAlert("error", "Failed to delete booking.");
+                  } finally {
+                    setOperationLoading(false);
+                    setConfirmDelete(null);
+                  }
+                }}
                 disabled={operationLoading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 disabled:opacity-50 flex items-center gap-2"
               >
-                {operationLoading && <Loader2 size={16} className="animate-spin" />}
+                {operationLoading && (
+                  <Loader2 size={16} className="animate-spin" />
+                )}
                 {operationLoading ? "Deleting..." : "Yes, Delete"}
               </button>
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                className="px-5 py-3 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300"
               >
                 Cancel
               </button>
@@ -401,13 +412,13 @@ const BookingList = () => {
         </div>
       )}
 
-      {/* Modals */}
       {selectedBooking && (
         <BookingExploreModal
           booking={selectedBooking}
           onClose={() => setSelectedBooking(null)}
         />
       )}
+
       {editBooking && (
         <BookingEditModal
           editBooking={editBooking}
