@@ -4,12 +4,38 @@ import { X } from "lucide-react";
 import { BASE_URL } from "../../data/data";
 import Loader from "../Layout/Loader.jsx";
 
-const MonthAppointmentsModal = ({ startDate, endDate, onClose }) => {
+const MonthAppointmentsModal = ({ onClose }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
+  // ✅ Calculate correct start & end of current month (timezone safe)
   useEffect(() => {
+    const now = new Date();
+
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const localStart = new Date(
+      start.getTime() - start.getTimezoneOffset() * 60000
+    )
+      .toISOString()
+      .split("T")[0];
+
+    const localEnd = new Date(end.getTime() - end.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split("T")[0];
+
+    setStartDate(localStart);
+    setEndDate(localEnd);
+  }, []);
+
+  // ✅ Fetch appointments after start & end date set
+  useEffect(() => {
+    if (!startDate || !endDate) return;
+
     const fetchAppointments = async () => {
       try {
         setLoading(true);
@@ -17,12 +43,9 @@ const MonthAppointmentsModal = ({ startDate, endDate, onClose }) => {
           `${BASE_URL}/appointments/?date_start=${startDate}&date_end=${endDate}&for_notification=false`
         );
 
-        // Assuming API returns { appointments: [...] }
         const data = res.data.appointments || [];
-
         setAppointments(data);
 
-        // Calculate total revenue
         const revenue = data.reduce((sum, a) => sum + (a.amount || 0), 0);
         setTotalRevenue(revenue);
       } catch (err) {
@@ -37,7 +60,7 @@ const MonthAppointmentsModal = ({ startDate, endDate, onClose }) => {
     fetchAppointments();
   }, [startDate, endDate]);
 
-  if (loading) return <Loader size={150} />;
+  if (loading) return <Loader size={250} />;
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-start pt-20">
@@ -94,15 +117,22 @@ const MonthAppointmentsModal = ({ startDate, endDate, onClose }) => {
                     <td className="px-4 py-2">
                       {new Date(app.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-4 py-2">{app.customer?.name || "-"}</td>
+                    {/* ✅ Fixed customer field */}
+                    <td className="px-4 py-2">{app.customer_id?.name || "-"}</td>
+
+                    {/* Services */}
                     <td className="px-4 py-2">
                       {app.services
                         ?.map((s) => s.service_id?.name || "")
                         .join(", ")}
                     </td>
+
+                    {/* Employee */}
                     <td className="px-4 py-2">
                       {app.services?.[0]?.employee_id?.name || "-"}
                     </td>
+
+                    {/* Amount */}
                     <td className="px-4 py-2">{app.amount || 0}</td>
                   </tr>
                 ))

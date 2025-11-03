@@ -92,7 +92,7 @@ const EmployeePerformanceModal = ({ employee, onClose }) => {
         <div className="overflow-x-auto">
           {loading ? (
             <div className="flex justify-center py-10">
-              <Loader size={100} />
+              <Loader size={250} />
             </div>
           ) : appointments.length === 0 ? (
             <p className="text-center text-gray-500 py-6">
