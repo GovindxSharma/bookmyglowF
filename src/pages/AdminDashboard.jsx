@@ -14,6 +14,7 @@ import { Users, DollarSign, CalendarDays } from "lucide-react";
 import { BASE_URL } from "../data/data";
 import Loader from "../components/Layout/Loader.jsx";
 import EmployeePerformanceModal from "../components/Employee/EmployeePerformaceModal.jsx";
+import MonthAppointmentsModal from "../components/Bookings/MonthAppointmentsModal.jsx";
 
 const PAYMENTS_API = `${BASE_URL}/payments`;
 const EMPLOYEE_API = `${BASE_URL}/employee`;
@@ -26,6 +27,7 @@ const AdminDashboard = () => {
   const [employeeCount, setEmployeeCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedMonthRange, setSelectedMonthRange] = useState(null);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -56,7 +58,6 @@ const AdminDashboard = () => {
               const res = await axios.get(
                 `${PAYMENTS_API}/employee/${emp._id}/${today}`
               );
-              const summary = res.data.summary || {};
               return {
                 _id: emp._id,
                 name: emp.name,
@@ -99,6 +100,13 @@ const AdminDashboard = () => {
 
     fetchDashboardData();
   }, []);
+
+  const handleMonthClick = (monthIndex) => {
+    const year = new Date().getFullYear();
+    const start = new Date(year, monthIndex, 1).toISOString().split("T")[0];
+    const end = new Date(year, monthIndex + 1, 0).toISOString().split("T")[0];
+    setSelectedMonthRange({ start, end });
+  };
 
   if (loading) return <Loader size={250} />;
 
@@ -245,7 +253,12 @@ const AdminDashboard = () => {
                 }}
                 formatter={(value) => `₹${value.toLocaleString()}`}
               />
-              <Bar dataKey="revenue" fill="#636CCB" radius={[6, 6, 0, 0]}>
+              <Bar
+                dataKey="revenue"
+                fill="#636CCB"
+                radius={[6, 6, 0, 0]}
+                onClick={(data, index) => handleMonthClick(index)}
+              >
                 <LabelList
                   dataKey="revenue"
                   position="top"
@@ -266,7 +279,8 @@ const AdminDashboard = () => {
             return (
               <div
                 key={idx}
-                className="bg-[#f0f4ff] rounded-xl p-3 shadow-sm flex flex-col"
+                className="bg-[#f0f4ff] rounded-xl p-3 shadow-sm flex flex-col cursor-pointer"
+                onClick={() => handleMonthClick(idx)}
               >
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[#5058B5] font-semibold">
@@ -288,10 +302,19 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* ===== MODALS ===== */}
       {selectedEmployee && (
         <EmployeePerformanceModal
           employee={selectedEmployee}
           onClose={() => setSelectedEmployee(null)}
+        />
+      )}
+
+      {selectedMonthRange && (
+        <MonthAppointmentsModal
+          startDate={selectedMonthRange.start}
+          endDate={selectedMonthRange.end}
+          onClose={() => setSelectedMonthRange(null)}
         />
       )}
     </div>
