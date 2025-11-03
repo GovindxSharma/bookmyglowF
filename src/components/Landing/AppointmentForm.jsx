@@ -7,6 +7,7 @@ import CustomerAlert from "../Layout/CustomerAlert";
 
 const AppointmentForm = () => {
   const today = new Date().toISOString().split("T")[0];
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -18,27 +19,47 @@ const AppointmentForm = () => {
   const [errors, setErrors] = useState({});
   const [services, setServices] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(false);
-  const [alert, setAlert] = useState({ show: false, type: "info", message: "" });
+  const [alert, setAlert] = useState({
+    show: false,
+    type: "",
+    message: "",
+  });
 
   const dropdownRef = useRef(null);
 
-  // Fetch services
+  // 🧭 Fetch services safely
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/services`);
-        setServices(res.data);
+        setServices(res.data || []);
       } catch (err) {
         console.error("Failed to fetch services:", err);
         setAlert({
           show: true,
           type: "error",
-          message: "Failed to load services. Please refresh.",
+          message: "Backend not responding. Please try again later.",
         });
       }
     };
     fetchServices();
   }, []);
+
+  // ⛔️ Prevent lingering confetti or alerts on reload
+  useEffect(() => {
+    setAlert({ show: false, type: "", message: "" });
+  }, []);
+
+  // Auto close alert after 4s
+  useEffect(() => {
+    if (alert.show) {
+      const timer = setTimeout(
+        () => setAlert({ show: false, type: "", message: "" }),
+        4000
+      );
+      return () => clearTimeout(timer);
+    }
+  }, [alert.show]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -112,6 +133,7 @@ const AppointmentForm = () => {
     try {
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
       if (res.data.success) {
+        // ✅ Show success alert only after real success
         setAlert({
           show: true,
           type: "success",
@@ -141,15 +163,17 @@ const AppointmentForm = () => {
       id="book"
       className="relative py-20 px-5 sm:px-10 md:px-16 bg-gradient-to-br from-[#E5EBFF] via-[#F5F6FF] to-[#EBD6FB] overflow-hidden"
     >
-      {/* Alert Component */}
-      <CustomerAlert
-        show={alert.show}
-        type={alert.type}
-        message={alert.message}
-        onClose={() => setAlert({ ...alert, show: false })}
-      />
+      {/* ✅ Alert only when needed */}
+      {alert.show && (
+        <CustomerAlert
+          show={alert.show}
+          type={alert.type}
+          message={alert.message}
+          onClose={() => setAlert({ ...alert, show: false })}
+        />
+      )}
 
-      {/* Decorative Blurs */}
+      {/* Background Blurs */}
       <div className="absolute top-[-50px] left-[-50px] w-[250px] h-[250px] bg-[#687FE5]/40 rounded-full blur-[120px] animate-pulse"></div>
       <div className="absolute bottom-[-60px] right-[-60px] w-[300px] h-[300px] bg-[#636CCB]/40 rounded-full blur-[150px] animate-pulse"></div>
 
@@ -177,7 +201,7 @@ const AppointmentForm = () => {
           transition={{ duration: 0.7 }}
           className="relative z-10 w-full max-w-3xl bg-white/90 backdrop-blur-xl border border-[#A3B0FF]/30 p-8 sm:p-10 md:p-12 rounded-3xl shadow-2xl"
         >
-          {/* Full Name */}
+          {/* Name */}
           <div className="mb-6">
             <label className="block text-[#4E56B2] font-semibold mb-2">
               Full Name <span className="text-red-500">*</span>
@@ -190,9 +214,7 @@ const AppointmentForm = () => {
               placeholder="Enter your name"
               className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB]"
             />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
           </div>
 
           {/* Phone */}
@@ -208,9 +230,7 @@ const AppointmentForm = () => {
               placeholder="Enter 10-digit phone number"
               className="w-full px-4 py-3 border border-[#A3B0FF]/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#636CCB]"
             />
-            {errors.phone && (
-              <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-            )}
+            {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
           </div>
 
           {/* Services Dropdown */}
@@ -229,49 +249,46 @@ const AppointmentForm = () => {
                   : "Choose services"}
               </span>
               <ChevronDown
-                className={`transition-transform ${
-                  openDropdown ? "rotate-180" : ""
-                }`}
+                className={`transition-transform ${openDropdown ? "rotate-180" : ""}`}
               />
             </button>
-           
-              {openDropdown && (
-                <div className="absolute mt-2 w-full bg-white border border-[#A3B0FF]/40 rounded-xl shadow-lg z-50">
-                  <div className="max-h-60 overflow-y-auto">
-                    {services.length > 0 ? (
-                      services.map((s) => (
-                        <label
-                          key={s._id}
-                          className="flex items-center gap-3 px-4 py-2 hover:bg-[#EEF0FF] cursor-pointer"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={formData.services.includes(s._id)}
-                            onChange={() => handleServiceToggle(s._id)}
-                            className="accent-[#636CCB]"
-                          />
-                          <span>{s.name}</span>
-                        </label>
-                      ))
-                    ) : (
-                      <p className="text-center text-gray-500 py-3">Loading services...</p>
-                    )}
-                  </div>
-              
-                  {/* ✅ Sticky Done button always visible */}
-                  <div className="sticky bottom-0 bg-white border-t border-[#A3B0FF]/30">
-                    <button
-                      type="button"
-                      onClick={() => setOpenDropdown(false)}
-                      className="w-full text-center py-2 font-semibold text-[#636CCB] hover:bg-[#EEF0FF]"
-                    >
-                      Done
-                    </button>
-                  </div>
+
+            {openDropdown && (
+              <div className="absolute mt-2 w-full bg-white border border-[#A3B0FF]/40 rounded-xl shadow-lg z-50">
+                <div className="max-h-60 overflow-y-auto">
+                  {services.length > 0 ? (
+                    services.map((s) => (
+                      <label
+                        key={s._id}
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-[#EEF0FF] cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.services.includes(s._id)}
+                          onChange={() => handleServiceToggle(s._id)}
+                          className="accent-[#636CCB]"
+                        />
+                        <span>{s.name}</span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-500 py-3">
+                      No services available
+                    </p>
+                  )}
                 </div>
-              )}
-              
-            
+
+                <div className="sticky bottom-0 bg-white border-t border-[#A3B0FF]/30">
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdown(false)}
+                    className="w-full text-center py-2 font-semibold text-[#636CCB] hover:bg-[#EEF0FF]"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
 
             {errors.services && (
               <p className="text-red-500 text-sm mt-1">{errors.services}</p>

@@ -4,18 +4,19 @@ import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
 import { BASE_URL } from "../../data/data";
 
-const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
+const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
   const [services, setServices] = useState([]);
   const [serviceList, setServiceList] = useState([
     {
       service: null,
       subService: null,
       subServices: [],
+      employee: null,
       price: "",
       duration: "",
     },
   ]);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,22 +24,19 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
     gender: "",
     address: "",
     note: "",
-    source: "online",
     date: "",
     payment_mode: "",
     amount: "",
   });
-  const [toast, setToast] = useState(null);
 
+  const [toast, setToast] = useState(null);
   const today = new Date().toISOString().split("T")[0];
 
-  // Prevent background scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => (document.body.style.overflow = "auto");
   }, []);
 
-  // Fetch all services for dropdown
   useEffect(() => {
     axios
       .get(`${BASE_URL}/services`)
@@ -60,9 +58,8 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
       );
   }, []);
 
-  // Prefill edit data
   useEffect(() => {
-    if (!editBooking) return;
+    if (!editBooking || services.length === 0) return;
 
     setFormData({
       name: editBooking.customer_id?.name || "",
@@ -71,90 +68,68 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
       gender: editBooking.customer_id?.gender || "",
       address: editBooking.customer_id?.address || "",
       note: editBooking.note || "",
-      source: editBooking.source || "online",
       date: editBooking.date?.split("T")[0] || today,
       payment_mode: editBooking.payment_mode || "",
       amount: editBooking.amount || "",
     });
 
-    const emp = employees.find((e) => e._id === editBooking.employee_id?._id);
-    setSelectedEmployee(emp ? { label: emp.name, value: emp._id } : null);
+    const mapped = (editBooking.services || []).map((s) => {
+      const main = services.find((ser) => ser.value === s.service_id._id) || {
+        label: s.service_id.name,
+        value: s.service_id._id,
+        sub_services: [],
+      };
 
-    const fetchServices = async () => {
-      const mapped = await Promise.all(
-        (editBooking.services || []).map(async (s) => {
-          try {
-            const { data } = await axios.get(
-              `${BASE_URL}/services/${s.service_id._id}`
-            );
-            const mainService = {
-              label: data.name,
-              value: data._id,
-              sub_services: data.sub_services.map((sub) => ({
-                label: `${sub.name} - ₹${sub.price}`,
-                value: sub._id,
-                price: sub.price,
-                duration: sub.duration || "",
-              })),
-            };
-            const subService = mainService.sub_services.find(
-              (sub) => sub.value === s.sub_service_id
-            );
-            return {
-              service: mainService,
-              subService: subService || null,
-              subServices: mainService.sub_services,
-              price: s.price,
-              duration: s.duration || "",
-            };
-          } catch {
-            return {
-              service: null,
-              subService: null,
-              subServices: [],
-              price: s.price,
-              duration: s.duration || "",
-            };
-          }
-        })
-      );
-      setServiceList(
-        mapped.length
-          ? mapped
-          : [
-              {
-                service: null,
-                subService: null,
-                subServices: [],
-                price: "",
-                duration: "",
-              },
-            ]
-      );
-    };
+      const sub = main.sub_services.find(
+        (sub) => sub.value === s.sub_service_id
+      ) || {
+        label: "Unknown",
+        value: s.sub_service_id,
+        price: s.price,
+        duration: s.duration || "",
+      };
 
-    fetchServices();
-  }, [editBooking, employees]);
+      return {
+        service: main,
+        subService: sub,
+        subServices: main.sub_services,
+        employee: s.employee_id
+          ? { label: s.employee_id.name, value: s.employee_id._id }
+          : null,
+        price: s.price,
+        duration: s.duration || "",
+      };
+    });
+
+    setServiceList(mapped);
+  }, [editBooking, services]);
 
   const handleChange = (e) =>
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const handleServiceChange = (i, val) => {
-    const updated = [...serviceList];
-    updated[i].service = val;
-    updated[i].subServices = val ? val.sub_services : [];
-    updated[i].subService = null;
-    updated[i].price = "";
-    updated[i].duration = "";
-    setServiceList(updated);
+  const handleServiceChange = (i, v) => {
+    const u = [...serviceList];
+    u[i].service = v;
+    u[i].subServices = v?.sub_services || [];
+    u[i].subService = null;
+    u[i].employee = null;
+    u[i].price = "";
+    u[i].duration = "";
+    setServiceList(u);
   };
 
-  const handleSubServiceChange = (i, val) => {
-    const updated = [...serviceList];
-    updated[i].subService = val;
-    updated[i].price = val?.price || "";
-    updated[i].duration = val?.duration || "";
-    setServiceList(updated);
+  const handleSubServiceChange = (i, v) => {
+    const u = [...serviceList];
+    u[i].subService = v;
+    u[i].price = v?.price || "";
+    u[i].duration = v?.duration || "";
+    setServiceList(u);
+  };
+
+  const handleEmployeeChange = (i, v) => {
+    const u = [...serviceList];
+    u[i].employee = v;
+    setServiceList(u);
   };
 
   const addServiceBlock = () =>
@@ -164,266 +139,243 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdated }) => {
         service: null,
         subService: null,
         subServices: [],
+        employee: null,
         price: "",
         duration: "",
       },
     ]);
 
   const removeServiceBlock = (i) => {
-    const updated = [...serviceList];
-    updated.splice(i, 1);
-    setServiceList(updated);
+    const u = [...serviceList];
+    u.splice(i, 1);
+    setServiceList(u);
   };
 
-  // 🧠 Handle form submission
-  const handleSubmit = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.phone || !selectedEmployee)
-      return setToast({
-        message: "Please fill all required fields.",
-        type: "error",
-      });
+    if (!formData.name || !formData.phone)
+      return setToast({ message: "Name & phone required", type: "error" });
 
     const servicesPayload = serviceList
-      .filter((item) => item.service && item.subService)
-      .map((item) => ({
-        service_id: item.service.value,
-        sub_service_id: item.subService.value,
-        price: item.price,
-        duration: item.duration,
+      .filter((s) => s.service && s.subService && s.employee)
+      .map((s) => ({
+        service_id: s.service.value,
+        sub_service_id: s.subService.value,
+        employee_id: s.employee.value,
+        price: s.price,
+        duration: s.duration,
       }));
 
-    if (!servicesPayload.length)
-      return setToast({
-        message: "Select at least one service/sub-service.",
-        type: "error",
-      });
-
-    const payload = {
-      ...formData,
-      employee_id: selectedEmployee.value,
-      services: servicesPayload,
-      confirmation_status: editBooking.confirmation_status || true,
-    };
+    const payload = { ...formData, services: servicesPayload };
 
     try {
-      const res = await axios.put(
-        `${BASE_URL}/appointments/${editBooking._id}`,
-        payload
-      );
+      await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, payload);
+      setToast({ message: "Booking updated ✅", type: "info" });
 
-      setToast({
-        message: res.data.message || "Booking updated successfully ✅",
-        type: "info",
-      });
-
-      // ✅ Close modal after success and show booking list again
       setTimeout(() => {
-        onUpdated(res.data.appointment);
-        onClose(); // this should open booking list
-      }, 1000);
-    } catch (err) {
-      setToast({
-        message: err.response?.data?.message || "Failed to update booking",
-        type: "error",
-      });
+        onUpdate && onUpdate();
+        onClose();
+      }, 600);
+    } catch {
+      setToast({ message: "Update failed", type: "error" });
     }
   };
 
-  const requiredClass =
-    "p-3 rounded-xl border border-blue-400 focus:ring-2 focus:ring-blue-400 w-full bg-blue-50";
-  const optionalClass =
-    "p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-gray-300 w-full bg-gray-50";
+  const handleDelete = async () => {
+    if (!window.confirm("Delete booking?")) return;
+    try {
+      await axios.delete(`${BASE_URL}/appointments/${editBooking._id}`);
+      setToast({ message: "Deleted ✅", type: "info" });
+      setTimeout(() => {
+        onUpdate && onUpdate();
+        onClose();
+      }, 600);
+    } catch {
+      setToast({ message: "Failed to delete", type: "error" });
+    }
+  };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-12"
-      style={{
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        overflow: "hidden",
-      }}
-      onClick={onClose} // click outside to close -> back to booking list
+      className="fixed inset-0 z-50 flex items-start justify-center pt-12 backdrop-blur-sm"
+      onClick={onClose}
     >
       <div
         className="relative p-6 bg-white rounded-3xl shadow-lg max-w-3xl w-full mx-4 overflow-y-auto max-h-[90vh]"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <style>{`div::-webkit-scrollbar { display: none !important; }`}</style>
-
-        {/* ❌ Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-transform hover:scale-110"
-          title="Close"
+          className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
         >
           ✕
         </button>
+        <h2 className="text-2xl font-bold mb-4">Edit Booking</h2>
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Booking</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Customer Info */}
+        <form onSubmit={handleUpdate} className="space-y-4">
+          {/* Customer */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
-              type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="Full Name *"
-              className={requiredClass}
+              className="p-3 border rounded-xl"
+              placeholder="Full Name"
               required
             />
             <input
-              type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Email (optional)"
-              className={optionalClass}
+              className="p-3 border rounded-xl"
+              placeholder="Email"
             />
             <input
-              type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="Phone *"
-              className={requiredClass}
+              className="p-3 border rounded-xl"
+              placeholder="Phone"
               required
             />
+
             <select
               name="gender"
               value={formData.gender}
               onChange={handleChange}
-              className={optionalClass}
+              className="p-3 border rounded-xl"
             >
-              <option value="">Gender (optional)</option>
+              <option value="">Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="other">Other</option>
             </select>
-          </div>
 
-          <input
-            type="text"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Address (optional)"
-            className={optionalClass}
-          />
-          <textarea
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
-            placeholder="Notes (optional)"
-            className={optionalClass}
-          />
+            <input
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="p-3 border rounded-xl col-span-2"
+              placeholder="Address"
+            />
+            <textarea
+              name="note"
+              value={formData.note}
+              onChange={handleChange}
+              className="p-3 border rounded-xl col-span-2"
+              placeholder="Notes"
+            />
+          </div>
 
           {/* Services */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Select Services *
-            </h3>
             {serviceList.map((item, i) => (
               <div
                 key={i}
-                className="p-4 border border-gray-300 rounded-xl relative bg-gray-50"
+                className="p-4 border rounded-xl bg-gray-50 relative"
               >
                 <Select
                   options={services}
                   value={item.service}
-                  onChange={(val) => handleServiceChange(i, val)}
-                  placeholder="Select Service *"
-                  className="mb-3"
+                  onChange={(v) => handleServiceChange(i, v)}
+                  placeholder="Service"
+                  className="mb-2"
                 />
                 <Select
                   options={item.subServices}
                   value={item.subService}
-                  onChange={(val) => handleSubServiceChange(i, val)}
-                  placeholder="Select Sub-Service *"
+                  onChange={(v) => handleSubServiceChange(i, v)}
+                  placeholder="Sub Service"
+                  className="mb-2"
                   isDisabled={!item.subServices.length}
-                  className="mb-3"
                 />
+                <Select
+                  options={employees.map((e) => ({
+                    label: e.name,
+                    value: e._id,
+                  }))}
+                  value={item.employee}
+                  onChange={(v) => handleEmployeeChange(i, v)}
+                  placeholder="Employee"
+                  className="mb-2"
+                />
+
                 {item.price && (
                   <div className="flex justify-between text-sm text-gray-600">
-                    <p>💰 ₹{item.price}</p>
-                    {item.duration && <p>⏱ {item.duration}</p>}
+                    <p>₹{item.price}</p>
+                    <p>{item.duration ? `⏱ ${item.duration}` : ""}</p>
                   </div>
                 )}
+
                 {serviceList.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeServiceBlock(i)}
-                    className="absolute top-2 right-3 text-red-500 font-semibold"
+                    className="absolute top-2 right-3 text-red-500 font-bold"
                   >
                     ✕
                   </button>
                 )}
               </div>
             ))}
+
             <button
               type="button"
               onClick={addServiceBlock}
-              className="w-full p-2 rounded-xl bg-blue-100 text-blue-600 font-medium hover:bg-blue-200 transition"
+              className="w-full p-2 rounded-xl bg-blue-100 text-blue-600 hover:bg-blue-200"
             >
-              ➕ Add Another Service
+              ➕ Add Service
             </button>
           </div>
 
-          {/* Employee */}
-          <Select
-            options={employees.map((e) => ({ label: e.name, value: e._id }))}
-            value={selectedEmployee}
-            onChange={setSelectedEmployee}
-            placeholder="Assign Employee *"
-            className="mt-4"
-          />
-
-          {/* Booking Date */}
+          {/* Date + Amount + Payment Mode */}
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className={requiredClass + " mt-4"}
-            required
+            className="p-3 border rounded-xl w-full"
           />
 
-          {/* Payment */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-3">
             <input
               type="number"
               name="amount"
               value={formData.amount}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, amount: e.target.value }))
-              }
-              placeholder="Total Amount"
-              className={optionalClass + " font-semibold no-spinner"}
-              min="0"
+              onChange={handleChange}
+              placeholder="Amount"
+              className="p-3 border rounded-xl"
             />
             <select
               name="payment_mode"
               value={formData.payment_mode}
               onChange={handleChange}
-              className={optionalClass}
+              className="p-3 border rounded-xl"
             >
-              <option value="">Payment Mode (optional)</option>
+              <option value="">Payment Mode</option>
               <option value="cash">Cash</option>
               <option value="upi">UPI</option>
               <option value="card">Card</option>
+              <option value="pending">Pending</option>
             </select>
           </div>
 
-          <button
-            type="submit"
-            className="w-full p-3 mt-4 rounded-2xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
-          >
-            Update Booking
-          </button>
+          <div className="flex flex-col md:flex-row gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="w-full md:w-1/2 p-3 rounded-xl bg-red-100 text-red-600 hover:bg-red-200"
+            >
+              Delete
+            </button>
+            <button
+              type="submit"
+              className="w-full md:w-1/2 p-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Update
+            </button>
+          </div>
         </form>
 
         {toast && (
