@@ -3,7 +3,7 @@ import React from "react";
 const Credit = () => {
   const credits = [
     { name: "Trusha", role: "Developer", link: "https://trusha-jadeja.onrender.com/" },
-    { name: "Saim", role: "Product Manager" },
+    { name: "Saim", role: "Product Manager" ,link:"https://www.linkedin.com/in/saim-khoja/"},
     { name: "Govind", role: "Developer", link: "https://govind-sharma.onrender.com/" },
   ];
 
