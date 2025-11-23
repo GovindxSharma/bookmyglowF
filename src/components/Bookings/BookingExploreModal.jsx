@@ -126,7 +126,7 @@ const Detail = ({ label, value }) => (
 
 // Send Bill Modal
 const SendBillModal = ({ booking, onClose }) => {
-  const [copied, setCopied] = useState({ phone: false, message: false });
+  const [copied, setCopied] = useState({ message: false });
 
   const totalExpected = booking.services?.reduce(
     (sum, s) => sum + (s.price || 0),
@@ -151,6 +151,10 @@ We look forward to welcoming you again soon for another luxurious experience ✨
 Warm regards,
 Bunty’s Unisex Saloon Team
 📞 9904334450 | 🌐 https://buntysaloon.onrender.com`;
+
+  const customerPhone = booking.customer_id?.phone || "";
+  const encodedMsg = encodeURIComponent(message);
+  const whatsappURL = `https://api.whatsapp.com/send?phone=91${customerPhone}&text=${encodedMsg}`;
 
   const copyToClipboard = async (type, text) => {
     try {
@@ -179,29 +183,38 @@ Bunty’s Unisex Saloon Team
         {/* Customer Number */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium text-gray-800 text-sm">
-              Customer Number
-            </span>
-            <button
-              onClick={() =>
-                copyToClipboard("phone", booking.customer_id?.phone || "")
-              }
-              className="text-[#687FE5] hover:text-[#4c5dd4]"
+            <span className="font-medium text-gray-800 text-sm">Customer Number</span>
+
+            {/* WhatsApp Button (replaces copy icon) */}
+            <a
+              href={whatsappURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 bg-green-500 text-white text-xs rounded-md flex items-center gap-2 hover:bg-green-600 transition"
             >
-              {copied.phone ? <Check size={18} /> : <Clipboard size={18} />}
-            </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M20.52 3.48A11.84 11.84 0 0012 0a11.81 11.81 0 00-8.33 3.46A11.81 11.81 0 000 11.81a11.62 11.62 0 001.6 5.93L0 24l6.44-1.69a11.93 11.93 0 005.53 1.4h.01a11.81 11.81 0 008.32-3.47A11.73 11.73 0 0024 11.82a11.79 11.79 0 00-3.48-8.34zM12 21.55h-.01a9.73 9.73 0 01-4.93-1.35l-.35-.21-3.82 1 1.02-3.72-.22-.38A9.77 9.77 0 012.23 11.8 9.72 9.72 0 0112 2.05a9.66 9.66 0 016.87 2.85 9.62 9.62 0 012.84 6.87 9.7 9.7 0 01-9.71 9.78zm5.32-7.25c-.29-.15-1.72-.85-1.99-.95s-.46-.15-.66.15-.76.95-.94 1.15-.35.22-.64.07a7.92 7.92 0 01-2.33-1.44 8.69 8.69 0 01-1.61-2c-.17-.3 0-.46.13-.61.14-.15.3-.36.45-.54s.19-.31.29-.51a.55.55 0 000-.54c-.07-.15-.66-1.6-.9-2.19s-.48-.48-.66-.49h-.57a1.1 1.1 0 00-.79.37 3.31 3.31 0 00-1 2.46 5.79 5.79 0 001.22 3.08A13.19 13.19 0 009.65 17c.47.26.82.41 1.1.52a2.65 2.65 0 001.1.21 2.31 2.31 0 00.76-.13 5.43 5.43 0 001.77-1.12 2.24 2.24 0 00.49-1.27c0-.17-.02-.31-.07-.36s-.24-.15-.53-.3z" />
+              </svg>
+              WhatsApp
+            </a>
           </div>
+
           <div className="bg-gray-50 border border-gray-200 rounded-md px-4 py-2 text-sm text-gray-700">
-            {booking.customer_id?.phone || "N/A"}
+            {customerPhone || "N/A"}
           </div>
         </div>
 
         {/* Bill message */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium text-gray-800 text-sm">
-              Bill Message
-            </span>
+            <span className="font-medium text-gray-800 text-sm">Bill Message</span>
+
             <button
               onClick={() => copyToClipboard("message", message)}
               className="text-[#687FE5] hover:text-[#4c5dd4]"
@@ -209,6 +222,7 @@ Bunty’s Unisex Saloon Team
               {copied.message ? <Check size={18} /> : <Clipboard size={18} />}
             </button>
           </div>
+
           <textarea
             value={message}
             readOnly
@@ -228,5 +242,6 @@ Bunty’s Unisex Saloon Team
     </div>
   );
 };
+
 
 export default BookingExploreModal;
