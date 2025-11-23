@@ -37,7 +37,7 @@ const AddBooking = () => {
     source: "walk-in",
     date: today,
     payment_mode: "",
-    amount: "", // added for manual override
+    amount: "",
   });
 
   // Fetch services + employees
@@ -48,6 +48,7 @@ const AddBooking = () => {
           axios.get(`${BASE_URL}/services`),
           axios.get(`${BASE_URL}/employee`),
         ]);
+
         const formattedServices = servicesRes.data.map((s) => ({
           label: s.name,
           value: s._id,
@@ -71,15 +72,9 @@ const AddBooking = () => {
         setFetchingData(false);
       }
     };
+
     fetchInitialData();
   }, []);
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === "phone" && value.length === 10) searchCustomerByPhone(value);
-  };
 
   // Search existing customer by phone
   const searchCustomerByPhone = async (phone) => {
@@ -87,17 +82,19 @@ const AddBooking = () => {
       const res = await axios.get(
         `${BASE_URL}/appointments/customer/search?phone=${phone}`
       );
+
       if (res.data.success && res.data.customer) {
         const c = res.data.customer;
-        setFormData({
-          ...formData,
+        setFormData((prev) => ({
+          ...prev,
           name: c.name || "",
           email: c.email || "",
           gender: c.gender || "",
           dob: c.dob ? c.dob.split("T")[0] : "",
           address: c.address || "",
           note: c.note || "",
-        });
+        }));
+
         setToast({ message: "Customer found ✅", type: "info" });
       } else {
         setToast({
@@ -110,7 +107,27 @@ const AddBooking = () => {
     }
   };
 
-  // Handle service and subservice selection
+  // Handle form input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Phone validation (only digits, max 10)
+    if (name === "phone") {
+      const onlyDigits = value.replace(/\D/g, "");
+      if (onlyDigits.length <= 10) {
+        setFormData((prev) => ({ ...prev, phone: onlyDigits }));
+
+        if (onlyDigits.length === 10) {
+          searchCustomerByPhone(onlyDigits);
+        }
+      }
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle service selection
   const handleServiceChange = (i, val) => {
     const updated = [...serviceList];
     updated[i].service = val;
@@ -154,19 +171,26 @@ const AddBooking = () => {
     setServiceList(updated);
   };
 
-  // Calculate total
   const totalAmount = serviceList.reduce(
     (acc, curr) => acc + (parseFloat(curr.price) || 0),
     0
   );
 
-  // Handle form submit
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
+
     if (!formData.name || !formData.phone)
       return setToast({
         message: "Please fill all required fields.",
+        type: "error",
+      });
+
+    // Phone must be exactly 10 digits
+    if (formData.phone.length !== 10)
+      return setToast({
+        message: "Phone number must be exactly 10 digits.",
         type: "error",
       });
 
@@ -202,16 +226,17 @@ const AddBooking = () => {
       employee_id: assignEachService ? null : selectedEmployee.value,
       services: servicesPayload,
       amount: formData.amount || totalAmount,
-
     };
 
     try {
       setLoading(true);
       const res = await axios.post(`${BASE_URL}/appointments`, payload);
+
       setToast({
         message: res.data.message || "Booking created successfully ✅",
         type: "info",
       });
+
       resetForm();
     } catch (err) {
       setToast({
@@ -274,10 +299,11 @@ const AddBooking = () => {
           {/* CUSTOMER INFO */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
-              {" "}
               Customer Information
             </h3>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {/* UPDATED PHONE INPUT */}
               <input
                 type="tel"
                 name="phone"
@@ -286,7 +312,9 @@ const AddBooking = () => {
                 placeholder="Phone *"
                 className={requiredClass}
                 required
+                maxLength={10}
               />
+
               <input
                 type="text"
                 name="name"
@@ -296,6 +324,7 @@ const AddBooking = () => {
                 className={requiredClass}
                 required
               />
+
               <input
                 type="email"
                 name="email"
@@ -304,6 +333,7 @@ const AddBooking = () => {
                 placeholder="Email (optional)"
                 className={optionalClass}
               />
+
               <input
                 type="date"
                 name="dob"
@@ -311,17 +341,20 @@ const AddBooking = () => {
                 onChange={handleChange}
                 className={optionalClass}
               />
+
               <select
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
                 className={optionalClass}
+                required
               >
                 <option value="">Gender (optional)</option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
+
               <input
                 type="text"
                 name="address"
@@ -331,6 +364,7 @@ const AddBooking = () => {
                 className={optionalClass}
               />
             </div>
+
             <textarea
               name="note"
               value={formData.note}
@@ -344,6 +378,7 @@ const AddBooking = () => {
           <div className="space-y-5">
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="text-lg font-semibold text-gray-700">Services</h3>
+
               <label className="flex items-center gap-2 text-sm text-gray-700">
                 <input
                   type="checkbox"
@@ -367,6 +402,7 @@ const AddBooking = () => {
                     onChange={(val) => handleServiceChange(index, val)}
                     placeholder="Select Service *"
                   />
+
                   <Select
                     options={item.subServices}
                     value={item.subService}
@@ -374,6 +410,7 @@ const AddBooking = () => {
                     placeholder="Select Sub-Service *"
                     isDisabled={!item.subServices.length}
                   />
+
                   {item.price && (
                     <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-white border border-[#4A6CF7]/30 text-[#4A6CF7] font-semibold text-sm shadow-sm">
                       <span>₹{item.price}</span>
@@ -381,6 +418,7 @@ const AddBooking = () => {
                     </div>
                   )}
                 </div>
+
                 {assignEachService && (
                   <div className="mt-3">
                     <Select
@@ -393,6 +431,7 @@ const AddBooking = () => {
                     />
                   </div>
                 )}
+
                 {serviceList.length > 1 && (
                   <button
                     type="button"
@@ -425,11 +464,12 @@ const AddBooking = () => {
             />
           )}
 
-          {/* PAYMENT SECTION */}
+          {/* PAYMENT */}
           <div className="space-y-3 border-t pt-4">
             <h3 className="text-lg font-semibold text-gray-700">
               Payment & Date
             </h3>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <input
                 type="date"
@@ -439,6 +479,7 @@ const AddBooking = () => {
                 className={requiredClass}
                 required
               />
+
               <input
                 type="number"
                 name="amount"
@@ -450,6 +491,7 @@ const AddBooking = () => {
                 className={`${optionalClass} font-semibold`}
                 min="0"
               />
+
               <select
                 name="payment_mode"
                 value={formData.payment_mode}
