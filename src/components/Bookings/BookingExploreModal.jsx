@@ -125,6 +125,7 @@ const Detail = ({ label, value }) => (
 );
 
 // Send Bill Modal
+
 const SendBillModal = ({ booking, onClose }) => {
   const [copied, setCopied] = useState({ message: false });
 
@@ -135,6 +136,10 @@ const SendBillModal = ({ booking, onClose }) => {
   const totalActual = booking.amount || 0;
   const discount = Math.max(totalExpected - totalActual, 0);
 
+  // ----- CONDITIONAL DISCOUNT LINE -----
+  const discountLine = discount > 0 ? `Discount - ₹${discount}\n` : "";
+
+  // ----- MESSAGE -----
   const message = `Dear ${booking.customer_id?.name}, 🌸
 
 Thank you for choosing Bunty’s Unisex Saloon today — it was a pleasure having you with us. We hope you enjoyed your pampering experience 💆‍♀💖
@@ -143,8 +148,7 @@ Here’s a summary of your services:
 ${booking.services
   ?.map((s) => `${s.service_id?.name} – ₹${s.price}`)
   .join("\n")}
-Discount - ₹${discount}
-Total Amount: ₹${totalActual}
+${discountLine}Total Amount: ₹${totalActual}
 
 We look forward to welcoming you again soon for another luxurious experience ✨
 
@@ -169,6 +173,8 @@ Bunty’s Unisex Saloon Team
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-[60] px-4">
       <div className="relative bg-white rounded-xl shadow-2xl border border-[#E1E6FF] w-full max-w-3xl p-8 h-auto">
+
+        {/* CLOSE BUTTON */}
         <button
           onClick={onClose}
           className="absolute top-4 right-5 text-[#687FE5] hover:text-[#4c5dd4] transition"
@@ -183,9 +189,11 @@ Bunty’s Unisex Saloon Team
         {/* Customer Number */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium text-gray-800 text-sm">Customer Number</span>
+            <span className="font-medium text-gray-800 text-sm">
+              Customer Number
+            </span>
 
-            {/* WhatsApp Button (replaces copy icon) */}
+            {/* WhatsApp Button */}
             <a
               href={whatsappURL}
               target="_blank"
@@ -213,7 +221,9 @@ Bunty’s Unisex Saloon Team
         {/* Bill message */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="font-medium text-gray-800 text-sm">Bill Message</span>
+            <span className="font-medium text-gray-800 text-sm">
+              Bill Message
+            </span>
 
             <button
               onClick={() => copyToClipboard("message", message)}
@@ -230,6 +240,7 @@ Bunty’s Unisex Saloon Team
           />
         </div>
 
+        {/* CLOSE BUTTON */}
         <div className="flex justify-end">
           <button
             onClick={onClose}
@@ -238,10 +249,14 @@ Bunty’s Unisex Saloon Team
             Close
           </button>
         </div>
+
       </div>
     </div>
   );
 };
+
+export default SendBillModal;
+
 
 
 export default BookingExploreModal;
