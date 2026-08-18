@@ -1,100 +1,114 @@
 import React from "react";
 import { FaInstagram, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { SALON_CONFIG } from "@/data/data";
+import { Sparkles, Calendar } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-[#EEF0FF] to-[#F7F8FF] text-[#2A2A2A] pt-14 pb-8 px-5 sm:px-10 md:px-16 shadow-inner border-t border-[#E0E2FF]">
-      <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-10">
-        {/* Brand / About */}
-        <div className="space-y-3">
-          <h3 className="text-2xl font-bold text-[#636CCB]">Bunty's Unisex Saloon</h3>
-          <p className="text-sm text-[#2A2A2A]/80 leading-relaxed">
-            Experience the art of beauty and grooming with our professional stylists.  
-            Style, confidence, and care — all under one roof. Visit now.
+    <footer className="bg-[#F4EFEA] text-[#242A26] pt-14 pb-8 px-5 sm:px-10 md:px-16 border-t border-[#EAE3D9]">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+        {/* Brand */}
+        <div className="space-y-3.5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-[#4E6758] text-white flex items-center justify-center shadow-xs">
+              <Sparkles size={16} />
+            </div>
+            <div>
+              <h3 className="font-heading text-lg font-bold text-[#1F2421]">
+                {SALON_CONFIG.name}
+              </h3>
+              <span className="text-[11px] text-[#68706B] font-medium block">
+                {SALON_CONFIG.subtitle}
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-[#555E58] leading-relaxed">
+            Your neighborhood destination for healthy hair styling, organic skin facials, bridal beauty, and relaxing day spa therapies.
           </p>
+          <div className="pt-1">
+            <a
+              href="#book"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#4E6758] hover:bg-[#405448] text-white text-xs font-semibold shadow-xs transition"
+            >
+              <Calendar size={13} /> Book Appointment
+            </a>
+          </div>
         </div>
 
         {/* Quick Links */}
-        <div className="space-y-5">
-          <div>
-            <h4 className="text-lg font-semibold text-[#636CCB]">Quick Links</h4>
-            <ul className="space-y-2 text-sm mt-3">
-              <li>
-                <a
-                  href="#about"
-                  className="hover:text-[#4E56B2] transition-colors duration-200"
-                >
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="hover:text-[#4E56B2] transition-colors duration-200"
-                >
-                  Services
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#book"
-                  className="hover:text-[#4E56B2] transition-colors duration-200"
-                >
-                  Book Now
-                </a>
-              </li>
-            </ul>
-          </div>
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-[#35473C] uppercase tracking-wider">
+            Quick Links
+          </h4>
+          <ul className="space-y-2 text-xs text-[#555E58]">
+            <li>
+              <a href="#about" className="hover:text-[#4E6758] transition">
+                About Our Salon & Team
+              </a>
+            </li>
+            <li>
+              <a href="#services" className="hover:text-[#4E6758] transition">
+                Services & Price List
+              </a>
+            </li>
+            <li>
+              <a href="#book" className="hover:text-[#4E6758] transition">
+                Online Appointment Booking
+              </a>
+            </li>
+            <li>
+              <a href="/login" className="hover:text-[#4E6758] transition font-semibold text-[#4E6758]">
+                Staff & Receptionist Login
+              </a>
+            </li>
+          </ul>
         </div>
 
         {/* Contact Info */}
-        <div className="space-y-4">
-          <h4 className="text-lg font-semibold text-[#636CCB]">Reach Us</h4>
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold text-[#35473C] uppercase tracking-wider">
+            Contact & Location
+          </h4>
 
-          <div className="flex items-start gap-3 text-sm text-[#2A2A2A]/80">
-            <FaMapMarkerAlt className="text-[#636CCB] mt-0.5 flex-shrink-0" />
-            <a
-              href="https://maps.app.goo.gl/NQ282MRtTZpuYnw8A"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-[#4E56B2] leading-relaxed transition-colors duration-200"
-            >
-              Bunty's Unisex Saloon, above Deep Chinese, near HDFC Bank,  
-              Baroi Rd, Mundra
-            </a>
-          </div>
+          <div className="space-y-2 text-xs text-[#555E58]">
+            <div className="flex items-start gap-2">
+              <FaMapMarkerAlt className="text-[#4E6758] mt-1 flex-shrink-0" />
+              <a
+                href={SALON_CONFIG.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#4E6758] transition leading-relaxed"
+              >
+                {SALON_CONFIG.address}
+              </a>
+            </div>
 
-          <div className="flex items-center gap-3 text-sm text-[#2A2A2A]/80">
-            <FaEnvelope className="text-[#636CCB] flex-shrink-0" />
-            <a
-              href="mailto:buntyunisexsaloon@gmail.com"
-              className="hover:text-[#4E56B2] transition-colors duration-200"
-            >
-              buntyunisexsaloon@gmail.com
-            </a>
-          </div>
+            <div className="flex items-center gap-2">
+              <FaEnvelope className="text-[#4E6758] flex-shrink-0" />
+              <a href={`mailto:${SALON_CONFIG.email}`} className="hover:text-[#4E6758] transition">
+                {SALON_CONFIG.email}
+              </a>
+            </div>
 
-          <div className="flex items-center gap-3 text-sm text-[#2A2A2A]/80">
-            <FaPhoneAlt className="text-[#636CCB] flex-shrink-0" />
-            <a
-              href="tel:+919904334450"
-              className="hover:text-[#4E56B2] transition-colors duration-200"
-            >
-              +91 99043 34450
-            </a>
-            <span className="text-xs text-[#2A2A2A]/60">(Call / WhatsApp)</span>
-          </div>
+            <div className="flex items-center gap-2">
+              <FaPhoneAlt className="text-[#4E6758] flex-shrink-0" />
+              <a href={`tel:${SALON_CONFIG.phone}`} className="hover:text-[#4E6758] transition font-semibold text-[#1F2421]">
+                {SALON_CONFIG.phone}
+              </a>
+              <span className="text-[11px] text-[#747E78]">(Call / WhatsApp)</span>
+            </div>
 
-          <div className="flex items-center gap-3 mt-3">
-            <FaInstagram className="text-[#636CCB] flex-shrink-0" size={18} />
-            <a
-              href="https://www.instagram.com/buntys_unisex_saloon/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-[#2A2A2A]/80 hover:text-[#4E56B2] transition-colors duration-200"
-            >
-              buntys_unisex_saloon
-            </a>
+            <div className="flex items-center gap-2 pt-1">
+              <FaInstagram className="text-[#4E6758] flex-shrink-0" size={14} />
+              <a
+                href="https://instagram.com/aurasalon_dayspa"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#4E6758] transition"
+              >
+                @aurasalon_dayspa
+              </a>
+            </div>
           </div>
         </div>
       </div>

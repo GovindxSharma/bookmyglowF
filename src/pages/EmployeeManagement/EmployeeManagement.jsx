@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../api/axiosInstance";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Users, Award, TrendingUp, Phone, MapPin, X, Check, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BASE_URL } from "../../data/data";
 import Loader from "../../components/Layout/Loader.jsx";
-import Alert from "../../components/Layout/Alert.jsx"; // ✅ Added
+import Alert from "../../components/Layout/Alert.jsx";
+import EmployeePerformanceModal from "../../components/Employee/EmployeePerformaceModal.jsx";
 
 const EmployeeManagement = () => {
   const token = localStorage.getItem("token");
@@ -15,25 +16,25 @@ const EmployeeManagement = () => {
   const [operationLoading, setOperationLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
+  const [selectedPerformanceEmp, setSelectedPerformanceEmp] = useState(null);
   const [errors, setErrors] = useState({});
-  const [alert, setAlert] = useState({ show: false, type: "info", message: "" }); // ✅ Added
-  const [confirmDelete, setConfirmDelete] = useState(null); // ✅ For delete confirmation
+  const [alert, setAlert] = useState({ show: false, type: "info", message: "" });
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     countryCode: "+91",
     phone: "",
-    gender: "",
+    gender: "female",
     address: "",
     status: true,
   });
 
-  // ✅ Alert helper
   const showAlert = (type, message) => {
     setAlert({ show: true, type, message });
     setTimeout(() => setAlert({ show: false, type: "info", message: "" }), 3000);
   };
 
-  // Fetch employees
   const fetchEmployees = async () => {
     setLoading(true);
     try {
@@ -41,7 +42,7 @@ const EmployeeManagement = () => {
       setEmployees(res.data.employees || []);
     } catch (err) {
       console.error("Error fetching employees:", err);
-      showAlert("error", "Failed to fetch employees.");
+      showAlert("error", "Failed to fetch stylists.");
     } finally {
       setLoading(false);
     }
@@ -61,9 +62,8 @@ const EmployeeManagement = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!/^[A-Za-z\s]+$/.test(formData.name.trim()))
-      newErrors.name = "Only letters and spaces are allowed.";
-    if (!/^\d{10}$/.test(formData.phone))
+    if (!formData.name.trim()) newErrors.name = "Stylist name is required.";
+    if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, "")))
       newErrors.phone = "Phone number must be 10 digits.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -75,351 +75,408 @@ const EmployeeManagement = () => {
     try {
       const payload = {
         name: formData.name.trim(),
-        phone: `${formData.countryCode}${formData.phone}`,
+        phone: `${formData.countryCode}${formData.phone.replace(/\D/g, "")}`,
         gender: formData.gender,
         address: formData.address,
         status: formData.status,
       };
+
       if (editingEmployee) {
         await axios.put(`${BASE_URL}/employee/${editingEmployee._id}`, payload, config);
-        showAlert("success", "Employee updated successfully!");
+        showAlert("success", "Stylist profile updated! ✨");
       } else {
         await axios.post(`${BASE_URL}/employee`, payload, config);
-        showAlert("success", "Employee added successfully!");
+        showAlert("success", "New stylist added to team! ✨");
       }
+
+      setShowModal(false);
+      setEditingEmployee(null);
       fetchEmployees();
-      closeModal();
     } catch (err) {
-      console.error("Save failed:", err);
-      showAlert("error", "Something went wrong while saving.");
-    } finally {
-      setOperationLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    setConfirmDelete(id);
-  };
-
-  const confirmDeleteEmployee = async (id) => {
-    setOperationLoading(true);
-    try {
-      await axios.delete(`${BASE_URL}/employee/${id}`, config);
-      setEmployees((prev) => prev.filter((e) => e._id !== id));
-      showAlert("success", "Employee deleted successfully!");
-    } catch (err) {
-      console.error("Delete failed:", err);
-      showAlert("error", "Failed to delete employee.");
-    } finally {
-      setOperationLoading(false);
-      setConfirmDelete(null);
-    }
-  };
-
-  const toggleStatus = async (emp) => {
-    setOperationLoading(true);
-    try {
-      await axios.put(`${BASE_URL}/employee/${emp._id}`, { ...emp, status: !emp.status }, config);
-      fetchEmployees();
-      showAlert("success", "Employee status updated!");
-    } catch (err) {
-      console.error("Status update failed:", err);
-      showAlert("error", "Failed to update status.");
+      console.error("Save error:", err);
+      showAlert("error", "Failed to save stylist.");
     } finally {
       setOperationLoading(false);
     }
   };
 
   const openModal = (emp = null) => {
-    setEditingEmployee(emp);
-    setFormData(
-      emp
-        ? {
-            name: emp.name,
-            countryCode: emp.phone?.startsWith("+91") ? "+91" : "+1",
-            phone: emp.phone?.replace("+91", "").replace("+1", ""),
-            gender: emp.gender,
-            address: emp.address,
-            status: emp.status,
-          }
-        : {
-            name: "",
-            countryCode: "+91",
-            phone: "",
-            gender: "",
-            address: "",
-            status: true,
-          }
-    );
     setErrors({});
+    if (emp) {
+      setEditingEmployee(emp);
+      const rawPhone = emp.phone ? emp.phone.replace("+91", "") : "";
+      setFormData({
+        name: emp.name || "",
+        countryCode: "+91",
+        phone: rawPhone,
+        gender: emp.gender || "female",
+        address: emp.address || "",
+        status: emp.status !== undefined ? emp.status : true,
+      });
+    } else {
+      setEditingEmployee(null);
+      setFormData({
+        name: "",
+        countryCode: "+91",
+        phone: "",
+        gender: "female",
+        address: "",
+        status: true,
+      });
+    }
     setShowModal(true);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setEditingEmployee(null);
+  const toggleStatus = async (emp) => {
+    try {
+      await axios.put(`${BASE_URL}/employee/${emp._id}`, { status: !emp.status }, config);
+      setEmployees((prev) =>
+        prev.map((e) => (e._id === emp._id ? { ...e, status: !emp.status } : e))
+      );
+      showAlert("success", `Stylist marked ${!emp.status ? "Active" : "Inactive"}`);
+    } catch {
+      showAlert("error", "Failed to update status");
+    }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${BASE_URL}/employee/${id}`, config);
+      setEmployees((prev) => prev.filter((e) => e._id !== id));
+      showAlert("success", "Stylist removed.");
+      setConfirmDelete(null);
+    } catch {
+      showAlert("error", "Failed to delete stylist.");
+    }
+  };
+
+  if (loading && employees.length === 0) {
+    return <Loader fullscreen={true} size={220} />;
+  }
+
   return (
-    <div className="p-4 md:p-8 min-h-screen bg-gradient-to-br from-[#EEF1FF] via-[#F5F6FF] to-white relative">
-      {(loading || operationLoading) && <Loader fullscreen={true} size={250} />}
+    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+          <div>
+            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
+              <Users size={22} className="text-[#4E6758]" /> Stylists & Team Management
+            </h1>
+            <p className="text-xs text-[#68706B] mt-0.5">
+              Manage salon staff profiles, contact numbers, and performance commissions
+            </p>
+          </div>
 
-      {/* ✅ Global Alert */}
-      <Alert
-        type={alert.type}
-        message={alert.message}
-        show={alert.show}
-        onClose={() => setAlert({ show: false, type: "info", message: "" })}
-      />
-
-      {/* ✅ Delete Confirmation */}
-      <AnimatePresence>
-        {confirmDelete && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]"
+          <button
+            onClick={() => openModal()}
+            className="px-5 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 shadow-soft-sm"
           >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white rounded-2xl shadow-xl p-6 w-[90%] max-w-sm text-center border border-[#DDE1FF]"
+            <Plus size={15} />
+            <span>Add New Stylist</span>
+          </button>
+        </div>
+
+        {/* MOBILE CARDS VIEW */}
+        <div className="md:hidden space-y-3">
+          {employees.map((emp) => (
+            <div
+              key={emp._id}
+              className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-soft-sm space-y-3"
             >
-              <h3 className="text-xl font-semibold text-[#636CCB] mb-3">
-                Delete Employee?
-              </h3>
-              <p className="text-gray-600 mb-5">
-                Are you sure you want to remove this employee? This action cannot be undone.
-              </p>
-              <div className="flex justify-center gap-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="font-bold text-sm text-[#1F2421]">{emp.name}</h4>
+                  <a
+                    href={`tel:${emp.phone}`}
+                    className="text-xs text-[#4E6758] font-mono flex items-center gap-1 mt-0.5"
+                  >
+                    <Phone size={11} /> {emp.phone || "N/A"}
+                  </a>
+                </div>
+
                 <button
-                  onClick={() => setConfirmDelete(null)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                  onClick={() => toggleStatus(emp)}
+                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                    emp.status
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : "bg-rose-50 text-rose-700 border border-rose-200"
+                  }`}
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => confirmDeleteEmployee(confirmDelete)}
-                  className="px-4 py-2 rounded-lg bg-[#E03131] text-white hover:bg-[#c92a2a] transition"
-                >
-                  Delete
+                  {emp.status ? "Active" : "Inactive"}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Add Button */}
-      <div className="flex justify-end mb-6">
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#636CCB] text-white font-medium hover:bg-[#5057b6] transition-all shadow-md"
-        >
-          <Plus size={20} /> Add Employee
-        </button>
-      </div>
+              <div className="bg-[#FDFBF9] p-2.5 rounded-xl border border-[#EAE3D9] text-xs space-y-1 text-[#555E58]">
+                <div className="flex justify-between">
+                  <span className="text-[#7D8480]">Gender:</span>
+                  <span className="capitalize font-medium">{emp.gender || "Staff"}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#7D8480]">Address:</span>
+                  <span className="font-medium max-w-[65%] truncate">{emp.address || "Metro City"}</span>
+                </div>
+              </div>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto bg-white shadow-xl rounded-3xl border border-[#DDE1FF]">
-        {!loading && employees.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 text-lg italic">No employees found</div>
-        ) : (
-          <table className="min-w-full text-base font-medium border-collapse">
-            <thead className="bg-[#636CCB]/10 text-[#3A3A3A] uppercase tracking-wider">
-              <tr>
-                <th className="px-6 py-4 text-left w-[20%]">Name</th>
-                <th className="px-6 py-4 text-left w-[20%]">Phone</th>
-                <th className="px-6 py-4 text-left w-[10%]">Gender</th>
-                <th className="px-6 py-4 text-left w-[25%]">Address</th>
-                <th className="px-6 py-4 text-center w-[10%]">Status</th>
-                <th className="px-6 py-4 text-center w-[15%]">Actions</th>
+              <div className="flex items-center gap-1.5 pt-1">
+                <button
+                  onClick={() => setSelectedPerformanceEmp(emp)}
+                  className="flex-1 py-1.5 px-2 rounded-xl bg-[#EDF3EF] text-[#35473C] hover:bg-[#E0ECE5] font-semibold text-xs flex items-center justify-center gap-1 border border-[#D9E4DD] transition"
+                >
+                  <TrendingUp size={12} /> Performance
+                </button>
+
+                <button
+                  onClick={() => openModal(emp)}
+                  className="p-1.5 rounded-xl bg-[#F8F5F0] text-[#555E58] hover:bg-[#EAE3D9] transition"
+                >
+                  <Pencil size={13} />
+                </button>
+
+                <button
+                  onClick={() => setConfirmDelete(emp._id)}
+                  className="p-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                >
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden md:block bg-white rounded-3xl border border-[#EAE3D9] shadow-soft-sm overflow-hidden">
+          <table className="w-full table-auto">
+            <thead>
+              <tr className="bg-[#F8F5F0] text-left text-xs font-bold text-[#4A524D] uppercase tracking-wider">
+                <th className="px-5 py-3.5">Stylist</th>
+                <th className="px-5 py-3.5">Phone Number</th>
+                <th className="px-5 py-3.5">Gender</th>
+                <th className="px-5 py-3.5">Address</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {employees.map((emp, i) => (
-                <tr
-                  key={emp._id}
-                  className={`border-t ${i % 2 === 0 ? "bg-white" : "bg-[#F7F8FF]"} hover:bg-[#E9EBFF]/70 transition`}
-                >
-                  <td className="px-6 py-4 font-semibold text-gray-800">{emp.name}</td>
-                  <td className="px-6 py-4 text-gray-700">{emp.phone}</td>
-                  <td className="px-6 py-4 capitalize text-gray-700">{emp.gender || "—"}</td>
-                  <td className="px-6 py-4 text-gray-700">{emp.address || "—"}</td>
-                  <td className="px-6 py-4 text-center">
+            <tbody className="divide-y divide-[#F2ECE4] text-sm">
+              {employees.map((emp) => (
+                <tr key={emp._id} className="hover:bg-[#FAF7F2] transition">
+                  <td className="px-5 py-3.5">
+                    <div className="font-semibold text-[#1F2421]">{emp.name}</div>
+                  </td>
+                  <td className="px-5 py-3.5 text-xs text-[#555E58] font-mono">
+                    {emp.phone || "N/A"}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <span className="capitalize text-xs font-medium px-2 py-0.5 rounded-md bg-[#F8F5F0] border border-[#EAE3D9] text-[#4A524D]">
+                      {emp.gender || "Staff"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5 text-xs text-[#555E58]">
+                    {emp.address || "Metro City"}
+                  </td>
+                  <td className="px-5 py-3.5">
                     <button
                       onClick={() => toggleStatus(emp)}
-                      className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                         emp.status
-                          ? "bg-green-100 text-green-700 hover:bg-green-200"
-                          : "bg-red-100 text-red-700 hover:bg-red-200"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-rose-50 text-rose-700 border border-rose-200"
                       }`}
                     >
                       {emp.status ? "Active" : "Inactive"}
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-center">
-                    <div className="flex justify-center items-center gap-4">
-                      <button onClick={() => openModal(emp)} className="text-[#636CCB] hover:text-[#4f56b0]">
-                        <Pencil size={20} />
-                      </button>
-                      <button onClick={() => handleDelete(emp._id)} className="text-[#F87171] hover:text-[#dc2626]">
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
+                  <td className="px-5 py-3.5 text-right space-x-1.5 whitespace-nowrap">
+                    <button
+                      onClick={() => setSelectedPerformanceEmp(emp)}
+                      className="px-2.5 py-1 rounded-lg bg-[#EDF3EF] text-[#35473C] hover:bg-[#E0ECE5] text-xs font-semibold inline-flex items-center gap-1 border border-[#D9E4DD] transition"
+                    >
+                      <TrendingUp size={12} /> Performance
+                    </button>
+
+                    <button
+                      onClick={() => openModal(emp)}
+                      className="p-1.5 rounded-lg bg-[#F8F5F0] text-[#555E58] hover:bg-[#EAE3D9] transition inline-flex"
+                      title="Edit"
+                    >
+                      <Pencil size={13} />
+                    </button>
+
+                    <button
+                      onClick={() => setConfirmDelete(emp._id)}
+                      className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition inline-flex"
+                      title="Delete"
+                    >
+                      <Trash2 size={13} />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
+        </div>
       </div>
 
-      {/* Mobile Cards */}
-      <div className="md:hidden flex flex-col gap-4">
-        {employees.length === 0 && !loading ? (
-          <div className="text-center py-6 text-gray-500 text-base italic">No employees found</div>
-        ) : (
-          employees.map((emp) => (
-            <motion.div
-              key={emp._id}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="bg-white rounded-2xl shadow-md p-4 border-l-4 border-[#636CCB] flex flex-col gap-2"
-            >
-              <div className="flex justify-between items-center">
-                <h4 className="font-semibold text-lg text-[#3A3A3A]">{emp.name}</h4>
-                <div className="flex gap-3">
-                  <button onClick={() => openModal(emp)} className="text-[#636CCB] hover:text-[#4f56b0]">
-                    <Pencil size={20} />
-                  </button>
-                  <button onClick={() => handleDelete(emp._id)} className="text-[#F87171] hover:text-[#dc2626]">
-                    <Trash2 size={20} />
-                  </button>
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm">{emp.phone}</p>
-              <p className="text-gray-600 text-sm capitalize">{emp.gender || "—"}</p>
-              <p className="text-gray-600 text-sm">{emp.address || "—"}</p>
-              <button
-                onClick={() => toggleStatus(emp)}
-                className={`mt-2 px-4 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                  emp.status
-                    ? "bg-green-100 text-green-700 hover:bg-green-200"
-                    : "bg-red-100 text-red-700 hover:bg-red-200"
-                }`}
-              >
-                {emp.status ? "Active" : "Inactive"}
-              </button>
-            </motion.div>
-          ))
-        )}
-      </div>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white/95 rounded-3xl shadow-2xl border border-[#DDE1FF] w-full max-w-lg p-6 sm:p-8"
-            >
-              <h3 className="text-2xl font-semibold text-[#636CCB] mb-6 text-center">
-                {editingEmployee ? "Edit Employee" : "Add New Employee"}
+      {/* Add / Edit Stylist Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3D9] rounded-3xl shadow-soft-lg p-6 sm:p-8 max-w-md w-full space-y-4">
+            <div className="flex justify-between items-center border-b border-[#F2ECE4] pb-3">
+              <h3 className="font-heading text-lg font-bold text-[#1F2421]">
+                {editingEmployee ? "Edit Stylist Profile" : "Add New Stylist"}
               </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-[#7D8480] hover:text-[#1F2421]"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-              <div className="space-y-4">
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Full Name *
+                </label>
                 <input
+                  type="text"
                   name="name"
-                  placeholder="Full Name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-sm"
                 />
-                {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
+                {errors.name && <p className="text-rose-600 text-[11px] mt-1">{errors.name}</p>}
+              </div>
 
-                <div className="flex gap-2">
-                  <select
-                    name="countryCode"
-                    value={formData.countryCode}
-                    onChange={handleChange}
-                    className="border border-[#DDE1FF] rounded-xl p-3 bg-white text-base focus:ring-2 focus:ring-[#636CCB] outline-none w-24"
-                  >
-                    <option value="+91">🇮🇳 +91</option>
-                    <option value="+1">🇺🇸 +1</option>
-                    <option value="+44">🇬🇧 +44</option>
-                  </select>
-                  <input
-                    name="phone"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="flex-1 border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
-                  />
-                </div>
-                {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
-                >
-                  <option value="">Select Gender</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
-                  <option value="other">Other</option>
-                </select>
-
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Mobile Number *
+                </label>
                 <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="10-digit mobile number"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-sm"
+                />
+                {errors.phone && <p className="text-rose-600 text-[11px] mt-1">{errors.phone}</p>}
+              </div>
+
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Gender
+                </label>
+                <div className="flex gap-2">
+                  {["female", "male", "other"].map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, gender: g }))}
+                      className={`flex-1 py-1.5 rounded-xl capitalize font-semibold transition ${
+                        formData.gender === g
+                          ? "bg-[#4E6758] text-white"
+                          : "bg-[#F8F5F0] text-[#555E58] border border-[#EAE3D9]"
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Address / Locality
+                </label>
+                <input
+                  type="text"
                   name="address"
-                  placeholder="Address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full border border-[#DDE1FF] rounded-xl p-3 text-base focus:ring-2 focus:ring-[#636CCB] outline-none"
+                  placeholder="e.g. Metro City"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-sm"
                 />
-
-                <div className="flex items-center gap-2 pt-2">
-                  <input
-                    type="checkbox"
-                    name="status"
-                    checked={formData.status}
-                    onChange={handleChange}
-                    className="accent-[#636CCB] scale-125"
-                  />
-                  <label className="text-gray-700 text-base font-medium">Active</label>
-                </div>
               </div>
 
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 rounded-2xl bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 rounded-2xl bg-[#636CCB] text-white hover:bg-[#5057b6] transition-all font-medium"
-                >
-                  {editingEmployee ? "Update" : "Save"}
-                </button>
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  name="status"
+                  id="status"
+                  checked={formData.status}
+                  onChange={handleChange}
+                  className="w-4 h-4 accent-[#4E6758]"
+                />
+                <label htmlFor="status" className="font-semibold text-[#1F2421]">
+                  Active Stylist (Available for bookings)
+                </label>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+
+            <div className="flex gap-2 pt-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-[#F2ECE4] text-[#4A524D] text-xs font-semibold hover:bg-[#EAE3D9] transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={operationLoading}
+                className="flex-1 py-2.5 rounded-xl bg-[#4E6758] text-white text-xs font-semibold hover:bg-[#405448] transition shadow-soft-sm"
+              >
+                {operationLoading ? "Saving..." : "Save Stylist"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#EAE3D9] shadow-soft-lg space-y-3 text-center">
+            <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 size={22} />
+            </div>
+            <h3 className="text-base font-bold text-[#1F2421]">Remove Stylist?</h3>
+            <p className="text-xs text-[#68706B]">
+              This will remove this stylist from the active salon staff roster.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className="flex-1 py-2 rounded-xl bg-[#F2ECE4] text-[#4A524D] text-xs font-semibold hover:bg-[#EAE3D9] transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDelete)}
+                className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Performance Modal */}
+      {selectedPerformanceEmp && (
+        <EmployeePerformanceModal
+          employee={selectedPerformanceEmp}
+          onClose={() => setSelectedPerformanceEmp(null)}
+        />
+      )}
+
+      <Alert
+        type={alert.type}
+        message={alert.message}
+        show={alert.show}
+        onClose={() => setAlert((prev) => ({ ...prev, show: false }))}
+      />
     </div>
   );
 };

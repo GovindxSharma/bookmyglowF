@@ -1,12 +1,16 @@
 // src/api/axiosInstance.js
 import axios from "axios";
-import { BASE_URL } from "../data/data"; // or your backend URL
+import { BASE_URL } from "../data/data";
 
 const axiosInstance = axios.create({
-  baseURL: BASE_URL || "http://localhost:3000",
+  baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  timeout: 15000,
 });
 
-// 🪄 Automatically attach token to every request
+// Automatically attach token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -18,15 +22,18 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🚨 Optional: Handle 401 (unauthorized) globally
+// Handle global response and 401 Unauthorized
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      window.location.href = "/login";
+      // Clear expired auth session if on protected page
+      if (window.location.pathname !== "/login" && window.location.pathname !== "/") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

@@ -1,37 +1,23 @@
 import React from "react";
+import { SALON_CONFIG } from "@/data/data";
 
 const Credit = () => {
-  const credits = [
-    { name: "Trusha", role: "Developer", link: "https://trusha-jadeja.onrender.com/" },
-    { name: "Saim", role: "Product Manager" ,link:"https://www.linkedin.com/in/saim-khoja/"},
-    { name: "Govind", role: "Developer", link: "https://govind-sharma.onrender.com/" },
-  ];
-
   return (
-    <div className="mb-10 border-t border-[#636CCB]/20 pt-4 text-center text-xs text-[#2A2A2A]/60 space-y-1">
+    <div className="py-6 bg-[#EFE9E2] border-t border-[#E2DAD0] text-center text-xs text-[#68706B] space-y-1">
       <p>
-        &copy; {new Date().getFullYear()} Bunty's Unisex Saloon. All rights reserved.
+        &copy; {new Date().getFullYear()} {SALON_CONFIG.name}. All rights reserved.
       </p>
 
-      <p className="mt-1">
-        {credits.map((person, index) => (
-          <span key={index}>
-            {person.link ? (
-              <a
-                href={person.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#2A2A2A]/80 hover:text-[#636CCB] hover:underline transition-colors"
-              >
-                {person.name}
-              </a>
-            ) : (
-              person.name
-            )}{" "}
-            ({person.role})
-            {index < credits.length - 1 ? " | " : ""}
-          </span>
-        ))}
+      <p className="text-[11px] text-[#7D8480]">
+        Engineered & Crafted with care by{" "}
+        <a
+          href="https://govind-sharma.onrender.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-[#35473C] hover:text-[#4E6758] hover:underline transition"
+        >
+          Govind Sharma
+        </a>
       </p>
     </div>
   );

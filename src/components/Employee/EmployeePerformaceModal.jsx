@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import Loader from "../Layout/Loader.jsx";
+import { X, Sparkles, TrendingUp, Calendar, Scissors, Award } from "lucide-react";
 
 const EmployeePerformanceModal = ({ employee, onClose }) => {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // 0-indexed
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [appointments, setAppointments] = useState([]);
   const [summary, setSummary] = useState({
     totalAppointments: 0,
@@ -42,91 +43,114 @@ const EmployeePerformanceModal = ({ employee, onClose }) => {
     fetchPerformance(selectedMonth);
   }, [selectedMonth]);
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-2xl w-11/12 md:w-3/4 max-h-[90vh] overflow-y-auto p-6 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 font-bold text-xl"
-        >
-          &times;
-        </button>
+  const commission = Math.round(summary.totalRevenue * 0.2); // 20% commission model
 
-        <h2 className="text-xl md:text-2xl font-semibold mb-4">
-          {employee.name} - Performance
-        </h2>
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 sm:p-8 relative border border-[#EAE3D9] shadow-soft-lg space-y-5 text-[#242A26]">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-[#F2ECE4] pb-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-[11px] font-semibold uppercase tracking-wider mb-1">
+              <Award size={13} className="text-[#4E6758]" /> Stylist Performance
+            </div>
+            <h2 className="font-heading text-xl font-bold text-[#1F2421]">
+              {employee.name}
+            </h2>
+            <p className="text-xs text-[#68706B]">{employee.phone} &bull; Stylist Profile</p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl bg-[#F8F5F0] text-[#7D8480] hover:text-[#1F2421] transition"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
         {/* Month Dropdown */}
-        <div className="mb-4">
-          <label className="mr-2 font-medium">Select Month:</label>
+        <div className="flex items-center justify-between bg-[#FDFBF9] p-3 rounded-2xl border border-[#EAE3D9]">
+          <span className="text-xs font-semibold text-[#4A524D] flex items-center gap-1.5">
+            <Calendar size={14} className="text-[#4E6758]" /> Select Month:
+          </span>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="border rounded px-2 py-1"
+            className="px-3 py-1.5 rounded-xl bg-white border border-[#D9D0C5] text-xs font-bold text-[#1F2421] outline-none"
           >
             {months.map((m, idx) => (
               <option key={idx} value={idx}>
-                {m}
+                {m} {new Date().getFullYear()}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Summary */}
-        <div className="flex gap-6 mb-6">
-          <div className="bg-[#f0f4ff] rounded-xl p-4 flex-1 text-center">
-            <p className="text-gray-700 font-medium">Total Appointments</p>
-            <p className="text-[#636CCB] font-bold text-2xl">
+        {/* Summary Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="bg-[#F8F5F0] rounded-2xl p-4 border border-[#EAE3D9] text-center space-y-1">
+            <p className="text-xs text-[#7D8480] font-medium">Services Delivered</p>
+            <p className="font-heading text-2xl font-bold text-[#1F2421]">
               {summary.totalAppointments}
             </p>
           </div>
-          <div className="bg-[#f0f4ff] rounded-xl p-4 flex-1 text-center">
-            <p className="text-gray-700 font-medium">Total Revenue</p>
-            <p className="text-[#636CCB] font-bold text-2xl">
+
+          <div className="bg-[#EDF3EF] rounded-2xl p-4 border border-[#D9E4DD] text-center space-y-1">
+            <p className="text-xs text-[#35473C] font-medium">Gross Revenue Generated</p>
+            <p className="font-heading text-2xl font-bold text-[#4E6758]">
               ₹{summary.totalRevenue.toLocaleString()}
+            </p>
+          </div>
+
+          <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200 text-center space-y-1">
+            <p className="text-xs text-amber-700 font-medium">Est. 20% Commission</p>
+            <p className="font-heading text-2xl font-bold text-amber-800">
+              ₹{commission.toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="border border-[#EAE3D9] rounded-2xl overflow-hidden">
           {loading ? (
-            <div className="flex justify-center py-10">
-              <Loader size={250} />
+            <div className="flex justify-center py-12 bg-[#FDFBF9]">
+              <Loader size={150} />
             </div>
           ) : appointments.length === 0 ? (
-            <p className="text-center text-gray-500 py-6">
-              No appointments for this month.
+            <p className="text-center text-xs text-[#7D8480] py-10 bg-[#FDFBF9]">
+              No service logs recorded for this month.
             </p>
           ) : (
-            <table className="w-full table-auto border-collapse">
-              <thead>
-                <tr className="bg-[#f0f4ff] text-left text-gray-700 uppercase text-sm">
-                  <th className="px-4 py-2 border-b border-gray-200">Date</th>
-                  <th className="px-4 py-2 border-b border-gray-200">
-                    Customer
-                  </th>
-                  <th className="px-4 py-2 border-b border-gray-200">
-                    Service
-                  </th>
-                  <th className="px-4 py-2 border-b border-gray-200">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {appointments.map((a, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50 transition">
-                    <td className="px-4 py-2">
-                      {new Date(a.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-2">{a.customerName}</td>
-                    <td className="px-4 py-2">{a.serviceName}</td>
-                    <td className="px-4 py-2 font-semibold">
-                      ₹{a.amount.toLocaleString()}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="bg-[#F8F5F0] text-left text-[11px] font-bold text-[#4A524D] uppercase tracking-wider">
+                    <th className="px-3.5 py-2.5">Date</th>
+                    <th className="px-3.5 py-2.5">Client</th>
+                    <th className="px-3.5 py-2.5">Service</th>
+                    <th className="px-3.5 py-2.5 text-right">Bill</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#F2ECE4]">
+                  {appointments.map((a, idx) => (
+                    <tr key={idx} className="hover:bg-[#FAF7F2] transition">
+                      <td className="px-3.5 py-2 text-[#68706B]">
+                        {new Date(a.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-3.5 py-2 font-medium text-[#1F2421]">
+                        {a.customerName || "Walk-in Guest"}
+                      </td>
+                      <td className="px-3.5 py-2 text-[#4E6758]">
+                        {a.serviceName || "Salon Service"}
+                      </td>
+                      <td className="px-3.5 py-2 font-bold text-[#1F2421] text-right">
+                        ₹{(a.amount || 0).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

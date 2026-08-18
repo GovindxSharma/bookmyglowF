@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "@/api/axiosInstance";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "@/components/Layout/Loader";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Scissors, Tag, Check, Sparkles } from "lucide-react";
 
 const Services = () => {
   const token = localStorage.getItem("token");
@@ -46,7 +46,7 @@ const Services = () => {
     try {
       await axios.delete(`/services/${deleteServiceId}`, config);
       setServices((prev) => prev.filter((s) => s._id !== deleteServiceId));
-      showAlert("success", "Service deleted successfully!");
+      showAlert("success", "Service category deleted!");
     } catch (err) {
       console.error("Delete failed:", err);
       showAlert("error", "Failed to delete service.");
@@ -86,15 +86,16 @@ const Services = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.name.trim()) return showAlert("error", "Category name is required.");
     setOperationLoading(true);
     try {
       const payload = { ...form, salon_id };
       if (form._id) {
         await axios.put(`/services/${form._id}`, payload, config);
-        showAlert("success", "Service updated successfully!");
+        showAlert("success", "Service category updated! ✨");
       } else {
         await axios.post("/services", payload, config);
-        showAlert("success", "Service added successfully!");
+        showAlert("success", "New service category added! ✨");
       }
       fetchServices();
       setForm(null);
@@ -106,23 +107,21 @@ const Services = () => {
     }
   };
 
-  if (loading) return <Loader fullscreen />;
+  if (loading) return <Loader fullscreen={true} size={220} />;
 
   return (
-    <div className="min-h-[70vh] sm:min-h-[80vh] relative">
+    <div className="space-y-6 text-[#242A26]">
       {/* Alert */}
       <AnimatePresence>
         {alert.show && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl font-medium shadow-lg text-white ${
+            exit={{ opacity: 0, y: -10 }}
+            className={`p-3.5 rounded-2xl text-xs font-semibold text-center ${
               alert.type === "success"
-                ? "bg-[#4ade80]" // green like Employee Management
-                : alert.type === "error"
-                ? "bg-red-600"
-                : "bg-blue-600"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-rose-50 text-rose-700 border border-rose-200"
             }`}
           >
             {alert.message}
@@ -130,193 +129,239 @@ const Services = () => {
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <h3 className="text-2xl font-semibold text-[#3A3A3A]">Services</h3>
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
+      {/* Sub Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-5 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+        <div>
+          <h2 className="font-heading text-lg font-bold text-[#1F2421]">
+            Active Salon Catalog ({services.length} Categories)
+          </h2>
+          <p className="text-xs text-[#68706B]">
+            Add or adjust pricing and treatments available in the POS and booking form
+          </p>
+        </div>
+
+        <button
           onClick={handleAdd}
-          className="bg-[#687FE5] text-white px-5 py-2 rounded-2xl shadow-md hover:bg-[#5a6fd8] flex items-center"
+          className="px-4 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center gap-2 shadow-soft-sm"
         >
-          <Plus size={18} className="mr-2" /> Add Service
-        </motion.button>
+          <Plus size={15} />
+          <span>Add New Category</span>
+        </button>
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {services.map((srv) => (
-          <motion.div
+          <div
             key={srv._id}
-            className="bg-white rounded-2xl border border-[#E0E3FF] shadow-md p-5 flex flex-col justify-between hover:shadow-lg transition-all"
-            whileHover={{ scale: 1.02 }}
+            className="bg-white rounded-3xl border border-[#EAE3D9] shadow-soft-sm p-5 sm:p-6 flex flex-col justify-between hover:shadow-soft-md transition-all space-y-4"
           >
             <div>
-              <h4 className="text-lg font-semibold text-[#3A3A3A]">{srv.name}</h4>
-              <p className="text-gray-600 mt-1 text-sm">{srv.description}</p>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <span className="text-[10px] font-bold text-[#4E6758] uppercase tracking-wider block mb-0.5">
+                    Category
+                  </span>
+                  <h3 className="font-heading text-base font-bold text-[#1F2421]">
+                    {srv.name}
+                  </h3>
+                </div>
 
-              {srv.sub_services.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-gray-700 font-medium text-sm">Sub-Services:</p>
-                  <ul className="list-disc ml-5 mt-1 text-gray-500 text-sm space-y-0.5">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#EDF3EF] text-[#35473C] text-[11px] font-bold">
+                  {srv.sub_services?.length || 0} Treatments
+                </span>
+              </div>
+
+              <p className="text-xs text-[#68706B] mt-1.5 leading-relaxed">
+                {srv.description || "Professional salon treatments and care."}
+              </p>
+
+              {srv.sub_services && srv.sub_services.length > 0 && (
+                <div className="mt-3.5 pt-3 border-t border-[#F2ECE4] space-y-1.5">
+                  <span className="text-[11px] font-bold uppercase text-[#7D8480] tracking-wider block">
+                    Treatments & Pricing:
+                  </span>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
                     {srv.sub_services.map((s, idx) => (
-                      <li key={idx}>
-                        {s.name} - ₹{s.price}
-                      </li>
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center text-xs bg-[#FDFBF9] p-2 rounded-xl border border-[#EAE3D9]"
+                      >
+                        <span className="font-medium text-[#1F2421]">{s.name}</span>
+                        <span className="font-bold text-[#4E6758]">₹{s.price}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-end gap-3 mt-4">
-              <button onClick={() => handleEdit(srv)} className="text-[#687FE5] hover:text-[#5057b6]">
-                <Pencil size={18} />
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#F2ECE4]">
+              <button
+                onClick={() => handleEdit(srv)}
+                className="px-3 py-1.5 rounded-xl bg-[#EDF3EF] text-[#35473C] hover:bg-[#E0ECE5] font-semibold text-xs flex items-center gap-1 border border-[#D9E4DD] transition"
+              >
+                <Pencil size={12} /> Edit
               </button>
-              <button onClick={() => handleDelete(srv._id)} className="text-[#F87171] hover:text-[#dc2626]">
-                <Trash2 size={18} />
+              <button
+                onClick={() => handleDelete(srv._id)}
+                className="p-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                title="Delete"
+              >
+                <Trash2 size={13} />
               </button>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      {/* Add/Edit Modal */}
-      <AnimatePresence>
-        {form && (
-          <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-start sm:items-center z-50 p-4 overflow-y-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl shadow-2xl border border-[#DDE1FF] w-full max-w-lg p-6"
-            >
-              <h3 className="text-2xl font-semibold text-[#687FE5] mb-6 text-center">
-                {form._id ? "Edit Service" : "Add Service"}
+      {/* Add / Edit Modal */}
+      {form && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3D9] rounded-3xl shadow-soft-lg p-6 sm:p-8 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-[#F2ECE4] pb-3">
+              <h3 className="font-heading text-lg font-bold text-[#1F2421]">
+                {form._id ? "Edit Category & Pricing" : "Add Service Category"}
               </h3>
+              <button
+                onClick={() => setForm(null)}
+                className="text-[#7D8480] hover:text-[#1F2421]"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Category Name *
+                </label>
                 <input
-                  name="name"
-                  placeholder="Service Name"
+                  type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border border-[#DDE1FF] rounded-xl p-3 focus:ring-2 focus:ring-[#687FE5] outline-none"
-                  required
+                  placeholder="e.g. Hair Styling & Color"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-sm"
                 />
+              </div>
+
+              <div>
+                <label className="font-semibold text-[#1F2421] block mb-1">
+                  Category Description
+                </label>
                 <textarea
-                  name="description"
-                  placeholder="Description"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full border border-[#DDE1FF] rounded-xl p-3 focus:ring-2 focus:ring-[#687FE5] outline-none"
+                  placeholder="Brief summary of treatments in this category..."
+                  rows={2}
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
                 />
-                <div className="mt-4 space-y-2">
-                  <p className="font-medium text-gray-700 mb-2">Sub Services:</p>
+              </div>
+
+              {/* Sub Services Builder */}
+              <div className="space-y-2 pt-2 border-t border-[#F2ECE4]">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-[#1F2421]">
+                    Sub-Services & Price List
+                  </span>
+                  <button
+                    type="button"
+                    onClick={addSubService}
+                    className="text-[#4E6758] font-bold text-xs hover:underline flex items-center gap-1"
+                  >
+                    <Plus size={13} /> Add Treatment
+                  </button>
+                </div>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                   {form.sub_services.map((sub, idx) => (
                     <div key={idx} className="flex gap-2 items-center">
                       <input
-                        placeholder="Name"
+                        type="text"
+                        placeholder="Treatment name (e.g. Hair Spa)"
                         value={sub.name}
                         onChange={(e) => {
                           const updated = [...form.sub_services];
                           updated[idx].name = e.target.value;
                           setForm({ ...form, sub_services: updated });
                         }}
-                        className="w-1/2 border border-[#DDE1FF] rounded-xl p-2 focus:ring-2 focus:ring-[#687FE5] outline-none"
+                        className="flex-1 px-3 py-1.5 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
                       />
                       <input
                         type="number"
-                        placeholder="Price"
+                        placeholder="Price (₹)"
                         value={sub.price}
                         onChange={(e) => {
                           const updated = [...form.sub_services];
                           updated[idx].price = e.target.value;
                           setForm({ ...form, sub_services: updated });
                         }}
-                        className="w-1/3 border border-[#DDE1FF] rounded-xl p-2 focus:ring-2 focus:ring-[#687FE5] outline-none"
+                        className="w-24 px-3 py-1.5 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeSubService(idx)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <X size={18} />
-                      </button>
+                      {form.sub_services.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSubService(idx)}
+                          className="p-1 text-rose-500 hover:text-rose-700"
+                        >
+                          <X size={15} />
+                        </button>
+                      )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={addSubService}
-                    className="text-sm text-[#687FE5] hover:text-[#5057b6]"
-                  >
-                    + Add Sub Service
-                  </button>
                 </div>
+              </div>
 
-                <div className="flex justify-end gap-4 mt-6">
-                  <button
-                    type="button"
-                    onClick={() => setForm(null)}
-                    className="px-4 py-2 rounded-2xl bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-2xl bg-[#4ade80] text-white hover:bg-green-500 font-medium" // green for success
-                  >
-                    {form._id ? "Update" : "Save"}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Confirmation Modal */}
-      <AnimatePresence>
-        {deleteServiceId && (
-          <motion.div
-            className="fixed inset-0 bg-black/40 flex justify-center items-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white rounded-3xl p-6 shadow-xl w-[90%] max-w-sm text-center"
-            >
-              <h3 className="text-xl font-semibold mb-3 text-[#636CCB]">Delete Service?</h3>
-              <p className="text-gray-600 mb-5">Are you sure you want to delete this service? This action cannot be undone.</p>
-              <div className="flex justify-center gap-4">
+              <div className="flex gap-2 pt-3">
                 <button
-                  onClick={() => setDeleteServiceId(null)}
-                  className="px-4 py-2 rounded-xl bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  type="button"
+                  onClick={() => setForm(null)}
+                  className="flex-1 py-2.5 rounded-xl bg-[#F2ECE4] text-[#4A524D] text-xs font-semibold hover:bg-[#EAE3D9] transition"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700"
+                  type="submit"
+                  disabled={operationLoading}
+                  className="flex-1 py-2.5 rounded-xl bg-[#4E6758] text-white text-xs font-semibold hover:bg-[#405448] transition shadow-soft-sm"
                 >
-                  Delete
+                  {operationLoading ? "Saving..." : "Save Category"}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </form>
+          </div>
+        </div>
+      )}
 
-      {operationLoading && <Loader fullscreen />}
+      {/* Delete Confirmation */}
+      {deleteServiceId && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full border border-[#EAE3D9] shadow-soft-lg space-y-3 text-center">
+            <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 size={22} />
+            </div>
+            <h3 className="text-base font-bold text-[#1F2421]">Delete Service Category?</h3>
+            <p className="text-xs text-[#68706B]">
+              This will remove this category and all its treatments from the menu.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => setDeleteServiceId(null)}
+                className="flex-1 py-2 rounded-xl bg-[#F2ECE4] text-[#4A524D] text-xs font-semibold hover:bg-[#EAE3D9] transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 py-2 rounded-xl bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

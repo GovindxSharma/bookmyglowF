@@ -5,21 +5,21 @@ import BookingList from "./BookingList";
 import OnlineBooking from "./OnlineBooking";
 import Loader from "../Layout/Loader";
 import { BASE_URL } from "../../data/data";
+import { Sparkles, PlusCircle, ListOrdered, Inbox } from "lucide-react";
 
 const BookingTabs = () => {
   const [activeTab, setActiveTab] = useState("add");
   const [hasUnread, setHasUnread] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 Fetch new online appointments
   const fetchOnlineNotifications = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/appointments/?for_notification=true`);
+      const res = await axios.get("/appointments/?for_notification=true");
       const appointments = res.data.appointments || [];
       const unconfirmed = appointments.some((b) => b.confirmation_status === false);
       setHasUnread(unconfirmed);
     } catch (error) {
-      console.error("Failed to fetch online appointment notifications:", error);
+      console.error("Failed to fetch online notifications:", error);
     }
   };
 
@@ -34,46 +34,52 @@ const BookingTabs = () => {
   }, [activeTab]);
 
   const tabs = [
-    { key: "add", label: "Add Booking" },
-    { key: "list", label: "Booking List" },
-    { key: "online", label: "Online Appointments" },
+    { key: "add", label: "New Walk-in & Billing", icon: <PlusCircle size={15} /> },
+    { key: "list", label: "Appointments Register", icon: <ListOrdered size={15} /> },
+    { key: "online", label: "Online Website Inquiries", icon: <Inbox size={15} /> },
   ];
 
-  // ✅ Handle tab change with loader
   const handleTabChange = (tabKey) => {
     setLoading(true);
     setTimeout(() => {
       setActiveTab(tabKey);
       setLoading(false);
-    }, 200); // small delay for smooth loader
+    }, 150);
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-white rounded-2xl shadow-md border border-[#e6e9ff]">
+    <div className="p-4 sm:p-8 bg-[#FDFBF9] min-h-screen text-[#242A26]">
+      {/* Title */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-xs font-semibold uppercase tracking-wider mb-1.5">
+            <Sparkles size={13} className="text-[#4E6758]" /> Front Desk Management
+          </div>
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[#1F2421]">
+            Appointments & Billing
+          </h1>
+        </div>
+      </div>
+
       {/* Tabs Header */}
-      <div className="flex flex-wrap gap-2 mb-5 border-b border-gray-200">
+      <div className="flex flex-wrap gap-2 mb-6 p-1.5 rounded-2xl bg-[#F8F5F0] border border-[#EAE3D9]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`relative flex-1 text-center px-4 py-2.5 text-sm sm:text-base font-medium transition-all duration-200
-                ${isActive
-                  ? "text-[#687FE5] border-b-2 border-[#687FE5] bg-[#F5F6FF]"
-                  : "text-gray-600 hover:text-[#687FE5]/80 bg-white"
-                } rounded-lg sm:rounded-none`}
+              className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? "bg-[#4E6758] text-white shadow-soft-sm"
+                  : "text-[#555E58] hover:text-[#1F2421] hover:bg-white/60"
+              }`}
             >
-              {tab.label}
+              {tab.icon}
+              <span>{tab.label}</span>
 
-              {/* 🔸 Unread Notification Dot */}
               {tab.key === "online" && hasUnread && (
-                <span className="absolute top-2 right-3 w-2.5 h-2.5 bg-[#C66A1F] rounded-full shadow-sm animate-pulse" />
-              )}
-
-              {/* Active Tab Indicator Glow */}
-              {isActive && (
-                <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#687FE5] rounded-full shadow-[0_0_4px_#687FE5]" />
+                <span className="w-2 h-2 bg-amber-500 rounded-full animate-ping" />
               )}
             </button>
           );
@@ -81,10 +87,10 @@ const BookingTabs = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="mt-2 min-h-[300px]">
+      <div className="min-h-[400px]">
         {loading ? (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <Loader size={250}/>
+          <div className="flex justify-center items-center py-20">
+            <Loader size={180} />
           </div>
         ) : (
           <>

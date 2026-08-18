@@ -3,6 +3,7 @@ import Select from "react-select";
 import axios from "@/api/axiosInstance";
 import Toast from "../Toast";
 import { BASE_URL } from "../../data/data";
+import { X, Calendar, User, Phone, MapPin, Scissors, Trash2, Check, Sparkles, Clock, DollarSign } from "lucide-react";
 
 const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
   const [services, setServices] = useState([]);
@@ -25,7 +26,9 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
     address: "",
     note: "",
     date: "",
-    payment_mode: "",
+    service_status: "in_queue",
+    payment_status: "pending",
+    payment_mode: "upi",
     amount: "",
   });
 
@@ -44,7 +47,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
         const formatted = res.data.map((s) => ({
           label: s.name,
           value: s._id,
-          sub_services: s.sub_services.map((sub) => ({
+          sub_services: (s.sub_services || []).map((sub) => ({
             label: `${sub.name} - ₹${sub.price}`,
             value: sub._id,
             price: sub.price,
@@ -69,21 +72,23 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
       address: editBooking.customer_id?.address || "",
       note: editBooking.note || "",
       date: editBooking.date?.split("T")[0] || today,
-      payment_mode: editBooking.payment_mode || "",
+      service_status: editBooking.service_status || "in_queue",
+      payment_status: editBooking.payment_status || "pending",
+      payment_mode: editBooking.payment_mode || "upi",
       amount: editBooking.amount || "",
     });
 
     const mapped = (editBooking.services || []).map((s) => {
-      const main = services.find((ser) => ser.value === s.service_id._id) || {
-        label: s.service_id.name,
-        value: s.service_id._id,
+      const main = services.find((ser) => ser.value === s.service_id?._id) || {
+        label: s.service_id?.name || "Service",
+        value: s.service_id?._id,
         sub_services: [],
       };
 
-      const sub = main.sub_services.find(
+      const sub = (main.sub_services || []).find(
         (sub) => sub.value === s.sub_service_id
       ) || {
-        label: "Unknown",
+        label: s.service_id?.name || "Treatment",
         value: s.sub_service_id,
         price: s.price,
         duration: s.duration || "",
@@ -92,7 +97,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
       return {
         service: main,
         subService: sub,
-        subServices: main.sub_services,
+        subServices: main.sub_services || [],
         employee: s.employee_id
           ? { label: s.employee_id.name, value: s.employee_id._id }
           : null,
@@ -101,40 +106,52 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
       };
     });
 
-    setServiceList(mapped);
+    setServiceList(
+      mapped.length > 0
+        ? mapped
+        : [
+            {
+              service: null,
+              subService: null,
+              subServices: [],
+              employee: null,
+              price: "",
+              duration: "",
+            },
+          ]
+    );
   }, [editBooking, services]);
 
   const handleChange = (e) =>
     setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleServiceChange = (i, v) => {
-    const u = [...serviceList];
-    u[i].service = v;
-    u[i].subServices = v?.sub_services || [];
-    u[i].subService = null;
-    u[i].employee = null;
-    u[i].price = "";
-    u[i].duration = "";
-    setServiceList(u);
+    const copy = [...serviceList];
+    copy[i].service = v;
+    copy[i].subServices = v ? v.sub_services || [] : [];
+    copy[i].subService = null;
+    copy[i].price = "";
+    copy[i].duration = "";
+    setServiceList(copy);
   };
 
   const handleSubServiceChange = (i, v) => {
-    const u = [...serviceList];
-    u[i].subService = v;
-    u[i].price = v?.price || "";
-    u[i].duration = v?.duration || "";
-    setServiceList(u);
+    const copy = [...serviceList];
+    copy[i].subService = v;
+    copy[i].price = v ? v.price : "";
+    copy[i].duration = v ? v.duration : "";
+    setServiceList(copy);
   };
 
   const handleEmployeeChange = (i, v) => {
-    const u = [...serviceList];
-    u[i].employee = v;
-    setServiceList(u);
+    const copy = [...serviceList];
+    copy[i].employee = v;
+    setServiceList(copy);
   };
 
-  const addServiceBlock = () =>
-    setServiceList([
-      ...serviceList,
+  const addServiceBlock = () => {
+    setServiceList((p) => [
+      ...p,
       {
         service: null,
         subService: null,
@@ -144,53 +161,70 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
         duration: "",
       },
     ]);
+  };
 
-  const removeServiceBlock = (i) => {
-    const u = [...serviceList];
-    u.splice(i, 1);
-    setServiceList(u);
+  const removeServiceBlock = (index) => {
+    setServiceList((p) => p.filter((_, i) => i !== index));
   };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.phone)
-      return setToast({ message: "Name & phone required", type: "error" });
-
-    const servicesPayload = serviceList
-      .filter((s) => s.service && s.subService && s.employee)
+    const formattedServices = serviceList
+      .filter((s) => s.service)
       .map((s) => ({
         service_id: s.service.value,
-        sub_service_id: s.subService.value,
-        employee_id: s.employee.value,
-        price: s.price,
-        duration: s.duration,
+        sub_service_id: s.subService ? s.subService.value : null,
+        employee_id: s.employee ? s.employee.value : null,
+        price: Number(s.price) || 0,
+        duration: s.duration || "30 min",
       }));
 
-    const payload = { ...formData, services: servicesPayload };
+    if (formattedServices.length === 0) {
+      return setToast({
+        message: "Please select at least one service",
+        type: "error",
+      });
+    }
 
     try {
-      await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, payload);
-      setToast({ message: "Booking updated ✅", type: "info" });
+      await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        gender: formData.gender,
+        address: formData.address,
+        note: formData.note,
+        date: formData.date,
+        service_status: formData.service_status,
+        payment_status: formData.payment_status,
+        payment_mode: formData.payment_mode,
+        amount: Number(formData.amount) || 0,
+        services: formattedServices,
+      });
 
+      setToast({ message: "Appointment updated successfully ✨", type: "success" });
       setTimeout(() => {
         onUpdate && onUpdate();
         onClose();
-      }, 600);
-    } catch {
-      setToast({ message: "Update failed", type: "error" });
+      }, 500);
+    } catch (err) {
+      setToast({
+        message: err.response?.data?.message || "Failed to update appointment",
+        type: "error",
+      });
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Delete booking?")) return;
+    if (!window.confirm("Are you sure you want to delete this appointment?")) return;
     try {
       await axios.delete(`${BASE_URL}/appointments/${editBooking._id}`);
-      setToast({ message: "Deleted ✅", type: "info" });
+      setToast({ message: "Appointment deleted", type: "success" });
       setTimeout(() => {
         onUpdate && onUpdate();
         onClose();
-      }, 600);
+      }, 500);
     } catch {
       setToast({ message: "Failed to delete", type: "error" });
     }
@@ -198,113 +232,158 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-12 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
-        className="relative p-6 bg-white rounded-3xl shadow-lg max-w-3xl w-full mx-4 overflow-y-auto max-h-[90vh]"
+        className="relative bg-white rounded-3xl border border-[#EAE3D9] shadow-soft-lg max-w-2xl w-full max-h-[88vh] overflow-y-auto p-6 sm:p-8 space-y-4 text-[#242A26]"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
-        >
-          ✕
-        </button>
-        <h2 className="text-2xl font-bold mb-4">Edit Booking</h2>
+        {/* Header */}
+        <div className="flex justify-between items-center border-b border-[#F2ECE4] pb-3">
+          <div>
+            <h2 className="font-heading text-lg sm:text-xl font-bold text-[#1F2421]">
+              Edit Appointment Record
+            </h2>
+            <p className="text-xs text-[#68706B]">Update customer details, treatment status, or stylist</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl bg-[#F8F5F0] text-[#7D8480] hover:text-[#1F2421] transition"
+          >
+            <X size={18} />
+          </button>
+        </div>
 
-        <form onSubmit={handleUpdate} className="space-y-4">
-          {/* Customer */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="p-3 border rounded-xl"
-              placeholder="Full Name"
-              required
-            />
-            <input
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="p-3 border rounded-xl"
-              placeholder="Email"
-            />
-            <input
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="p-3 border rounded-xl"
-              placeholder="Phone"
-              required
-            />
+        <form onSubmit={handleUpdate} className="space-y-4 text-xs">
+          {/* Customer Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Customer Name *</label>
+              <input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+                placeholder="Full Name"
+                required
+              />
+            </div>
 
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="p-3 border rounded-xl"
-            >
-              <option value="">Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Phone Number *</label>
+              <input
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+                placeholder="10-digit Phone"
+                required
+              />
+            </div>
 
-            <input
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className="p-3 border rounded-xl col-span-2"
-              placeholder="Address"
-            />
-            <textarea
-              name="note"
-              value={formData.note}
-              onChange={handleChange}
-              className="p-3 border rounded-xl col-span-2"
-              placeholder="Notes"
-            />
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Email Address</label>
+              <input
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+                placeholder="Email"
+              />
+            </div>
+
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Gender</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+              >
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
           </div>
 
-          {/* Services */}
-          <div className="space-y-4">
+          {/* Dual Status Controls: Service Status + Payment Status */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#F2ECE4]">
+            <div className="p-3 bg-[#F8F5F0] rounded-2xl border border-[#EAE3D9] space-y-1">
+              <label className="font-bold text-[#1F2421] flex items-center gap-1.5">
+                <Clock size={13} className="text-[#4E6758]" /> Service Execution Status
+              </label>
+              <select
+                name="service_status"
+                value={formData.service_status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-white border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs font-semibold text-[#1F2421]"
+              >
+                <option value="in_queue">⏳ In Queue / Waiting</option>
+                <option value="in_progress">💆 In Chair / In Progress</option>
+                <option value="completed">✨ Completed</option>
+                <option value="cancelled">❌ Cancelled / No-Show</option>
+              </select>
+            </div>
+
+            <div className="p-3 bg-[#EDF3EF] rounded-2xl border border-[#D9E4DD] space-y-1">
+              <label className="font-bold text-[#35473C] flex items-center gap-1.5">
+                <DollarSign size={13} className="text-[#4E6758]" /> Payment Collection Status
+              </label>
+              <select
+                name="payment_status"
+                value={formData.payment_status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-white border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs font-semibold text-[#1F2421]"
+              >
+                <option value="pending">⏳ Pending / Unpaid</option>
+                <option value="completed">💰 Paid (Completed)</option>
+                <option value="refunded">↩️ Refunded</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Services Section */}
+          <div className="space-y-3 pt-2 border-t border-[#F2ECE4]">
+            <span className="font-bold text-[#1F2421] block">Booked Treatments & Stylist</span>
             {serviceList.map((item, i) => (
               <div
                 key={i}
-                className="p-4 border rounded-xl bg-gray-50 relative"
+                className="p-3.5 border border-[#EAE3D9] rounded-2xl bg-[#FDFBF9] relative space-y-2"
               >
-                <Select
-                  options={services}
-                  value={item.service}
-                  onChange={(v) => handleServiceChange(i, v)}
-                  placeholder="Service"
-                  className="mb-2"
-                />
-                <Select
-                  options={item.subServices}
-                  value={item.subService}
-                  onChange={(v) => handleSubServiceChange(i, v)}
-                  placeholder="Sub Service"
-                  className="mb-2"
-                  isDisabled={!item.subServices.length}
-                />
-                <Select
-                  options={employees.map((e) => ({
-                    label: e.name,
-                    value: e._id,
-                  }))}
-                  value={item.employee}
-                  onChange={(v) => handleEmployeeChange(i, v)}
-                  placeholder="Employee"
-                  className="mb-2"
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Select
+                    options={services}
+                    value={item.service}
+                    onChange={(v) => handleServiceChange(i, v)}
+                    placeholder="Select Category"
+                    className="text-xs"
+                  />
+                  <Select
+                    options={item.subServices}
+                    value={item.subService}
+                    onChange={(v) => handleSubServiceChange(i, v)}
+                    placeholder="Select Treatment"
+                    className="text-xs"
+                    isDisabled={!item.subServices.length}
+                  />
+                  <Select
+                    options={employees.map((e) => ({
+                      label: e.name,
+                      value: e._id,
+                    }))}
+                    value={item.employee}
+                    onChange={(v) => handleEmployeeChange(i, v)}
+                    placeholder="Assigned Stylist"
+                    className="text-xs"
+                  />
+                </div>
 
                 {item.price && (
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <p>₹{item.price}</p>
-                    <p>{item.duration ? `⏱ ${item.duration}` : ""}</p>
+                  <div className="flex justify-between text-xs text-[#4E6758] font-bold px-1">
+                    <span>Price: ₹{item.price}</span>
+                    <span>{item.duration ? `⏱ ${item.duration}` : ""}</span>
                   </div>
                 )}
 
@@ -312,9 +391,9 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
                   <button
                     type="button"
                     onClick={() => removeServiceBlock(i)}
-                    className="absolute top-2 right-3 text-red-500 font-bold"
+                    className="absolute top-2 right-2 text-rose-500 hover:text-rose-700"
                   >
-                    ✕
+                    <X size={14} />
                   </button>
                 )}
               </div>
@@ -323,57 +402,66 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
             <button
               type="button"
               onClick={addServiceBlock}
-              className="w-full p-2 rounded-xl bg-blue-100 text-blue-600 hover:bg-blue-200"
+              className="w-full py-2 rounded-xl bg-[#EDF3EF] hover:bg-[#E0ECE5] text-[#35473C] font-semibold text-xs transition border border-[#D9E4DD]"
             >
-              ➕ Add Service
+              + Add Another Service
             </button>
           </div>
 
-          {/* Date + Amount + Payment Mode */}
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="p-3 border rounded-xl w-full"
-          />
+          {/* Date, Amount, Payment Mode */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#F2ECE4]">
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Appointment Date</label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+              />
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              type="number"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              placeholder="Amount"
-              className="p-3 border rounded-xl"
-            />
-            <select
-              name="payment_mode"
-              value={formData.payment_mode}
-              onChange={handleChange}
-              className="p-3 border rounded-xl"
-            >
-              <option value="">Payment Mode</option>
-              <option value="cash">Cash</option>
-              <option value="upi">UPI</option>
-              <option value="card">Card</option>
-              <option value="pending">Pending</option>
-            </select>
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Total Bill (₹)</label>
+              <input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                placeholder="Amount"
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs"
+              />
+            </div>
+
+            <div>
+              <label className="font-semibold text-[#1F2421] block mb-1">Payment Mode</label>
+              <select
+                name="payment_mode"
+                value={formData.payment_mode}
+                onChange={handleChange}
+                className="w-full px-3 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs capitalize"
+              >
+                <option value="upi">UPI (GPay / Paytm)</option>
+                <option value="cash">Cash</option>
+                <option value="card">Debit / Credit Card</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2">
+          {/* Actions */}
+          <div className="flex gap-2 pt-3">
             <button
               type="button"
               onClick={handleDelete}
-              className="w-full md:w-1/2 p-3 rounded-xl bg-red-100 text-red-600 hover:bg-red-200"
+              className="px-4 py-2.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-xs transition border border-rose-200"
             >
               Delete
             </button>
             <button
               type="submit"
-              className="w-full md:w-1/2 p-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600"
+              className="flex-1 py-2.5 rounded-xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition shadow-soft-sm"
             >
-              Update
+              Save Changes
             </button>
           </div>
         </form>

@@ -2,63 +2,74 @@ import { useEffect, useState } from "react";
 import User from "@/components/Settings/User";
 import Services from "@/components/Settings/Services";
 import Loader from "../../components/Layout/Loader";
+import { Settings as SettingsIcon, Users, Scissors, Sparkles } from "lucide-react";
+
 const SettingsTabs = () => {
-  const [activeTab, setActiveTab] = useState("users");
+  const [activeTab, setActiveTab] = useState("services");
   const [loading, setLoading] = useState(false);
 
   const tabs = [
-    { key: "users", label: "Users" },
-    { key: "services", label: "Services" },
+    { key: "services", label: "Services & Price List", icon: <Scissors size={15} /> },
+    { key: "users", label: "Staff Login Accounts", icon: <Users size={15} /> },
   ];
 
-  // ✅ Handle tab change with loader
   const handleTabChange = (tabKey) => {
     setLoading(true);
     setTimeout(() => {
       setActiveTab(tabKey);
       setLoading(false);
-    }, 200); // small delay for smooth loader
+    }, 150);
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 bg-white rounded-2xl shadow-md border border-[#e6e9ff]">
-      {/* Tabs Header */}
-      <div className="flex flex-wrap gap-2 mb-5 border-b border-gray-200">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => handleTabChange(tab.key)}
-              className={`relative flex-1 text-center px-4 py-2.5 text-sm sm:text-base font-medium transition-all duration-200
-                ${isActive
-                  ? "text-[#687FE5] border-b-2 border-[#687FE5] bg-[#F5F6FF]"
-                  : "text-gray-600 hover:text-[#687FE5]/80 bg-white"
-                } rounded-lg sm:rounded-none`}
-            >
-              {tab.label}
-
-              {/* Active Tab Indicator Glow */}
-              {isActive && (
-                <span className="absolute inset-x-0 bottom-0 h-[2px] bg-[#687FE5] rounded-full shadow-[0_0_4px_#687FE5]" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Tab Content */}
-      <div className="mt-2 min-h-[300px]">
-        {loading ? (
-          <div className="flex justify-center items-center min-h-[300px]">
-            <Loader size={150} />
+    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+          <div>
+            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
+              <SettingsIcon size={22} className="text-[#4E6758]" /> Salon Configuration & Catalog
+            </h1>
+            <p className="text-xs text-[#68706B] mt-0.5">
+              Customize service menu prices, categories, and manage front desk access accounts
+            </p>
           </div>
-        ) : (
-          <>
-            {activeTab === "users" && <User />}
-            {activeTab === "services" && <Services />}
-          </>
-        )}
+
+          {/* Tab Selector */}
+          <div className="flex bg-[#F8F5F0] p-1 rounded-2xl border border-[#EAE3D9] text-xs font-semibold">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => handleTabChange(tab.key)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200 ${
+                    isActive
+                      ? "bg-[#4E6758] text-white shadow-soft-sm font-semibold"
+                      : "text-[#555E58] hover:text-[#1F2421]"
+                  }`}
+                >
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="min-h-[400px]">
+          {loading ? (
+            <div className="flex justify-center items-center py-20 bg-white rounded-3xl border border-[#EAE3D9]">
+              <Loader size={160} />
+            </div>
+          ) : (
+            <>
+              {activeTab === "services" && <Services />}
+              {activeTab === "users" && <User />}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

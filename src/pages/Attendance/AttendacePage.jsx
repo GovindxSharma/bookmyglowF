@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, UserCheck, Calendar, Clock, Check, Sparkles } from "lucide-react";
 import { BASE_URL } from "../../data/data";
 import Loader from "../../components/Layout/Loader.jsx";
 import Alert from "../../components/Layout/Alert.jsx";
@@ -14,7 +14,6 @@ const AttendancePage = () => {
   const [editRecord, setEditRecord] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ alert state
   const [alertData, setAlertData] = useState({
     show: false,
     type: "info",
@@ -23,6 +22,7 @@ const AttendancePage = () => {
 
   const showAlert = (type, message) => {
     setAlertData({ show: true, type, message });
+    setTimeout(() => setAlertData((prev) => ({ ...prev, show: false })), 3000);
   };
 
   // Fetch employees
@@ -30,13 +30,19 @@ const AttendancePage = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/employee`);
-      setEmployees(res.data.employees || []);
+      const empList = res.data.employees || [];
+      setEmployees(empList);
       const map = {};
-      (res.data.employees || []).forEach((emp) => (map[emp._id] = false));
+      empList.forEach((emp) => (map[emp._id] = true)); // Default all present
       setAttendanceMap(map);
+
+      if (empList.length > 0) {
+        setSelectedEmployee(empList[0]);
+        fetchEmployeeAttendance(empList[0]._id);
+      }
     } catch (err) {
       console.error("Error fetching employees:", err);
-      showAlert("error", "Failed to load employees.");
+      showAlert("error", "Failed to load staff roster.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +56,7 @@ const AttendancePage = () => {
       setAttendanceRecords(res.data || []);
     } catch (err) {
       console.error("Error fetching attendance:", err);
-      showAlert("error", "Failed to load attendance.");
+      showAlert("error", "Failed to load employee calendar.");
     } finally {
       setLoading(false);
     }
@@ -75,24 +81,19 @@ const AttendancePage = () => {
           leave: !attendanceMap[empId],
         });
       }
-      showAlert("success", "Attendance marked successfully!");
+      showAlert("success", "Today's attendance saved successfully! ✨");
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
     } catch (err) {
       console.error("Error marking attendance:", err);
-      showAlert("error", "Failed to mark attendance.");
+      showAlert("error", "Failed to save attendance.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleEmployeeClick = (emp) => {
-    if (selectedEmployee?._id === emp._id) {
-      setSelectedEmployee(null);
-      setAttendanceRecords([]);
-    } else {
-      setSelectedEmployee(emp);
-      fetchEmployeeAttendance(emp._id);
-    }
+    setSelectedEmployee(emp);
+    fetchEmployeeAttendance(emp._id);
   };
 
   const changeMonth = (offset) => {
@@ -126,10 +127,10 @@ const AttendancePage = () => {
       });
       setEditRecord(null);
       if (selectedEmployee) fetchEmployeeAttendance(selectedEmployee._id);
-      showAlert("success", "Attendance updated successfully!");
+      showAlert("success", "Attendance status updated!");
     } catch (err) {
       console.error("Error editing attendance:", err);
-      showAlert("error", "Failed to update attendance.");
+      showAlert("error", "Failed to update record.");
     } finally {
       setLoading(false);
     }
@@ -146,161 +147,245 @@ const AttendancePage = () => {
     return days;
   };
 
-  if (loading) return <Loader fullscreen={true} size={250} />;
+  const presentDaysCount = attendanceRecords.filter((r) => !r.leave).length;
+  const leaveDaysCount = attendanceRecords.filter((r) => r.leave).length;
+
+  if (loading && employees.length === 0) {
+    return <Loader fullscreen={true} size={220} />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E8EDFF] via-[#F5F6FF] to-[#FFFFFF] p-6 md:p-10">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
-        {/* Employee List */}
-        <div className="w-full md:w-1/3 bg-white shadow-xl border border-[#E0E7FF] rounded-3xl p-6 backdrop-blur-md">
-          <h2 className="text-lg font-semibold text-[#3A3A3A] mb-4">
-            Employee List
-          </h2>
-
-          <div className="max-h-[70vh] overflow-y-auto pr-2 space-y-2">
-            {employees.map((emp) => (
-              <div
-                key={emp._id}
-                onClick={() => handleEmployeeClick(emp)}
-                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
-                  selectedEmployee?._id === emp._id
-                    ? "bg-[#E7ECFF] border-[#687FE5]"
-                    : "bg-white hover:bg-[#F5F6FF] border-gray-200"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={attendanceMap[emp._id]}
-                    onChange={() => handleCheckboxChange(emp._id)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-5 h-5 accent-[#687FE5]"
-                  />
-                  <span className="font-medium text-gray-800">{emp.name}</span>
-                </div>
-              </div>
-            ))}
+    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+          <div>
+            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
+              <Clock size={22} className="text-[#4E6758]" /> Staff Attendance & Roster
+            </h1>
+            <p className="text-xs text-[#68706B] mt-0.5">
+              Mark daily attendance, manage stylist leaves, and view monthly logs
+            </p>
           </div>
 
           <button
             onClick={markAttendance}
-            className="mt-6 w-full py-3 bg-[#687FE5] text-white rounded-xl font-medium shadow-md hover:bg-[#5A6FD8] transition-all"
+            className="px-5 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 shadow-soft-sm"
           >
-            Mark Attendance
+            <Check size={15} />
+            <span>Save Today's Attendance</span>
           </button>
         </div>
 
-        {/* Attendance Calendar */}
-        {selectedEmployee && (
-          <div className="w-full md:w-2/3 bg-white shadow-xl border border-[#E0E7FF] rounded-3xl p-6 relative">
-            <h2 className="text-xl font-semibold text-[#3A3A3A] mb-3">
-              {selectedEmployee.name}'s Attendance
-            </h2>
-
-            <div className="flex items-center gap-6 mb-5 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 bg-green-400 rounded-full"></span>{" "}
-                Present
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 bg-red-400 rounded-full"></span> Leave
-              </div>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Employee Roster Sidebar */}
+          <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-[#EAE3D9] shadow-soft-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-3">
+              <h2 className="font-heading text-base font-bold text-[#1F2421]">
+                Stylist Team ({employees.length})
+              </h2>
+              <span className="text-[11px] text-[#7D8480]">Check = Present</span>
             </div>
 
-            <div className="flex items-center justify-between mb-5">
-              <button
-                onClick={() => changeMonth(-1)}
-                className="p-2 rounded-lg hover:bg-[#F5F6FF] text-[#687FE5]"
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <span className="font-medium text-gray-700">
-                {currentMonth.toLocaleString("default", { month: "long" })}{" "}
-                {currentMonth.getFullYear()}
-              </span>
-              <button
-                onClick={() => changeMonth(1)}
-                className="p-2 rounded-lg hover:bg-[#F5F6FF] text-[#687FE5]"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+              {employees.map((emp) => {
+                const isSelected = selectedEmployee?._id === emp._id;
+                const isPresent = attendanceMap[emp._id];
 
-            <div className="grid grid-cols-7 gap-2 text-center">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div
-                  key={day}
-                  className="font-semibold text-sm text-gray-500 uppercase"
-                >
-                  {day}
-                </div>
-              ))}
-              {generateCalendarDays().map((day) => {
-                const status = getDayStatus(day);
-                const classes =
-                  status === "present"
-                    ? "bg-green-400 text-white"
-                    : status === "leave"
-                    ? "bg-red-400 text-white"
-                    : "bg-gray-100 text-gray-600";
                 return (
                   <div
-                    key={day}
-                    onClick={() => handleDateClick(day)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full cursor-pointer ${classes} hover:ring-2 hover:ring-[#687FE5]/40 transition-transform hover:scale-105`}
+                    key={emp._id}
+                    onClick={() => handleEmployeeClick(emp)}
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      isSelected
+                        ? "bg-[#EDF3EF] border-[#4E6758] shadow-xs"
+                        : "bg-[#FDFBF9] hover:bg-[#F8F5F0] border-[#EAE3D9]"
+                    }`}
                   >
-                    {day.getDate()}
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={isPresent}
+                        onChange={() => handleCheckboxChange(emp._id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 rounded text-[#4E6758] accent-[#4E6758] cursor-pointer"
+                      />
+                      <div>
+                        <span className="font-semibold text-xs text-[#1F2421] block">
+                          {emp.name}
+                        </span>
+                        <span className="text-[11px] text-[#7D8480]">
+                          {emp.phone || "Stylist"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        isPresent
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-rose-50 text-rose-700 border border-rose-200"
+                      }`}
+                    >
+                      {isPresent ? "Present" : "On Leave"}
+                    </span>
                   </div>
                 );
               })}
             </div>
+          </div>
 
-            {editRecord && (
+          {/* Monthly Calendar View */}
+          <div className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 border border-[#EAE3D9] shadow-soft-sm space-y-6">
+            {selectedEmployee ? (
               <>
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
-                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white/95 border border-[#E0E7FF] rounded-3xl shadow-2xl p-6 z-50 w-80">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-[#3A3A3A]">
-                      Edit Attendance
-                    </h3>
-                    <button
-                      onClick={() => setEditRecord(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      <X size={20} />
-                    </button>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F2ECE4] pb-4">
+                  <div>
+                    <h2 className="font-heading text-lg sm:text-xl font-bold text-[#1F2421]">
+                      {selectedEmployee.name}'s Attendance Log
+                    </h2>
+                    <p className="text-xs text-[#68706B]">
+                      Click on any highlighted day to edit present/leave status
+                    </p>
                   </div>
-                  <p className="text-gray-600 mb-3">
-                    Date: {editRecord.date.toDateString()}
-                  </p>
-                  <label className="flex items-center gap-2 mb-5 text-gray-700">
-                    <input
-                      type="checkbox"
-                      checked={editRecord.leave}
-                      onChange={(e) =>
-                        setEditRecord((prev) => ({
-                          ...prev,
-                          leave: e.target.checked,
-                        }))
-                      }
-                      className="w-5 h-5 accent-[#687FE5]"
-                    />
-                    Mark as Leave
-                  </label>
+
+                  {/* Summary Badges */}
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold">
+                      Present: {presentDaysCount} days
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-semibold">
+                      Leaves: {leaveDaysCount} days
+                    </span>
+                  </div>
+                </div>
+
+                {/* Month Navigator */}
+                <div className="flex items-center justify-between bg-[#F8F5F0] p-2.5 rounded-2xl border border-[#EAE3D9]">
                   <button
-                    onClick={saveEdit}
-                    className="w-full py-2.5 bg-[#687FE5] text-white rounded-xl hover:bg-[#5A6FD8] transition-all shadow-md"
+                    onClick={() => changeMonth(-1)}
+                    className="p-1.5 rounded-xl hover:bg-white text-[#4E6758] transition"
                   >
-                    Save Changes
+                    <ChevronLeft size={18} />
+                  </button>
+                  <span className="font-bold text-sm text-[#1F2421]">
+                    {currentMonth.toLocaleString("default", { month: "long" })}{" "}
+                    {currentMonth.getFullYear()}
+                  </span>
+                  <button
+                    onClick={() => changeMonth(1)}
+                    className="p-1.5 rounded-xl hover:bg-white text-[#4E6758] transition"
+                  >
+                    <ChevronRight size={18} />
                   </button>
                 </div>
+
+                {/* Calendar Days Grid */}
+                <div>
+                  <div className="grid grid-cols-7 gap-2 mb-2 text-center">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                      <div
+                        key={day}
+                        className="font-bold text-xs text-[#7D8480] uppercase tracking-wider"
+                      >
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-2 text-center">
+                    {generateCalendarDays().map((day) => {
+                      const status = getDayStatus(day);
+                      let styleClasses = "bg-[#FDFBF9] text-[#555E58] border border-[#EAE3D9]";
+
+                      if (status === "present") {
+                        styleClasses = "bg-[#EDF3EF] text-[#35473C] border border-[#4E6758] font-bold shadow-xs";
+                      } else if (status === "leave") {
+                        styleClasses = "bg-rose-50 text-rose-700 border border-rose-300 font-bold";
+                      }
+
+                      return (
+                        <div
+                          key={day.toISOString()}
+                          onClick={() => handleDateClick(day)}
+                          className={`h-11 sm:h-12 flex flex-col items-center justify-center rounded-2xl cursor-pointer transition-all duration-200 hover:scale-105 ${styleClasses}`}
+                        >
+                          <span className="text-xs sm:text-sm">{day.getDate()}</span>
+                          {status && (
+                            <span className="text-[9px] uppercase font-bold">
+                              {status === "present" ? "P" : "L"}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </>
+            ) : (
+              <div className="text-center py-20 text-[#7D8480]">
+                <Calendar size={32} className="mx-auto mb-2 text-[#4E6758] opacity-50" />
+                <p className="font-semibold text-sm">Select a stylist on the left to view their calendar</p>
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* ✅ Global Alert */}
+      {/* Edit Record Modal */}
+      {editRecord && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#EAE3D9] rounded-3xl shadow-soft-lg p-6 max-w-sm w-full space-y-4">
+            <div className="flex justify-between items-center border-b border-[#F2ECE4] pb-3">
+              <h3 className="font-heading text-base font-bold text-[#1F2421]">
+                Edit Attendance
+              </h3>
+              <button
+                onClick={() => setEditRecord(null)}
+                className="text-[#7D8480] hover:text-[#1F2421]"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#68706B]">
+              Date: <strong className="text-[#1F2421]">{editRecord.date.toDateString()}</strong>
+            </p>
+
+            <label className="flex items-center gap-3 p-3 rounded-2xl bg-[#FDFBF9] border border-[#EAE3D9] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editRecord.leave}
+                onChange={(e) =>
+                  setEditRecord((prev) => ({
+                    ...prev,
+                    leave: e.target.checked,
+                  }))
+                }
+                className="w-4 h-4 rounded accent-[#4E6758]"
+              />
+              <span className="text-xs font-semibold text-[#1F2421]">Mark as On Leave</span>
+            </label>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => setEditRecord(null)}
+                className="flex-1 py-2.5 rounded-xl bg-[#F2ECE4] text-[#4A524D] text-xs font-semibold hover:bg-[#EAE3D9] transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEdit}
+                className="flex-1 py-2.5 rounded-xl bg-[#4E6758] text-white text-xs font-semibold hover:bg-[#405448] transition shadow-soft-sm"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Alert
         type={alertData.type}
         message={alertData.message}

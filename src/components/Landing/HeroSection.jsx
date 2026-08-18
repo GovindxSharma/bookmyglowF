@@ -1,95 +1,129 @@
 import React from "react";
 import { motion } from "framer-motion";
-import HeroImage from "@/assets/heroimage.png";
+import { Sparkles, Calendar, ArrowRight, Star, Clock, ShieldCheck, Heart } from "lucide-react";
+import { SALON_CONFIG } from "@/data/data";
 
 const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#F5F6FF] via-[#E8EAFF] to-[#FFFFFF] min-h-screen flex flex-col md:flex-row items-center justify-center px-6 sm:px-10 md:px-16 lg:px-20 py-16 sm:py-20 md:py-24">
-      {/* Decorative blurred circles */}
-      <div className="absolute top-[-15%] left-[-20%] w-[260px] sm:w-[340px] md:w-[400px] h-[260px] sm:h-[340px] md:h-[400px] bg-[#636CCB]/25 rounded-full blur-[100px] animate-pulse"></div>
-      <div className="absolute bottom-[-15%] right-[-20%] w-[280px] sm:w-[400px] md:w-[460px] h-[280px] sm:h-[400px] md:h-[460px] bg-[#4E56B2]/25 rounded-full blur-[120px] animate-pulse"></div>
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#FDFBF9] via-[#F8F4EE] to-[#FDFBF9] min-h-[90vh] flex flex-col md:flex-row items-center justify-center px-6 sm:px-10 md:px-16 lg:px-24 py-16 sm:py-20 text-[#242A26]">
+      {/* Subtle organic background glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-[380px] h-[380px] bg-[#E2ECE5]/60 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#F5ECE4]/70 rounded-full blur-[110px] pointer-events-none"></div>
 
-      {/* Text Content */}
+      {/* Main Content */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="z-10 flex flex-col gap-6 max-w-lg text-center md:text-left"
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="z-10 flex flex-col gap-5 max-w-xl text-center md:text-left"
       >
-        <h1 className="text-[2.2rem] sm:text-[2.8rem] md:text-[3.6rem] lg:text-[4.2rem] font-extrabold leading-tight text-[#2A2A2A] tracking-tight break-words">
-          Discover{" "}
-          <span className="text-[#636CCB] font-pacifico drop-shadow-sm">
-            Luxurious
-          </span>{" "}
-          &{" "}
-          <span className="text-[#4E56B2] font-pacifico drop-shadow-sm">
-            Unisex Saloon
-          </span>{" "}
-          Experience
+        {/* Friendly Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EDF3EF] border border-[#D9E4DD] text-xs font-semibold text-[#35473C] self-center md:self-start">
+          <Sparkles size={14} className="text-[#4E6758]" />
+          <span>Unisex Hair, Skin & Wellness Day Spa</span>
+        </div>
+
+        {/* Clear & Meaningful Headline */}
+        <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.15] text-[#1F2421] tracking-tight">
+          A welcoming space for your{" "}
+          <span className="text-[#4E6758] italic font-serif-soft">
+            hair, skin & self-care.
+          </span>
         </h1>
 
-        <p className="text-[#2A2A2A]/80 text-sm sm:text-base md:text-lg leading-relaxed max-w-md mx-auto md:mx-0">
-          Experience the luxurious haircare services at our premium salon.
-          Highly trained staff and top-quality hair products available at our
-          new premise — exclusive at <strong>Bunty’s Unisex Saloon</strong> near you.
-          Visit now to redefine your style!
+        <p className="text-[#555E58] text-sm sm:text-base md:text-lg leading-relaxed max-w-lg">
+          Experience personalized hair styling, soothing facials, and relaxing spa therapies at{" "}
+          <strong className="text-[#242A26] font-semibold">{SALON_CONFIG.name}</strong>. Enjoy friendly stylists, clean single-use kits, and unhurried care.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-4">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3.5 justify-center md:justify-start pt-2">
           <motion.a
-            href="https://maps.app.goo.gl/NQ282MRtTZpuYnw8A"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#636CCB] text-white px-6 sm:px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-lg hover:bg-[#4E56B2] transition-all duration-300 text-center text-sm sm:text-base"
+            href="#book"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center justify-center gap-2 bg-[#4E6758] hover:bg-[#405448] text-white px-7 py-3.5 rounded-full font-semibold text-sm shadow-soft-md transition duration-200"
           >
-            Visit Now
+            <Calendar size={16} />
+            <span>Book an Appointment</span>
           </motion.a>
 
           <motion.a
             href="#services"
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-            className="border-2 border-[#636CCB] text-[#636CCB] px-6 sm:px-8 py-3 rounded-full font-semibold hover:bg-[#636CCB]/10 shadow-sm hover:shadow-md transition-all duration-300 text-center text-sm sm:text-base"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center justify-center gap-2 bg-white border border-[#DDD5CA] hover:bg-[#FAF7F2] text-[#35473C] px-6 py-3.5 rounded-full font-semibold text-sm shadow-soft-sm transition duration-200"
           >
-            Explore Services
+            <span>View Services & Prices</span>
+            <ArrowRight size={15} />
           </motion.a>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#EAE3D9] text-left">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[#FFF8EB] text-amber-600 border border-amber-100">
+              <Star size={15} className="fill-amber-500 text-amber-500" />
+            </div>
+            <div>
+              <div className="font-bold text-xs sm:text-sm text-[#1F2421]">4.9 / 5.0</div>
+              <div className="text-[11px] text-[#747E78]">650+ Client Reviews</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[#EDF3EF] text-[#4E6758] border border-[#D9E4DD]">
+              <ShieldCheck size={15} />
+            </div>
+            <div>
+              <div className="font-bold text-xs sm:text-sm text-[#1F2421]">100% Clean</div>
+              <div className="text-[11px] text-[#747E78]">Sterilized Tools</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-[#F6EFE9] text-[#9C7D64] border border-[#EDE2D8]">
+              <Clock size={15} />
+            </div>
+            <div>
+              <div className="font-bold text-xs sm:text-sm text-[#1F2421]">Instant Slot</div>
+              <div className="text-[11px] text-[#747E78]">Fast Confirmation</div>
+            </div>
+          </div>
         </div>
       </motion.div>
 
-      {/* Hero Image */}
+      {/* Hero Visual Showcase */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, rotate: -4 }}
-        whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-        transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
-        className="relative mt-12 sm:mt-16 md:mt-0 md:ml-10 lg:ml-16 z-10 flex justify-center"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.15 }}
+        className="relative mt-12 md:mt-0 md:ml-10 lg:ml-16 z-10 flex justify-center"
       >
-        <div className="relative w-[200px] sm:w-[280px] md:w-[360px] lg:w-[420px] h-[200px] sm:h-[280px] md:h-[360px] lg:h-[420px]">
-          {/* Gradient Glow */}
-          <motion.div
-            animate={{
-              scale: [1, 1.05, 1],
-              rotate: [0, 2, -2, 0],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute inset-0 bg-gradient-to-tr from-[#636CCB] via-[#A3A8E6] to-[#4E56B2] rounded-[55%_45%_65%_45%/55%_60%_45%_55%] blur-[3px]"
-          ></motion.div>
-
-          {/* PNG Image */}
+        <div className="relative w-[300px] sm:w-[380px] md:w-[420px] lg:w-[460px] h-[360px] sm:h-[450px] md:h-[480px] rounded-[32px] overflow-hidden shadow-soft-lg border-4 border-white bg-white">
           <img
-            src={HeroImage}
-            alt="Salon"
-            className="absolute inset-0 w-full h-full object-contain rounded-[55%_45%_65%_45%/55%_60%_45%_55%] shadow-2xl"
+            src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?ixlib=rb-4.1.0&auto=format&fit=crop&w=1200&q=80"
+            alt="Relaxing Salon Treatment"
+            className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-700"
           />
-        </div>
 
-        {/* Reflection */}
-        <div className="absolute bottom-[-25px] left-1/2 transform -translate-x-1/2 w-[70%] sm:w-[80%] h-[25px] bg-gradient-to-t from-[#636CCB]/40 to-transparent blur-2xl rounded-full"></div>
+          {/* Gentle Floating Card */}
+          <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-[#EAE3D9] shadow-soft-md">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <span className="text-[11px] font-semibold text-[#4E6758]">
+                Verified Customer
+              </span>
+            </div>
+            <p className="text-xs text-[#4A524D] leading-snug">
+              "The most peaceful salon experience in town. Loved the haircut, and the facial gave an instant glow!"
+            </p>
+          </div>
+        </div>
       </motion.div>
     </section>
   );
