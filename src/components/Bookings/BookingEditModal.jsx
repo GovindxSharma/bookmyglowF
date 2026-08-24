@@ -42,7 +42,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
 
   useEffect(() => {
     axios
-      .get(`${BASE_URL}/services`)
+      .get("/services")
       .then((res) => {
         const formatted = res.data.map((s) => ({
           label: s.name,
@@ -188,7 +188,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
     }
 
     try {
-      await axios.put(`${BASE_URL}/appointments/${editBooking._id}`, {
+      await axios.put(`/appointments/${editBooking._id}`, {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -219,7 +219,7 @@ const BookingEditModal = ({ editBooking, employees, onClose, onUpdate }) => {
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this appointment?")) return;
     try {
-      await axios.delete(`${BASE_URL}/appointments/${editBooking._id}`);
+      await axios.delete(`/appointments/${editBooking._id}`);
       setToast({ message: "Appointment deleted", type: "success" });
       setTimeout(() => {
         onUpdate && onUpdate();

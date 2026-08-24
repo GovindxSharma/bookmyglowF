@@ -29,7 +29,7 @@ const AttendancePage = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/employee`);
+      const res = await axios.get("/employee");
       const empList = res.data.employees || [];
       setEmployees(empList);
       const map = {};
@@ -52,7 +52,7 @@ const AttendancePage = () => {
   const fetchEmployeeAttendance = async (empId) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/attendance/employee/${empId}`);
+      const res = await axios.get(`/attendance/employee/${empId}`);
       setAttendanceRecords(res.data || []);
     } catch (err) {
       console.error("Error fetching attendance:", err);
@@ -75,7 +75,7 @@ const AttendancePage = () => {
     const today = new Date().toISOString().split("T")[0];
     try {
       for (const empId in attendanceMap) {
-        await axios.post(`${BASE_URL}/attendance`, {
+        await axios.post("/attendance", {
           employee_id: empId,
           date: today,
           leave: !attendanceMap[empId],
@@ -122,7 +122,7 @@ const AttendancePage = () => {
   const saveEdit = async () => {
     setLoading(true);
     try {
-      await axios.put(`${BASE_URL}/attendance/${editRecord.id}`, {
+      await axios.put(`/attendance/${editRecord.id}`, {
         leave: editRecord.leave,
       });
       setEditRecord(null);
@@ -155,37 +155,37 @@ const AttendancePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#182A4A] p-4 sm:p-6 md:p-10 space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-6 rounded-3xl border border-[#E6DCCE] shadow-soft-sm">
           <div>
-            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
-              <Clock size={22} className="text-[#4E6758]" /> Staff Attendance & Roster
+            <h1 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A] flex items-center gap-2">
+              <Clock size={22} className="text-[#C89B3C]" /> Staff Attendance & Roster
             </h1>
-            <p className="text-xs text-[#68706B] mt-0.5">
+            <p className="text-xs text-[#5C6D88] mt-0.5">
               Mark daily attendance, manage stylist leaves, and view monthly logs
             </p>
           </div>
 
           <button
             onClick={markAttendance}
-            className="px-5 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 shadow-soft-sm"
+            className="btn-navy-primary px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-navy-glow"
           >
             <Check size={15} />
-            <span>Save Today's Attendance</span>
+            <span>SAVE TODAY'S ATTENDANCE</span>
           </button>
         </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Employee Roster Sidebar */}
-          <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-[#EAE3D9] shadow-soft-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-3">
-              <h2 className="font-heading text-base font-bold text-[#1F2421]">
-                Stylist Team ({employees.length})
+          <div className="lg:col-span-4 bg-white rounded-3xl p-5 sm:p-6 border border-[#E6DCCE] shadow-soft-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-3">
+              <h2 className="font-display text-base font-extrabold uppercase text-[#182A4A]">
+                Specialist Team ({employees.length})
               </h2>
-              <span className="text-[11px] text-[#7D8480]">Check = Present</span>
+              <span className="text-[11px] text-[#9A8F7F] font-bold">Checked = Present</span>
             </div>
 
             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
@@ -199,8 +199,8 @@ const AttendancePage = () => {
                     onClick={() => handleEmployeeClick(emp)}
                     className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isSelected
-                        ? "bg-[#EDF3EF] border-[#4E6758] shadow-xs"
-                        : "bg-[#FDFBF9] hover:bg-[#F8F5F0] border-[#EAE3D9]"
+                        ? "bg-white border-2 border-[#182A4A] shadow-soft-sm scale-[1.01]"
+                        : "bg-[#FAF6EE]/50 hover:bg-[#FAF6EE] border-[#E6DCCE]"
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -209,14 +209,14 @@ const AttendancePage = () => {
                         checked={isPresent}
                         onChange={() => handleCheckboxChange(emp._id)}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-4 h-4 rounded text-[#4E6758] accent-[#4E6758] cursor-pointer"
+                        className="w-4 h-4 rounded text-[#182A4A] accent-[#182A4A] cursor-pointer"
                       />
                       <div>
-                        <span className="font-semibold text-xs text-[#1F2421] block">
+                        <span className="font-bold text-xs text-[#182A4A] block">
                           {emp.name}
                         </span>
-                        <span className="text-[11px] text-[#7D8480]">
-                          {emp.phone || "Stylist"}
+                        <span className="text-[11px] text-[#5C6D88]">
+                          {emp.phone || "Specialist"}
                         </span>
                       </div>
                     </div>

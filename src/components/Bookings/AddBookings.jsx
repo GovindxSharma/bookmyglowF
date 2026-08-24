@@ -21,48 +21,50 @@ import { BASE_URL, SALON_CONFIG } from "../../data/data";
 const customSelectStyles = {
   control: (base, state) => ({
     ...base,
-    backgroundColor: "#FDFBF9",
-    borderColor: state.isFocused ? "#4E6758" : "#D9D0C5",
+    backgroundColor: "#FAF6EE",
+    borderColor: state.isFocused ? "#182A4A" : "#E6DCCE",
     borderRadius: "14px",
-    padding: "1px 3px",
-    color: "#1F2421",
-    boxShadow: state.isFocused ? "0 0 0 1px #4E6758" : "none",
+    padding: "2px 4px",
+    color: "#182A4A",
+    boxShadow: state.isFocused ? "0 0 0 1.5px #182A4A" : "none",
     "&:hover": {
-      borderColor: "#4E6758",
+      borderColor: "#182A4A",
     },
   }),
   menu: (base) => ({
     ...base,
     backgroundColor: "#FFFFFF",
-    borderRadius: "14px",
-    border: "1px solid #EAE3D9",
-    boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+    borderRadius: "16px",
+    border: "2px solid #182A4A",
+    boxShadow: "0 12px 30px rgba(24, 42, 74, 0.12)",
     zIndex: 50,
+    overflow: "hidden",
   }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected
-      ? "#4E6758"
+      ? "#182A4A"
       : state.isFocused
-      ? "#EDF3EF"
+      ? "#FAF2DE"
       : "transparent",
-    color: state.isSelected ? "#FFFFFF" : "#1F2421",
+    color: state.isSelected ? "#FFFFFF" : "#182A4A",
     fontSize: "13px",
+    fontWeight: state.isSelected ? "700" : "500",
     cursor: "pointer",
   }),
   singleValue: (base) => ({
     ...base,
-    color: "#1F2421",
+    color: "#182A4A",
     fontSize: "13px",
-    fontWeight: "500",
+    fontWeight: "700",
   }),
   input: (base) => ({
     ...base,
-    color: "#1F2421",
+    color: "#182A4A",
   }),
   placeholder: (base) => ({
     ...base,
-    color: "#8C948F",
+    color: "#9A8F7F",
     fontSize: "13px",
   }),
 };

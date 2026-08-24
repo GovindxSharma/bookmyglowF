@@ -10,6 +10,7 @@ import BookingTabs from "@/components/Bookings/BookingTabs";
 import AttendacePage from "@/pages/Attendance/AttendacePage";
 import EmployeeManagement from "@/pages/EmployeeManagement/EmployeeManagement";
 import SettingsPage from "@/pages/Settings/Settings";
+import AmbientPlayer from "@/components/Common/AmbientPlayer";
 import axios from "@/api/axiosInstance";
 import { Sparkles, Shield, User, Crown, UserCheck, ChevronUp, ChevronDown } from "lucide-react";
 
@@ -43,25 +44,25 @@ const PitchDemoToolbar = () => {
 
   return (
     <div className="fixed bottom-16 md:bottom-5 right-3 md:right-5 z-50">
-      <div className="bg-white/95 backdrop-blur-xl border border-[#EAE3D9] rounded-2xl shadow-soft-lg p-1.5 transition-all duration-300">
+      <div className="bg-white/95 backdrop-blur-xl border border-[#E6DCCE] rounded-2xl shadow-2xl p-1.5 transition-all duration-300">
         {!isExpanded ? (
           <button
             onClick={() => setIsExpanded(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EDF3EF] hover:bg-[#E0ECE5] text-[#35473C] text-xs font-bold transition shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#182A4A] hover:bg-[#111E33] text-white text-xs font-bold transition shadow-xs"
           >
-            <Sparkles size={13} className="text-[#4E6758]" />
+            <Sparkles size={13} className="text-[#C89B3C]" />
             <span>⚡ Demo Roles</span>
             <ChevronUp size={13} />
           </button>
         ) : (
-          <div className="space-y-1.5 p-1 min-w-[200px]">
-            <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-1 px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#7D8480]">
-                Quick Pitch Roles
+          <div className="space-y-1.5 p-1 min-w-[210px]">
+            <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-1 px-1">
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A8F7F]">
+                Quick Studio Roles
               </span>
               <button
                 onClick={() => setIsExpanded(false)}
-                className="text-[#7D8480] hover:text-[#1F2421]"
+                className="text-[#9A8F7F] hover:text-[#182A4A]"
               >
                 <ChevronDown size={14} />
               </button>
@@ -70,19 +71,19 @@ const PitchDemoToolbar = () => {
             <div className="flex flex-col gap-1 text-xs">
               <button
                 onClick={switchToClient}
-                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#F8F5F0] text-[#35473C] font-semibold transition"
+                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#FAF6EE] text-[#182A4A] font-semibold transition"
               >
-                <User size={13} className="text-gray-500" />
-                <span>🌟 Client View</span>
+                <User size={13} className="text-[#C89B3C]" />
+                <span>🌟 Client Experience</span>
               </button>
 
               <button
                 onClick={() =>
                   switchToRole("reception@bookmyglow.com", "recep123", "/bookings")
                 }
-                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#F8F5F0] text-[#35473C] font-semibold transition"
+                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#FAF6EE] text-[#182A4A] font-semibold transition"
               >
-                <UserCheck size={13} className="text-emerald-600" />
+                <UserCheck size={13} className="text-[#6C8E82]" />
                 <span>👩‍💼 Front Desk POS</span>
               </button>
 
@@ -90,10 +91,10 @@ const PitchDemoToolbar = () => {
                 onClick={() =>
                   switchToRole("admin@bookmyglow.com", "admin123", "/dashboard")
                 }
-                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#F8F5F0] text-[#35473C] font-semibold transition"
+                className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#FAF6EE] text-[#182A4A] font-semibold transition"
               >
-                <Crown size={13} className="text-amber-600" />
-                <span>👑 Salon Owner (Admin)</span>
+                <Crown size={13} className="text-[#C89B3C]" />
+                <span>👑 Studio Owner (Admin)</span>
               </button>
             </div>
           </div>
@@ -108,10 +109,10 @@ const AppContent = () => {
   const [activeSection, setActiveSection] = useState("home");
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#182A4A] pb-16 md:pb-0">
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
 
-      <main className="pt-[60px]">
+      <main className="pt-[70px]">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
@@ -164,6 +165,9 @@ const AppContent = () => {
 
       {/* App-like Native Mobile Bottom Dock */}
       <MobileBottomNav activeSection={activeSection} />
+
+      {/* Floating Studio Ambient Soundscape Sanctuary (Public Landing) */}
+      {location.pathname === "/" && <AmbientPlayer />}
 
       {/* Floating Demo Role Toolbar */}
       <PitchDemoToolbar />

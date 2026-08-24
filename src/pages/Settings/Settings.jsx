@@ -22,31 +22,31 @@ const SettingsTabs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#182A4A] p-4 sm:p-6 md:p-10 space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#E6DCCE] shadow-soft-sm">
           <div>
-            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
-              <SettingsIcon size={22} className="text-[#4E6758]" /> Salon Configuration & Catalog
+            <h1 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A] flex items-center gap-2">
+              <SettingsIcon size={22} className="text-[#C89B3C]" /> Studio Configuration & Catalog
             </h1>
-            <p className="text-xs text-[#68706B] mt-0.5">
+            <p className="text-xs text-[#5C6D88] mt-0.5">
               Customize service menu prices, categories, and manage front desk access accounts
             </p>
           </div>
 
           {/* Tab Selector */}
-          <div className="flex bg-[#F8F5F0] p-1 rounded-2xl border border-[#EAE3D9] text-xs font-semibold">
+          <div className="flex bg-[#FAF6EE] p-1.5 rounded-2xl border border-[#E6DCCE] text-xs font-bold uppercase tracking-wider">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.key;
               return (
                 <button
                   key={tab.key}
                   onClick={() => handleTabChange(tab.key)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? "bg-[#4E6758] text-white shadow-soft-sm font-semibold"
-                      : "text-[#555E58] hover:text-[#1F2421]"
+                      ? "bg-[#182A4A] text-white shadow-soft-sm font-bold"
+                      : "text-[#5C6D88] hover:text-[#182A4A]"
                   }`}
                 >
                   {tab.icon}
@@ -60,7 +60,7 @@ const SettingsTabs = () => {
         {/* Tab Content */}
         <div className="min-h-[400px]">
           {loading ? (
-            <div className="flex justify-center items-center py-20 bg-white rounded-3xl border border-[#EAE3D9]">
+            <div className="flex justify-center items-center py-20 bg-white rounded-3xl border border-[#E6DCCE]">
               <Loader size={160} />
             </div>
           ) : (

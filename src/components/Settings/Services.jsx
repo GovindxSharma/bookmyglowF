@@ -130,22 +130,22 @@ const Services = () => {
       </AnimatePresence>
 
       {/* Sub Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-5 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-5 sm:p-6 rounded-3xl border border-[#E6DCCE] shadow-soft-sm">
         <div>
-          <h2 className="font-heading text-lg font-bold text-[#1F2421]">
-            Active Salon Catalog ({services.length} Categories)
+          <h2 className="font-display text-lg sm:text-xl font-extrabold uppercase text-[#182A4A]">
+            Active Studio Catalog ({services.length} Categories)
           </h2>
-          <p className="text-xs text-[#68706B]">
-            Add or adjust pricing and treatments available in the POS and booking form
+          <p className="text-xs text-[#5C6D88]">
+            Add or adjust pricing and treatments available in the front desk POS and website booking form
           </p>
         </div>
 
         <button
           onClick={handleAdd}
-          className="px-4 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center gap-2 shadow-soft-sm"
+          className="btn-navy-primary px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-navy-glow"
         >
           <Plus size={15} />
-          <span>Add New Category</span>
+          <span>ADD NEW CATEGORY</span>
         </button>
       </div>
 
@@ -154,41 +154,41 @@ const Services = () => {
         {services.map((srv) => (
           <div
             key={srv._id}
-            className="bg-white rounded-3xl border border-[#EAE3D9] shadow-soft-sm p-5 sm:p-6 flex flex-col justify-between hover:shadow-soft-md transition-all space-y-4"
+            className="bg-white rounded-3xl border border-[#E6DCCE] shadow-soft-sm p-6 flex flex-col justify-between hover:shadow-soft-md hover:border-[#182A4A] transition-all space-y-4"
           >
             <div>
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <span className="text-[10px] font-bold text-[#4E6758] uppercase tracking-wider block mb-0.5">
+                  <span className="text-[10px] font-extrabold text-[#C89B3C] uppercase tracking-wider block mb-0.5">
                     Category
                   </span>
-                  <h3 className="font-heading text-base font-bold text-[#1F2421]">
+                  <h3 className="font-display text-base sm:text-lg font-extrabold uppercase text-[#182A4A]">
                     {srv.name}
                   </h3>
                 </div>
 
-                <span className="px-2.5 py-0.5 rounded-full bg-[#EDF3EF] text-[#35473C] text-[11px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#FAF2DE] text-[#182A4A] border border-[#C89B3C]/30 text-[11px] font-bold">
                   {srv.sub_services?.length || 0} Treatments
                 </span>
               </div>
 
-              <p className="text-xs text-[#68706B] mt-1.5 leading-relaxed">
-                {srv.description || "Professional salon treatments and care."}
+              <p className="text-xs text-[#5C6D88] mt-1.5 leading-relaxed">
+                {srv.description || "Professional studio treatments and bespoke wellness care."}
               </p>
 
               {srv.sub_services && srv.sub_services.length > 0 && (
-                <div className="mt-3.5 pt-3 border-t border-[#F2ECE4] space-y-1.5">
-                  <span className="text-[11px] font-bold uppercase text-[#7D8480] tracking-wider block">
+                <div className="mt-3.5 pt-3 border-t border-[#FAF6EE] space-y-1.5">
+                  <span className="text-[10px] font-bold uppercase text-[#9A8F7F] tracking-wider block">
                     Treatments & Pricing:
                   </span>
                   <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
                     {srv.sub_services.map((s, idx) => (
                       <div
                         key={idx}
-                        className="flex justify-between items-center text-xs bg-[#FDFBF9] p-2 rounded-xl border border-[#EAE3D9]"
+                        className="flex justify-between items-center text-xs bg-[#FAF6EE] p-2 rounded-xl border border-[#E6DCCE]"
                       >
-                        <span className="font-medium text-[#1F2421]">{s.name}</span>
-                        <span className="font-bold text-[#4E6758]">₹{s.price}</span>
+                        <span className="font-bold text-[#182A4A]">{s.name}</span>
+                        <span className="font-extrabold text-[#C89B3C]">₹{s.price}</span>
                       </div>
                     ))}
                   </div>
@@ -197,16 +197,16 @@ const Services = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#F2ECE4]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#FAF6EE]">
               <button
                 onClick={() => handleEdit(srv)}
-                className="px-3 py-1.5 rounded-xl bg-[#EDF3EF] text-[#35473C] hover:bg-[#E0ECE5] font-semibold text-xs flex items-center gap-1 border border-[#D9E4DD] transition"
+                className="px-3.5 py-1.5 rounded-xl bg-[#FAF6EE] text-[#182A4A] hover:bg-[#182A4A] hover:text-white font-bold text-xs flex items-center gap-1 border border-[#E6DCCE] transition uppercase tracking-wider"
               >
                 <Pencil size={12} /> Edit
               </button>
               <button
                 onClick={() => handleDelete(srv._id)}
-                className="p-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
+                className="p-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
                 title="Delete"
               >
                 <Trash2 size={13} />
@@ -218,15 +218,15 @@ const Services = () => {
 
       {/* Add / Edit Modal */}
       {form && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white border border-[#EAE3D9] rounded-3xl shadow-soft-lg p-6 sm:p-8 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-[#F2ECE4] pb-3">
-              <h3 className="font-heading text-lg font-bold text-[#1F2421]">
+        <div className="fixed inset-0 bg-[#182A4A]/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white border-2 border-[#182A4A] rounded-[32px] shadow-2xl p-6 sm:p-8 max-w-lg w-full space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-[#FAF6EE] pb-3.5">
+              <h3 className="font-display text-lg font-extrabold uppercase text-[#182A4A]">
                 {form._id ? "Edit Category & Pricing" : "Add Service Category"}
               </h3>
               <button
                 onClick={() => setForm(null)}
-                className="text-[#7D8480] hover:text-[#1F2421]"
+                className="p-1.5 rounded-xl bg-[#FAF6EE] text-[#5C6D88] hover:text-[#182A4A]"
               >
                 <X size={18} />
               </button>
@@ -234,7 +234,7 @@ const Services = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="font-semibold text-[#1F2421] block mb-1">
+                <label className="font-bold text-[#182A4A] block mb-1 uppercase tracking-wider text-[11px]">
                   Category Name *
                 </label>
                 <input
@@ -242,12 +242,12 @@ const Services = () => {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="e.g. Hair Styling & Color"
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] outline-none text-sm text-[#182A4A] font-medium"
                 />
               </div>
 
               <div>
-                <label className="font-semibold text-[#1F2421] block mb-1">
+                <label className="font-bold text-[#182A4A] block mb-1 uppercase tracking-wider text-[11px]">
                   Category Description
                 </label>
                 <textarea

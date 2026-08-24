@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Sparkles, ShieldCheck, UserCheck, ArrowLeft, Lock } from "lucide-react";
 import Loader from "@/components/Layout/Loader.jsx";
 import { SALON_CONFIG } from "@/data/data";
+import { GeometricEmblem } from "@/components/Common/GeometricLogo";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -51,10 +52,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FDFBF9] via-[#F6F1EA] to-[#FDFBF9] px-4 py-12 relative overflow-hidden text-[#242A26]">
-      {/* Soft Background Accents */}
-      <div className="absolute top-[-10%] left-[-10%] w-[380px] h-[380px] bg-[#E2ECE5]/70 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#F5ECE4]/80 rounded-full blur-[110px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center bg-[#FAF6EE] px-4 py-12 relative overflow-hidden text-[#182A4A]">
+      {/* Abstract Background Accents */}
+      <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-[#182A4A]/5 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-[#C89B3C]/10 blur-3xl pointer-events-none" />
 
       {/* Fullscreen Loader */}
       <AnimatePresence>
@@ -66,39 +67,41 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative bg-white/95 backdrop-blur-xl border border-[#EAE3D9] shadow-soft-lg rounded-[32px] p-7 sm:p-9 w-full max-w-md z-10"
+        className="relative bg-white border-2 border-[#182A4A] shadow-2xl rounded-[36px] p-7 sm:p-9 w-full max-w-md z-10"
       >
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4E6758] hover:text-[#35473C] mb-5 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C89B3C] hover:text-[#182A4A] mb-5 transition"
         >
-          <ArrowLeft size={14} /> Back to Salon Home
+          <ArrowLeft size={14} /> Back to Studio Home
         </Link>
 
-        {/* Brand Header */}
+        {/* Brand Header with Geometric Emblem */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-[#EDF3EF] border border-[#D9E4DD] text-[#4E6758] flex items-center justify-center mx-auto mb-3 shadow-xs font-bold">
-            <Sparkles size={22} />
+          <div className="flex justify-center mb-3">
+            <div className="p-3 rounded-2xl bg-[#FAF6EE] border border-[#E6DCCE] shadow-soft-sm">
+              <GeometricEmblem size={48} />
+            </div>
           </div>
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-[#1F2421] tracking-tight">
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase text-[#182A4A] tracking-tight">
             {SALON_CONFIG.name}
           </h1>
-          <span className="text-xs font-medium text-[#68706B] block mt-0.5">
-            Staff & Management Login
+          <span className="text-xs font-bold uppercase tracking-widest text-[#C89B3C] block mt-0.5">
+            Staff & Reception Portal
           </span>
         </div>
 
         {/* ⚡ Quick Demo Autofill */}
-        <div className="mb-5 bg-[#F8F5F0] border border-[#EAE3D9] rounded-2xl p-3 text-xs space-y-2">
-          <div className="flex items-center gap-1.5 font-bold text-[#35473C]">
-            <Sparkles size={13} className="text-[#4E6758]" />
+        <div className="mb-5 bg-[#FAF6EE] border border-[#E6DCCE] rounded-2xl p-3.5 text-xs space-y-2">
+          <div className="flex items-center gap-1.5 font-extrabold text-[#182A4A] uppercase tracking-wider text-[10px]">
+            <Sparkles size={13} className="text-[#C89B3C]" />
             <span>Instant Demo Accounts (Click to Fill):</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => handleQuickFill("admin@bookmyglow.com", "admin123")}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#DDD5CA] hover:border-[#4E6758] hover:bg-[#EDF3EF] text-[#242A26] font-semibold transition text-xs shadow-xs"
+              className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white border border-[#E6DCCE] hover:border-[#182A4A] hover:bg-[#FAF2DE] text-[#182A4A] font-bold transition text-xs shadow-xs"
             >
               <span>👑 Owner (Admin)</span>
             </button>
@@ -106,7 +109,7 @@ const Login = () => {
             <button
               type="button"
               onClick={() => handleQuickFill("reception@bookmyglow.com", "recep123")}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-[#DDD5CA] hover:border-[#4E6758] hover:bg-[#EDF3EF] text-[#242A26] font-semibold transition text-xs shadow-xs"
+              className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white border border-[#E6DCCE] hover:border-[#182A4A] hover:bg-[#FAF2DE] text-[#182A4A] font-bold transition text-xs shadow-xs"
             >
               <span>👩‍💼 Receptionist</span>
             </button>
@@ -116,7 +119,7 @@ const Login = () => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#4A524D] mb-1">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-[#182A4A] mb-1.5">
               Email Address
             </label>
             <input
@@ -126,12 +129,12 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2.5 rounded-xl border border-[#D9D0C5] bg-[#FDFBF9] focus:bg-white focus:border-[#4E6758] focus:ring-1 focus:ring-[#4E6758] text-xs sm:text-sm text-[#242A26] outline-none transition"
+              className="w-full px-4 py-3 rounded-xl border border-[#E6DCCE] bg-[#FAF6EE] focus:bg-white focus:border-[#182A4A] text-xs sm:text-sm text-[#182A4A] outline-none transition font-medium"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#4A524D] mb-1">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-[#182A4A] mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -142,12 +145,12 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2.5 rounded-xl border border-[#D9D0C5] bg-[#FDFBF9] focus:bg-white focus:border-[#4E6758] focus:ring-1 focus:ring-[#4E6758] text-xs sm:text-sm text-[#242A26] outline-none transition pr-10"
+                className="w-full px-4 py-3 rounded-xl border border-[#E6DCCE] bg-[#FAF6EE] focus:bg-white focus:border-[#182A4A] text-xs sm:text-sm text-[#182A4A] outline-none transition pr-10 font-medium"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition"
+                className="absolute right-3 top-3 text-gray-400 hover:text-[#182A4A] transition"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -158,7 +161,7 @@ const Login = () => {
             <motion.div
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center"
+              className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold text-center"
             >
               {error}
             </motion.div>
@@ -169,18 +172,14 @@ const Login = () => {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-soft-sm transition duration-200 ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-[#4E6758] hover:bg-[#405448]"
-            }`}
+            className="btn-navy-primary w-full py-4 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-navy-glow transition duration-200 disabled:opacity-50"
           >
-            {loading ? "Signing In..." : "Sign In to Dashboard"}
+            {loading ? "Signing In..." : "SIGN IN TO STUDIO DASHBOARD"}
           </motion.button>
         </form>
 
-        <div className="mt-6 text-center text-[11px] text-[#7D8480]">
-          Staff & Authorized Receptionists Only &bull; {SALON_CONFIG.name}
+        <div className="mt-6 text-center text-[10px] font-bold uppercase tracking-wider text-[#9A8F7F]">
+          Authorized Personnel Only &bull; {SALON_CONFIG.name}
         </div>
       </motion.div>
     </div>
@@ -188,3 +187,4 @@ const Login = () => {
 };
 
 export default Login;
+

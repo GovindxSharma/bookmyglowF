@@ -127,75 +127,75 @@ const User = () => {
       </AnimatePresence>
 
       {/* Sub Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-5 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white p-5 sm:p-6 rounded-3xl border border-[#E6DCCE] shadow-soft-sm">
         <div>
-          <h2 className="font-heading text-lg font-bold text-[#1F2421]">
+          <h2 className="font-display text-lg sm:text-xl font-extrabold uppercase text-[#182A4A]">
             Authorized Staff Accounts ({users.length})
           </h2>
-          <p className="text-xs text-[#68706B]">
-            Manage login permissions for Salon Owner and Front Desk Receptionists
+          <p className="text-xs text-[#5C6D88]">
+            Manage login credentials and permissions for Studio Owner and Front Desk Receptionists
           </p>
         </div>
 
         <button
           onClick={handleAdd}
-          className="px-4 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center gap-2 shadow-soft-sm"
+          className="btn-navy-primary px-5 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-navy-glow"
         >
           <Plus size={15} />
-          <span>Add Staff Account</span>
+          <span>ADD STAFF ACCOUNT</span>
         </button>
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-3xl border border-[#EAE3D9] shadow-soft-sm overflow-hidden">
+      <div className="bg-white rounded-3xl border border-[#E6DCCE] shadow-soft-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
             <thead>
-              <tr className="bg-[#F8F5F0] text-left text-xs font-bold text-[#4A524D] uppercase tracking-wider">
-                <th className="px-5 py-3.5">Name</th>
-                <th className="px-5 py-3.5">Email / Login ID</th>
-                <th className="px-5 py-3.5">Role</th>
-                <th className="px-5 py-3.5">Status</th>
-                <th className="px-5 py-3.5 text-right">Actions</th>
+              <tr className="bg-[#FAF6EE] text-left text-[11px] font-extrabold text-[#182A4A] uppercase tracking-wider">
+                <th className="px-5 py-4">Name</th>
+                <th className="px-5 py-4">Email / Login ID</th>
+                <th className="px-5 py-4">Role</th>
+                <th className="px-5 py-4">Status</th>
+                <th className="px-5 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F2ECE4] text-sm">
+            <tbody className="divide-y divide-[#FAF6EE] text-sm">
               {users.map((u) => (
-                <tr key={u._id} className="hover:bg-[#FAF7F2] transition">
-                  <td className="px-5 py-3.5 font-semibold text-[#1F2421]">
+                <tr key={u._id} className="hover:bg-[#FAF6EE]/50 transition">
+                  <td className="px-5 py-3.5 font-bold text-[#182A4A]">
                     {u.name}
                   </td>
-                  <td className="px-5 py-3.5 text-xs text-[#555E58] font-mono">
+                  <td className="px-5 py-3.5 text-xs text-[#5C6D88] font-mono">
                     {u.email}
                   </td>
                   <td className="px-5 py-3.5">
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider ${
                         u.role === "admin"
-                          ? "bg-amber-50 text-amber-700 border border-amber-200"
-                          : "bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD]"
+                          ? "bg-[#FAF2DE] text-[#182A4A] border border-[#C89B3C]/40"
+                          : "bg-[#E6EFEA] text-[#182A4A] border border-[#8EA89D]/40"
                       }`}
                     >
                       {u.role === "admin" ? (
                         <>
-                          <ShieldCheck size={12} /> Owner
+                          <ShieldCheck size={13} className="text-[#C89B3C]" /> Studio Owner
                         </>
                       ) : (
                         <>
-                          <UserCheck size={12} /> Front Desk
+                          <UserCheck size={13} className="text-[#8EA89D]" /> Front Desk
                         </>
                       )}
                     </span>
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-bold">
                       Active
                     </span>
                   </td>
                   <td className="px-5 py-3.5 text-right space-x-1.5 whitespace-nowrap">
                     <button
                       onClick={() => handleEdit(u)}
-                      className="p-1.5 rounded-lg bg-[#F8F5F0] text-[#555E58] hover:bg-[#EAE3D9] transition inline-flex"
+                      className="p-2 rounded-xl bg-[#FAF6EE] text-[#182A4A] hover:bg-[#182A4A] hover:text-white transition inline-flex border border-[#E6DCCE]"
                       title="Edit"
                     >
                       <Pencil size={13} />
@@ -203,7 +203,7 @@ const User = () => {
                     {u.role !== "admin" && (
                       <button
                         onClick={() => handleDelete(u._id)}
-                        className="p-1.5 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 transition inline-flex"
+                        className="p-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 transition inline-flex"
                         title="Delete"
                       >
                         <Trash2 size={13} />

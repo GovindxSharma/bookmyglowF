@@ -1,97 +1,258 @@
 /* index.css */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Urbanist:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+
+:root {
+  --navy-deep: #121F38;
+  --navy-primary: #182A4A;
+  --navy-light: #253D66;
+  --gold-primary: #C89B3C;
+  --gold-light: #E0BA66;
+  --gold-dark: #A67C26;
+  --cream-canvas: #F7F2E7;
+  --cream-surface: #FAF6EE;
+  --cream-card: #FFFFFF;
+  --teal-primary: #8EA89D;
+  --teal-light: #B2C8BF;
+  --teal-dark: #6C8E82;
+  --terracotta: #C06C52;
+  --terracotta-light: #D8876F;
+  --terracotta-dark: #A3543D;
+  --border-subtle: #E5DC CE;
+  --border-strong: #182A4A;
+}
 
 /* Typography & Base */
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #FDFBF9;
-  color: #242A26;
+  font-family: 'Urbanist', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #F7F2E7;
+  color: #182A4A;
   overflow-x: hidden;
-  letter-spacing: -0.01em;
+  letter-spacing: 0em;
+}
+
+/* Typography Helpers - Tall, Crisp, Upright Geometric Sans */
+.font-display {
+  font-family: 'Urbanist', 'Outfit', sans-serif;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
 }
 
 .font-heading {
-  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Urbanist', 'Outfit', sans-serif;
+  letter-spacing: 0.01em;
 }
 
 .font-serif-soft {
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
-/* Subtle & Soothing Palette Utilities */
-.bg-warm-canvas {
-  background-color: #FDFBF9;
+.font-sans-clean {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
 }
 
-.bg-warm-surface {
-  background-color: #F8F5F0;
+
+/* Geometric Grace Color Utilities */
+.bg-cream-canvas {
+  background-color: #F7F2E7;
 }
 
-.bg-warm-card {
+.bg-cream-surface {
+  background-color: #FAF6EE;
+}
+
+.bg-cream-card {
   background-color: #FFFFFF;
 }
 
-/* Sage Green Accents */
-.bg-sage-subtle {
-  background-color: #EDF3EF;
+.bg-navy-deep {
+  background-color: #121F38;
 }
 
-.bg-sage-primary {
-  background-color: #4E6758;
+.bg-navy-primary {
+  background-color: #182A4A;
 }
 
-.text-sage-primary {
-  color: #4E6758;
+.bg-navy-light {
+  background-color: #253D66;
 }
 
-.text-sage-dark {
-  color: #35473C;
+.text-navy-primary {
+  color: #182A4A;
 }
 
-.border-sage-subtle {
-  border-color: #D9E4DD;
+.text-navy-deep {
+  color: #121F38;
 }
 
-/* Almond & Sand Accents */
-.bg-sand-subtle {
-  background-color: #F6EFE9;
+.bg-gold-primary {
+  background-color: #C89B3C;
 }
 
-.text-sand-primary {
-  color: #9C7D64;
+.text-gold-primary {
+  color: #C89B3C;
+}
+
+.bg-teal-primary {
+  background-color: #8EA89D;
+}
+
+.text-teal-primary {
+  color: #6C8E82;
+}
+
+.bg-terracotta {
+  background-color: #C06C52;
+}
+
+.text-terracotta {
+  color: #C06C52;
 }
 
 .border-warm {
-  border-color: #EDE5DC;
+  border-color: #E6DCCE;
 }
 
-/* Soft Pillowy Shadows */
+.border-navy {
+  border-color: #182A4A;
+}
+
+.border-gold {
+  border-color: #C89B3C;
+}
+
+.border-teal {
+  border-color: #8EA89D;
+}
+
+.border-terracotta {
+  border-color: #C06C52;
+}
+
+/* Geometric Decorative Tokens */
+.geo-tag {
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+
+.geo-card-gold {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E6DCCE;
+  box-shadow: 6px 6px 0px 0px #C89B3C;
+}
+
+.geo-card-navy {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #182A4A;
+  box-shadow: 6px 6px 0px 0px #182A4A;
+}
+
+.geo-card-terracotta {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E6DCCE;
+  box-shadow: 6px 6px 0px 0px #C06C52;
+}
+
+.geo-card-teal {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E6DCCE;
+  box-shadow: 6px 6px 0px 0px #8EA89D;
+}
+
+/* Luxury Shadows */
 .shadow-soft-sm {
-  box-shadow: 0 2px 8px rgba(31, 36, 33, 0.04);
+  box-shadow: 0 2px 8px rgba(24, 42, 74, 0.04);
 }
 
 .shadow-soft-md {
-  box-shadow: 0 8px 24px -4px rgba(31, 36, 33, 0.06);
+  box-shadow: 0 8px 24px -4px rgba(24, 42, 74, 0.07);
 }
 
 .shadow-soft-lg {
-  box-shadow: 0 16px 40px -8px rgba(31, 36, 33, 0.08);
+  box-shadow: 0 18px 48px -10px rgba(24, 42, 74, 0.1);
+}
+
+.shadow-gold-glow {
+  box-shadow: 0 10px 30px -5px rgba(200, 155, 60, 0.25);
+}
+
+.shadow-navy-glow {
+  box-shadow: 0 10px 30px -5px rgba(24, 42, 74, 0.25);
 }
 
 /* Glassmorphism */
-.glass-warm {
-  background: rgba(255, 255, 255, 0.92);
+.glass-cream {
+  background: rgba(247, 242, 231, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(234, 228, 220, 0.8);
+  border: 1px solid rgba(230, 220, 206, 0.8);
 }
 
-.glass-sage {
-  background: rgba(237, 243, 239, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(217, 228, 221, 0.8);
+.glass-white {
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(230, 220, 206, 0.9);
+}
+
+.glass-navy {
+  background: rgba(24, 42, 74, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 155, 60, 0.25);
+}
+
+/* Modern Geometric Button Styles */
+.btn-navy-primary {
+  background-color: #182A4A;
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-navy-primary:hover {
+  background-color: #111E33;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(24, 42, 74, 0.35);
+}
+
+.btn-gold-primary {
+  background-color: #C89B3C;
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-gold-primary:hover {
+  background-color: #B5882B;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(200, 155, 60, 0.35);
+}
+
+.btn-outline-navy {
+  border: 1.5px solid #182A4A;
+  color: #182A4A;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-navy:hover {
+  background-color: #182A4A;
+  color: #FFFFFF;
+  transform: translateY(-2px);
 }
 
 /* Clean Custom Scrollbar */
@@ -102,3 +263,10 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Subtle Geometric Grid Background Pattern */
+.bg-grid-pattern {
+  background-image: radial-gradient(rgba(24, 42, 74, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+

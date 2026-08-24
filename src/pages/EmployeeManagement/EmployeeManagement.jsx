@@ -38,7 +38,7 @@ const EmployeeManagement = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BASE_URL}/employee`, config);
+      const res = await axios.get("/employee");
       setEmployees(res.data.employees || []);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -82,10 +82,10 @@ const EmployeeManagement = () => {
       };
 
       if (editingEmployee) {
-        await axios.put(`${BASE_URL}/employee/${editingEmployee._id}`, payload, config);
+        await axios.put(`/employee/${editingEmployee._id}`, payload);
         showAlert("success", "Stylist profile updated! ✨");
       } else {
-        await axios.post(`${BASE_URL}/employee`, payload, config);
+        await axios.post("/employee", payload);
         showAlert("success", "New stylist added to team! ✨");
       }
 
@@ -129,7 +129,7 @@ const EmployeeManagement = () => {
 
   const toggleStatus = async (emp) => {
     try {
-      await axios.put(`${BASE_URL}/employee/${emp._id}`, { status: !emp.status }, config);
+      await axios.put(`/employee/${emp._id}`, { status: !emp.status });
       setEmployees((prev) =>
         prev.map((e) => (e._id === emp._id ? { ...e, status: !emp.status } : e))
       );
@@ -141,7 +141,7 @@ const EmployeeManagement = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/employee/${id}`, config);
+      await axios.delete(`/employee/${id}`);
       setEmployees((prev) => prev.filter((e) => e._id !== id));
       showAlert("success", "Stylist removed.");
       setConfirmDelete(null);
@@ -155,25 +155,25 @@ const EmployeeManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] text-[#242A26] p-4 sm:p-6 md:p-10 space-y-6">
+    <div className="min-h-screen bg-[#FAF6EE] text-[#182A4A] p-4 sm:p-6 md:p-10 space-y-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#EAE3D9] shadow-soft-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-[#E6DCCE] shadow-soft-sm">
           <div>
-            <h1 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421] flex items-center gap-2">
-              <Users size={22} className="text-[#4E6758]" /> Stylists & Team Management
+            <h1 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A] flex items-center gap-2">
+              <Users size={22} className="text-[#C89B3C]" /> Specialist & Staff Directory
             </h1>
-            <p className="text-xs text-[#68706B] mt-0.5">
-              Manage salon staff profiles, contact numbers, and performance commissions
+            <p className="text-xs text-[#5C6D88] mt-0.5">
+              Manage salon staff, view performance metrics, and configure booking availability
             </p>
           </div>
 
           <button
             onClick={() => openModal()}
-            className="px-5 py-2.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-semibold text-xs transition duration-200 flex items-center justify-center gap-2 shadow-soft-sm"
+            className="btn-navy-primary px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-navy-glow"
           >
             <Plus size={15} />
-            <span>Add New Stylist</span>
+            <span>ADD NEW SPECIALIST</span>
           </button>
         </div>
 

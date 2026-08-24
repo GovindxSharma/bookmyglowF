@@ -46,37 +46,37 @@ const EmployeePerformanceModal = ({ employee, onClose }) => {
   const commission = Math.round(summary.totalRevenue * 0.2); // 20% commission model
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-center items-center z-50 p-4">
-      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 sm:p-8 relative border border-[#EAE3D9] shadow-soft-lg space-y-5 text-[#242A26]">
+    <div className="fixed inset-0 bg-[#182A4A]/60 backdrop-blur-sm flex justify-center items-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative border-2 border-[#182A4A] shadow-2xl space-y-5 text-[#182A4A]">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#F2ECE4] pb-4">
+        <div className="flex items-start justify-between border-b border-[#FAF6EE] pb-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-[11px] font-semibold uppercase tracking-wider mb-1">
-              <Award size={13} className="text-[#4E6758]" /> Stylist Performance
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF2DE] text-[#C89B3C] border border-[#C89B3C]/30 text-[10px] font-extrabold uppercase tracking-wider mb-1.5">
+              <Award size={13} /> SPECIALIST ANALYTICS
             </div>
-            <h2 className="font-heading text-xl font-bold text-[#1F2421]">
+            <h2 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A]">
               {employee.name}
             </h2>
-            <p className="text-xs text-[#68706B]">{employee.phone} &bull; Stylist Profile</p>
+            <p className="text-xs text-[#5C6D88]">{employee.phone} &bull; Master Stylist Profile</p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-[#F8F5F0] text-[#7D8480] hover:text-[#1F2421] transition"
+            className="p-2 rounded-xl bg-[#FAF6EE] text-[#5C6D88] hover:text-[#182A4A] hover:bg-[#FAF2DE] transition"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Month Dropdown */}
-        <div className="flex items-center justify-between bg-[#FDFBF9] p-3 rounded-2xl border border-[#EAE3D9]">
-          <span className="text-xs font-semibold text-[#4A524D] flex items-center gap-1.5">
-            <Calendar size={14} className="text-[#4E6758]" /> Select Month:
+        <div className="flex items-center justify-between bg-[#FAF6EE] p-3.5 rounded-2xl border border-[#E6DCCE]">
+          <span className="text-xs font-bold text-[#182A4A] flex items-center gap-1.5 uppercase tracking-wider">
+            <Calendar size={14} className="text-[#C89B3C]" /> Select Period:
           </span>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="px-3 py-1.5 rounded-xl bg-white border border-[#D9D0C5] text-xs font-bold text-[#1F2421] outline-none"
+            className="px-3.5 py-2 rounded-xl bg-white border border-[#E6DCCE] text-xs font-bold text-[#182A4A] outline-none"
           >
             {months.map((m, idx) => (
               <option key={idx} value={idx}>
@@ -87,63 +87,63 @@ const EmployeePerformanceModal = ({ employee, onClose }) => {
         </div>
 
         {/* Summary Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-[#F8F5F0] rounded-2xl p-4 border border-[#EAE3D9] text-center space-y-1">
-            <p className="text-xs text-[#7D8480] font-medium">Services Delivered</p>
-            <p className="font-heading text-2xl font-bold text-[#1F2421]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <div className="bg-[#FAF6EE] rounded-2xl p-4 border border-[#E6DCCE] text-center space-y-1">
+            <p className="text-[11px] text-[#9A8F7F] font-bold uppercase tracking-wider">Services Delivered</p>
+            <p className="font-display text-2xl sm:text-3xl font-extrabold text-[#182A4A]">
               {summary.totalAppointments}
             </p>
           </div>
 
-          <div className="bg-[#EDF3EF] rounded-2xl p-4 border border-[#D9E4DD] text-center space-y-1">
-            <p className="text-xs text-[#35473C] font-medium">Gross Revenue Generated</p>
-            <p className="font-heading text-2xl font-bold text-[#4E6758]">
+          <div className="bg-[#FAF2DE] rounded-2xl p-4 border border-[#C89B3C]/30 text-center space-y-1">
+            <p className="text-[11px] text-[#C89B3C] font-extrabold uppercase tracking-wider">Gross Revenue</p>
+            <p className="font-display text-2xl sm:text-3xl font-extrabold text-[#182A4A]">
               ₹{summary.totalRevenue.toLocaleString()}
             </p>
           </div>
 
-          <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200 text-center space-y-1">
-            <p className="text-xs text-amber-700 font-medium">Est. 20% Commission</p>
-            <p className="font-heading text-2xl font-bold text-amber-800">
+          <div className="bg-[#E6EFEA] rounded-2xl p-4 border border-[#8EA89D]/30 text-center space-y-1">
+            <p className="text-[11px] text-[#6C8E82] font-extrabold uppercase tracking-wider">Est. 20% Commission</p>
+            <p className="font-display text-2xl sm:text-3xl font-extrabold text-[#182A4A]">
               ₹{commission.toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* Table */}
-        <div className="border border-[#EAE3D9] rounded-2xl overflow-hidden">
+        <div className="border border-[#E6DCCE] rounded-2xl overflow-hidden">
           {loading ? (
-            <div className="flex justify-center py-12 bg-[#FDFBF9]">
+            <div className="flex justify-center py-12 bg-[#FAF6EE]">
               <Loader size={150} />
             </div>
           ) : appointments.length === 0 ? (
-            <p className="text-center text-xs text-[#7D8480] py-10 bg-[#FDFBF9]">
+            <p className="text-center text-xs text-[#5C6D88] py-10 bg-[#FAF6EE]">
               No service logs recorded for this month.
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-[#F8F5F0] text-left text-[11px] font-bold text-[#4A524D] uppercase tracking-wider">
-                    <th className="px-3.5 py-2.5">Date</th>
-                    <th className="px-3.5 py-2.5">Client</th>
-                    <th className="px-3.5 py-2.5">Service</th>
-                    <th className="px-3.5 py-2.5 text-right">Bill</th>
+                  <tr className="bg-[#FAF6EE] text-left text-[10px] font-extrabold text-[#182A4A] uppercase tracking-wider border-b border-[#E6DCCE]">
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Client</th>
+                    <th className="px-4 py-3">Service</th>
+                    <th className="px-4 py-3 text-right">Bill</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#F2ECE4]">
+                <tbody className="divide-y divide-[#FAF6EE]">
                   {appointments.map((a, idx) => (
-                    <tr key={idx} className="hover:bg-[#FAF7F2] transition">
-                      <td className="px-3.5 py-2 text-[#68706B]">
+                    <tr key={idx} className="hover:bg-[#FAF6EE]/60 transition">
+                      <td className="px-4 py-2.5 text-[#5C6D88]">
                         {new Date(a.date).toLocaleDateString()}
                       </td>
-                      <td className="px-3.5 py-2 font-medium text-[#1F2421]">
+                      <td className="px-4 py-2.5 font-bold text-[#182A4A]">
                         {a.customerName || "Walk-in Guest"}
                       </td>
-                      <td className="px-3.5 py-2 text-[#4E6758]">
+                      <td className="px-4 py-2.5 text-[#C89B3C] font-semibold">
                         {a.serviceName || "Salon Service"}
                       </td>
-                      <td className="px-3.5 py-2 font-bold text-[#1F2421] text-right">
+                      <td className="px-4 py-2.5 font-extrabold text-[#182A4A] text-right">
                         ₹{(a.amount || 0).toLocaleString()}
                       </td>
                     </tr>

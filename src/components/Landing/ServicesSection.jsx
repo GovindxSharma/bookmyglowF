@@ -1,241 +1,280 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Clock, ArrowRight, Check } from "lucide-react";
+import { Sparkles, Clock, ArrowRight, Check, Calendar, Plus, Heart } from "lucide-react";
+import { GeometricServiceIcon, GeometricBanner } from "@/components/Common/GeometricPattern";
+
+const CATEGORIES = [
+  { id: "all", label: "All Treatments", color: "navy" },
+  { id: "hair", label: "Hair & Styling", color: "navy", iconType: "hair" },
+  { id: "skin", label: "Skin & Facials", color: "gold", iconType: "skin" },
+  { id: "spa", label: "Body Spa & Wellness", color: "teal", iconType: "spa" },
+  { id: "nails", label: "Hands & Feet", color: "terracotta", iconType: "nails" },
+  { id: "bridal", label: "Bridal Glam", color: "gold", iconType: "bridal" },
+  { id: "grooming", label: "Men's Barber", color: "navy", iconType: "grooming" },
+];
 
 const SALON_SERVICES = [
   {
     id: "hair",
-    category: "Hair Care & Styling",
-    name: "Haircut, Color & Smooth Care",
+    category: "hair",
+    categoryLabel: "Hair Care & Styling",
+    name: "Precision Haircut, Color & Smooth Care",
+    iconType: "hair",
+    color: "navy",
     image:
       "https://images.unsplash.com/photo-1560869713-7d0a29430803?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Custom cuts, rich hair color, and deep nourishing spas",
+    tagline: "Bespoke scissor work, rich balayage, and restorative keratin",
     description:
-      "From precision trims to seamless highlights and organic keratin treatments, we keep your hair healthy and manageable.",
+      "From precision modern cuts to dimensional balayage highlights and organic keratin treatments, we keep your hair vibrant and healthy.",
     startingPrice: "₹450",
     duration: "45–90 min",
     highlights: [
-      "Haircut & Blowdry Styling (₹450)",
-      "Global Hair Color & Highlights (₹2,500)",
-      "Keratin Protein Smoothing (₹3,500)",
-      "Deep Nourishing Hair Spa (₹950)",
+      "Signature Haircut & Blowdry Styling (₹450)",
+      "French Balayage & Olaplex Gloss (₹2,500)",
+      "Organic Keratin Protein Infusion (₹3,500)",
+      "Deep Nourishing Botanical Hair Spa (₹950)",
     ],
   },
   {
     id: "skin",
-    category: "Skin Care & Facials",
+    category: "skin",
+    categoryLabel: "Skin Care & Facials",
     name: "Hydra Glow & Brightening Facials",
+    iconType: "skin",
+    color: "gold",
     image:
       "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Deep pore cleansing and natural radiant glow",
+    tagline: "Ultrasonic deep pore cleansing & glass-skin radiance",
     description:
-      "Gentle exfoliation, organic hydration masks, and anti-tan therapies designed for refreshing and brightening your skin.",
+      "Gentle ultrasonic exfoliation, botanical hydration masks, and anti-tan therapies designed for instant brightening and cellular renewal.",
     startingPrice: "₹550",
     duration: "45–60 min",
     highlights: [
       "Deep Cleansing Hydra Glow Facial (₹1,800)",
-      "Brightening Diamond Facial (₹1,400)",
+      "Diamond Radiance Brightening Facial (₹1,400)",
       "O3+ Anti-Tan & Skin Clarifying Cleanup (₹850)",
-      "Herbal Express Fruit Cleanup (₹550)",
+      "Herbal Express Glow Cleanup (₹550)",
     ],
   },
   {
     id: "bridal",
-    category: "Bridal & Occasion Makeup",
+    category: "bridal",
+    categoryLabel: "Bridal & Occasion Artistry",
     name: "Bridal & Event Glamour",
+    iconType: "bridal",
+    color: "gold",
     image:
       "https://images.unsplash.com/photo-1610030469983-98e550d6193c?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Flawless HD makeup, hair styling, and saree draping",
+    tagline: "Flawless HD makeup, couture hair artistry, and saree draping",
     description:
-      "Look your radiant best on weddings, receptions, and festivals with long-lasting HD makeup and customized hair artistry.",
+      "Look your radiant best on weddings, receptions, and festivals with long-lasting HD airbrush makeup and customized bridal hair artistry.",
     startingPrice: "₹2,200",
     duration: "60–120 min",
     highlights: [
-      "Complete HD Bridal Makeup Package (₹8,500)",
-      "Engagement & Sangeet Makeup (₹3,200)",
-      "Party Makeup & Hair Updo (₹2,200)",
-      "Professional Saree Draping (₹400)",
+      "Complete Ultra-HD Bridal Makeover (₹8,500)",
+      "Engagement & Sangeet Cocktail Glam (₹3,200)",
+      "Party Glamour & Floral Hair Updo (₹2,200)",
+      "Professional Couture Saree Draping (₹400)",
     ],
   },
   {
     id: "nails",
-    category: "Hands, Feet & Nails",
-    name: "Luxury Pedicure & Nail Care",
+    category: "nails",
+    categoryLabel: "Hands, Feet & Nails",
+    name: "Luxury Pedicure & Nail Art",
+    iconType: "nails",
+    color: "terracotta",
     image:
       "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Relaxing foot soaks, nail shaping, and long-lasting gel art",
+    tagline: "Relaxing rose foot soaks, cuticle therapy, and gel art",
     description:
-      "Pamper your hands and feet with warm botanical soaks, dead skin buffing, cuticle care, and elegant nail art.",
+      "Pamper your hands and feet with warm rose petal botanical soaks, dead skin buffing, tension massage, and long-lasting gel extensions.",
     startingPrice: "₹450",
     duration: "40–60 min",
     highlights: [
       "Deluxe Rose Petal Spa Pedicure (₹650)",
-      "Nourishing Manicure with Massage (₹450)",
-      "Gel Polish & Nail Art (₹750)",
+      "Nourishing Manicure with Hot Oil Massage (₹450)",
+      "Long-Lasting Gel Polish & Custom Nail Art (₹750)",
+      "Callus Smoothing & Foot Reflexology (₹500)",
     ],
   },
   {
     id: "grooming",
-    category: "Men's Grooming",
-    name: "Haircut, Beard Trim & Face Cleanup",
+    category: "grooming",
+    categoryLabel: "Men's Grooming",
+    name: "Clean Cuts, Beard Sculpt & Facial Steam",
+    iconType: "grooming",
+    color: "navy",
     image:
       "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Clean cuts, sharp beard styling, and refreshing cleanups",
+    tagline: "Sharp scissor cuts, razor line-up, and hot towel pampering",
     description:
-      "Modern haircuts, precise beard shaping with hot towel steam, and detoxifying charcoal facials for men.",
+      "Modern men's haircuts, precise beard sculpting with hot towel steam, and detoxifying charcoal cleanups crafted for the modern gentleman.",
     startingPrice: "₹150",
     duration: "20–45 min",
     highlights: [
-      "Men's Haircut & Head Wash (₹250)",
-      "Beard Trimming & Razor Lineup (₹150)",
-      "Hot Towel Shave & Face Massage (₹250)",
-      "Charcoal Detox Face Cleanup (₹600)",
+      "Men's Haircut & Invigorating Head Wash (₹250)",
+      "Beard Sculpting & Razor Lineup (₹150)",
+      "Hot Towel Royal Shave & Face Massage (₹250)",
+      "Charcoal Detox Pore Face Cleanup (₹600)",
     ],
   },
   {
     id: "spa",
-    category: "Body Spa & Massage",
-    name: "Full Body Relaxation Therapy",
+    category: "spa",
+    categoryLabel: "Body Spa & Holistic Wellness",
+    name: "Full Body Aromatherapy Massage",
+    iconType: "spa",
+    color: "teal",
     image:
       "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
-    tagline: "Calming essential oils, Swedish massage, and body scrubs",
+    tagline: "Essential oil therapies for total muscle relief and calmness",
     description:
-      "Melt away everyday stress with gentle aromatherapy massage, warm herbal compresses, and full-body exfoliating scrubs.",
-    startingPrice: "₹1,600",
+      "Melt away physical fatigue with warm herbal compress, Swedish body strokes, and essential aroma oils in our serene private suites.",
+    startingPrice: "₹1,800",
     duration: "60–90 min",
     highlights: [
-      "Aromatherapy Full Body Relaxation (₹2,200)",
-      "Swedish Deep Tissue Relief (₹2,500)",
-      "Exfoliating Coffee Body Scrub (₹1,600)",
+      "Full Body Aromatherapy Stress Relief (₹2,200)",
+      "Deep Tissue Muscle Recovery Therapy (₹2,500)",
+      "Balinese Relaxing Oil Massage (₹1,800)",
+      "Herbal Body Scrub & Glow Polish (₹1,500)",
     ],
   },
 ];
 
 const ServicesSection = () => {
-  const [activeTab, setActiveTab] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const displayedServices =
-    activeTab === "all"
+  const filteredServices =
+    selectedCategory === "all"
       ? SALON_SERVICES
-      : SALON_SERVICES.filter((s) => s.id === activeTab);
+      : SALON_SERVICES.filter((s) => s.category === selectedCategory);
 
   return (
-    <section
-      id="services"
-      className="py-20 px-6 sm:px-10 md:px-16 lg:px-24 bg-[#FDFBF9] text-[#242A26] relative"
-    >
-      <div className="max-w-7xl mx-auto relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-xs font-semibold uppercase tracking-wider mb-2.5">
-            <Sparkles size={14} className="text-[#4E6758]" /> Our Service Menu & Pricing
-          </div>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#1F2421]">
-            Treatments & Everyday Care
-          </h2>
-          <p className="text-[#68706B] text-sm sm:text-base mt-2 max-w-xl mx-auto">
-            Transparent pricing, skilled stylists, and quality products for all hair and skin types.
-          </p>
+    <section id="services" className="py-20 px-4 sm:px-8 md:px-14 lg:px-20 bg-[#FAF6EE] text-[#182A4A] relative">
+      <div className="max-w-7xl mx-auto mb-14">
+        <GeometricBanner className="h-10 rounded-2xl border border-[#E6DCCE] shadow-soft-sm mb-12" opacity={0.8} />
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap justify-center gap-2 mt-7">
-            {[
-              { id: "all", label: "All Services" },
-              { id: "hair", label: "Hair Care" },
-              { id: "skin", label: "Skin & Facials" },
-              { id: "bridal", label: "Bridal & Party" },
-              { id: "nails", label: "Hands & Feet" },
-              { id: "grooming", label: "Men's Grooming" },
-              { id: "spa", label: "Body Spa" },
-            ].map((tab) => (
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#E6DCCE] text-xs font-bold uppercase tracking-[0.2em] text-[#C89B3C]">
+            <Sparkles size={13} /> CURATED MENU
+          </div>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-[0.04em] text-[#182A4A] leading-tight">
+            SERVICES & EXPERIENCES
+          </h2>
+          <p className="text-[#4A5D7A] text-sm sm:text-base font-normal max-w-xl mx-auto">
+            Discover precision cuts, rejuvenating skin therapies, and tranquil wellness rituals crafted with certified organic products.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mt-8">
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat.id;
+            return (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? "bg-[#4E6758] text-white shadow-soft-sm scale-102"
-                    : "bg-white text-[#555E58] hover:bg-[#F2ECE4] border border-[#EAE3D9]"
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-2 ${
+                  isSelected
+                    ? "bg-[#182A4A] text-white shadow-soft-md scale-105"
+                    : "bg-white text-[#182A4A] hover:bg-[#F7F2E7] border border-[#E6DCCE]"
                 }`}
               >
-                {tab.label}
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    cat.color === "gold"
+                      ? "bg-[#C89B3C]"
+                      : cat.color === "teal"
+                      ? "bg-[#8EA89D]"
+                      : cat.color === "terracotta"
+                      ? "bg-[#C06C52]"
+                      : "bg-[#182A4A]"
+                  }`}
+                />
+                <span>{cat.label}</span>
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-          <AnimatePresence>
-            {displayedServices.map((service, idx) => (
-              <motion.div
-                key={service.id}
-                layout
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.35, delay: idx * 0.05 }}
-                className="group relative rounded-3xl overflow-hidden bg-white border border-[#EAE3D9] shadow-soft-sm hover:shadow-soft-md transition-all duration-300 flex flex-col justify-between"
-              >
-                <div>
-                  {/* Service Image */}
-                  <div className="relative h-56 overflow-hidden bg-[#F2ECE4]">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute top-3.5 right-3.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#EAE3D9] text-[#35473C] text-xs font-bold shadow-soft-sm">
-                      Starting {service.startingPrice}
-                    </div>
-
-                    <div className="absolute bottom-3 left-4">
-                      <span className="text-[11px] font-semibold text-[#4E6758] bg-white/95 px-2.5 py-0.5 rounded-md backdrop-blur-md">
-                        {service.category}
-                      </span>
-                    </div>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <AnimatePresence mode="popLayout">
+          {filteredServices.map((service) => (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              key={service.id}
+              className="bg-white rounded-3xl overflow-hidden border border-[#E6DCCE] shadow-soft-sm hover:shadow-soft-md transition-all duration-300 flex flex-col justify-between group"
+            >
+              <div>
+                <div className="relative aspect-[16/10] sm:aspect-auto sm:h-56 overflow-hidden bg-[#FAF6EE]">
+                  <img
+                    src={service.image}
+                    alt={service.name}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-3 left-3 sm:top-4 sm:left-4 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-[#E6DCCE] text-[10px] font-extrabold uppercase tracking-wider text-[#182A4A] shadow-xs">
+                    {service.categoryLabel}
                   </div>
 
-                  {/* Body Content */}
-                  <div className="p-5 sm:p-6 space-y-3.5">
-                    <h3 className="font-heading text-lg sm:text-xl font-bold text-[#1F2421]">
+                  <div className="absolute bottom-3 right-3 shadow-md">
+                    <GeometricServiceIcon type={service.iconType} color={service.color} />
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-[#8EA89D]">
+                      <span className="flex items-center gap-1">
+                        <Clock size={13} /> {service.duration}
+                      </span>
+                      <span className="text-sm font-extrabold text-[#C89B3C]">
+                        Starts {service.startingPrice}
+                      </span>
+                    </div>
+                    <h3 className="font-heading text-lg font-bold text-[#182A4A] leading-snug">
                       {service.name}
                     </h3>
-                    <p className="text-xs text-[#68706B] leading-relaxed">
+                    <p className="text-xs text-[#5C6D88] leading-relaxed">
                       {service.description}
                     </p>
+                  </div>
 
-                    {/* Highlights */}
-                    <div className="space-y-1.5 pt-2 border-t border-[#F2ECE4]">
-                      <span className="text-[11px] font-semibold text-[#8C948F]">
-                        Popular Options:
-                      </span>
-                      {service.highlights.map((h, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-2 text-xs text-[#4A524D]"
+                  <div className="space-y-2 pt-3 border-t border-[#FAF6EE]">
+                    <span className="text-[10px] font-extrabold uppercase text-[#9A8F7F] tracking-wider block">
+                      Popular Treatments:
+                    </span>
+                    <ul className="space-y-1.5">
+                      {service.highlights.map((item, idx) => (
+                        <li
+                          key={idx}
+                          className="flex items-center gap-2 text-xs font-medium text-[#182A4A]"
                         >
-                          <Check size={13} className="text-[#4E6758] flex-shrink-0" />
-                          <span>{h}</span>
-                        </div>
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C89B3C] flex-shrink-0" />
+                          <span>{item}</span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
                 </div>
+              </div>
 
-                {/* Card Footer */}
-                <div className="p-5 sm:p-6 pt-0">
-                  <a
-                    href="#book"
-                    className="w-full py-2.5 rounded-2xl bg-[#EDF3EF] hover:bg-[#4E6758] text-[#35473C] hover:text-white font-semibold text-xs transition duration-200 flex items-center justify-center gap-1.5"
-                  >
-                    <span>Book This Service</span>
-                    <ArrowRight size={14} />
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+              <div className="p-6 pt-0">
+                <a
+                  href="#book"
+                  className="w-full py-3 rounded-xl bg-[#FAF6EE] hover:bg-[#182A4A] text-[#182A4A] hover:text-white font-bold text-xs uppercase tracking-wider transition duration-200 flex items-center justify-center gap-2 border border-[#E6DCCE]"
+                >
+                  <Calendar size={14} />
+                  <span>Book This Treatment</span>
+                </a>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </section>
   );

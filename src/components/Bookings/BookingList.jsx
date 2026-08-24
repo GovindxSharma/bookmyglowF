@@ -254,31 +254,31 @@ const BookingList = () => {
       )}
 
       {/* FILTER CONTROLS BAR */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#EAE3D9] shadow-soft-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-[#E6DCCE] shadow-soft-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-3 text-[#7D8480] w-4 h-4" />
+          <Search className="absolute left-3.5 top-3 text-[#9A8F7F] w-4 h-4" />
           <input
             type="text"
             placeholder="Search by client name, mobile, or treatment..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-2xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs sm:text-sm text-[#1F2421] placeholder-[#8C948F]"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] outline-none text-xs sm:text-sm text-[#182A4A] placeholder-[#9A8F7F] font-medium transition"
           />
         </div>
 
         {/* Date Filter, Service Status, Payment Filter & Export */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Date Segmented Control */}
-          <div className="flex bg-[#F8F5F0] p-1 rounded-2xl border border-[#EAE3D9]">
+          <div className="flex bg-[#FAF6EE] p-1 rounded-xl border border-[#E6DCCE]">
             {["Today", "This Week", "This Month"].map((df) => (
               <button
                 key={df}
                 onClick={() => setDateFilter(df)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition uppercase tracking-wider ${
                   dateFilter === df
-                    ? "bg-[#4E6758] text-white shadow-xs"
-                    : "text-[#555E58] hover:text-[#1F2421]"
+                    ? "bg-[#182A4A] text-white shadow-xs"
+                    : "text-[#5C6D88] hover:text-[#182A4A]"
                 }`}
               >
                 {df}
@@ -290,11 +290,11 @@ const BookingList = () => {
           <select
             value={filterServiceStatus}
             onChange={(e) => setFilterServiceStatus(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] text-xs font-semibold text-[#4A524D] outline-none"
+            className="px-3 py-2 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] text-xs font-bold text-[#182A4A] outline-none"
           >
             <option value="All">All Service Statuses</option>
             <option value="in_queue">⏳ In Queue</option>
-            <option value="in_progress">💆 In Chair (In Progress)</option>
+            <option value="in_progress">💆 In Chair</option>
             <option value="completed">✨ Completed</option>
             <option value="cancelled">❌ Cancelled</option>
           </select>
@@ -303,7 +303,7 @@ const BookingList = () => {
           <select
             value={filterPaymentStatus}
             onChange={(e) => setFilterPaymentStatus(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-[#FDFBF9] border border-[#D9D0C5] text-xs font-semibold text-[#4A524D] outline-none"
+            className="px-3 py-2 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] text-xs font-bold text-[#182A4A] outline-none"
           >
             <option value="All">All Payment Statuses</option>
             <option value="Paid">💰 Paid</option>
@@ -314,9 +314,9 @@ const BookingList = () => {
           <button
             onClick={handleExport}
             disabled={exporting || filteredBookings.length === 0}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EDF3EF] text-[#35473C] hover:bg-[#E0ECE5] font-semibold text-xs border border-[#D9E4DD] transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FAF2DE] text-[#182A4A] hover:bg-[#182A4A] hover:text-white font-bold text-xs border border-[#C89B3C]/40 transition uppercase tracking-wider"
           >
-            <FileSpreadsheet size={14} />
+            <FileSpreadsheet size={14} className="text-[#C89B3C]" />
             <span className="hidden sm:inline">Export Excel</span>
           </button>
         </div>

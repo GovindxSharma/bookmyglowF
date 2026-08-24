@@ -35,7 +35,7 @@ const MonthAppointmentsModal = ({ onClose }) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `${BASE_URL}/appointments/?date_start=${startDate}&date_end=${endDate}&for_notification=false`
+          `/appointments/?date_start=${startDate}&date_end=${endDate}&for_notification=false`
         );
 
         const data = res.data.appointments || [];

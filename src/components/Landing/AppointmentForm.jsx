@@ -204,27 +204,27 @@ const AppointmentForm = () => {
   const shareToWhatsApp = () => {
     if (!bookingSuccess) return;
     const text = encodeURIComponent(
-      `✨ *${SALON_CONFIG.name}* ✨\nHello! I have booked an online appointment for *${bookingSuccess.name}*.\n\n📅 Date: ${bookingSuccess.date}\n⏰ Time: ${bookingSuccess.time}\n👩‍🎨 Stylist: ${bookingSuccess.stylist}\n💰 Est. Total: ₹${calculatedTotal}\n\nPlease confirm my reservation. Thank you!`
+      `✨ *${SALON_CONFIG.name} — Reservation* ✨\nHello Concierge! I have reserved an appointment for *${bookingSuccess.name}*.\n\n📅 Date: ${bookingSuccess.date}\n⏰ Time: ${bookingSuccess.time}\n👩‍🎨 Stylist: ${bookingSuccess.stylist}\n💰 Est. Total: ₹${calculatedTotal}\n\nPlease confirm my slot. Thank you!`
     );
-    window.open(`https://wa.me/91${SALON_CONFIG.phone.replace(/\D/g, "")}?text=${text}`, "_blank");
+    window.open(`https://wa.me/${SALON_CONFIG.phone.replace(/[^0-9]/g, "")}?text=${text}`, "_blank");
   };
 
   return (
     <section
       id="book"
-      className="py-20 px-4 sm:px-8 bg-gradient-to-b from-[#FDFBF9] via-[#F6F1EA] to-[#FDFBF9] text-[#242A26] relative overflow-hidden"
+      className="py-24 px-4 sm:px-8 md:px-14 lg:px-20 bg-[#FAF6EE] text-[#182A4A] relative overflow-hidden"
     >
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-xs font-semibold uppercase tracking-wider mb-2.5">
-            <Calendar size={14} className="text-[#4E6758]" /> Real-Time Online Booking
+        <div className="text-center mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-[#E6DCCE] text-xs font-bold uppercase tracking-[0.2em] text-[#C89B3C]">
+            <Calendar size={13} /> INSTANT SCHEDULING
           </div>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#1F2421]">
-            Reserve Your Salon Experience
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold uppercase tracking-[0.04em] text-[#182A4A] leading-tight">
+            RESERVE YOUR APPOINTMENT
           </h2>
-          <p className="text-[#68706B] text-sm sm:text-base mt-2 max-w-lg mx-auto">
-            Choose your service, select a specific stylist, pick a verified open slot, and get instant confirmation.
+          <p className="text-[#4A5D7A] text-sm sm:text-base max-w-lg mx-auto">
+            Choose your treatments, select a preferred specialist, and secure a verified open slot instantly.
           </p>
         </div>
 
@@ -235,32 +235,32 @@ const AppointmentForm = () => {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              className="mb-8 p-6 sm:p-8 rounded-3xl bg-white border border-emerald-200 text-[#242A26] shadow-soft-md text-center space-y-3.5"
+              className="mb-8 p-6 sm:p-8 rounded-3xl bg-white border-2 border-[#182A4A] text-[#182A4A] shadow-2xl text-center space-y-4"
             >
-              <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-xs">
+              <div className="w-14 h-14 rounded-full bg-[#FAF2DE] text-[#C89B3C] border border-[#C89B3C] flex items-center justify-center mx-auto shadow-xs">
                 <CheckCircle2 size={28} />
               </div>
-              <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#1F2421]">
-                Reservation Confirmed & Saved!
+              <h3 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A]">
+                RESERVATION SECURED & CONFIRMED!
               </h3>
-              <p className="text-sm text-[#555E58] max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-[#5C6D88] max-w-md mx-auto leading-relaxed">
                 Thank you, <strong>{bookingSuccess.name}</strong>. Your slot has been reserved for{" "}
-                <strong className="text-[#1F2421]">
+                <strong className="text-[#182A4A]">
                   {bookingSuccess.date} at {bookingSuccess.time}
                 </strong>{" "}
-                with <strong className="text-[#4E6758]">{bookingSuccess.stylist}</strong>.
+                with <strong className="text-[#C89B3C]">{bookingSuccess.stylist}</strong>.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <button
                   onClick={shareToWhatsApp}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BE5A] text-white font-semibold text-xs shadow-soft-sm transition"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20BE5A] text-white font-bold text-xs shadow-soft-sm transition uppercase tracking-wider"
                 >
                   <Share2 size={15} /> Confirm on WhatsApp
                 </button>
                 <button
                   onClick={() => setBookingSuccess(null)}
-                  className="px-5 py-2.5 rounded-full bg-[#EDF3EF] hover:bg-[#E0ECE5] text-[#35473C] text-xs font-semibold transition"
+                  className="px-6 py-3 rounded-xl bg-[#FAF6EE] hover:bg-[#182A4A] hover:text-white text-[#182A4A] text-xs font-bold transition border border-[#E6DCCE] uppercase tracking-wider"
                 >
                   Book Another Appointment
                 </button>
@@ -274,18 +274,18 @@ const AppointmentForm = () => {
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-white rounded-[32px] shadow-soft-md border border-[#EAE3D9] p-6 sm:p-9"
+          className="bg-white rounded-[36px] shadow-2xl border-2 border-[#182A4A] p-6 sm:p-10"
         >
-          <form onSubmit={handleSubmit} className="space-y-7">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {/* Step 1: Select Services */}
             <div>
-              <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-2.5 mb-3.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#35473C] flex items-center gap-2">
-                  <Scissors size={15} className="text-[#4E6758]" />
-                  1. Select Treatments & Services
+              <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-3 mb-4">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-[#182A4A] flex items-center gap-2">
+                  <Scissors size={15} className="text-[#C89B3C]" />
+                  1. SELECT TREATMENTS & SERVICES
                 </label>
-                <span className="text-xs text-[#4E6758] font-bold">
-                  Estimated Bill: ₹{calculatedTotal.toLocaleString()}
+                <span className="text-xs text-[#C89B3C] font-extrabold">
+                  Est. Total: ₹{calculatedTotal.toLocaleString()}
                 </span>
               </div>
 
@@ -300,18 +300,18 @@ const AppointmentForm = () => {
                       onClick={() => handleServiceToggle(srv._id)}
                       className={`p-3.5 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col justify-between ${
                         isSelected
-                          ? "bg-[#EDF3EF] border-[#4E6758] shadow-xs"
-                          : "bg-white border-[#EAE3D9] hover:bg-[#FAF7F2]"
+                          ? "bg-white border-2 border-[#182A4A] shadow-soft-sm scale-[1.02]"
+                          : "bg-white border-[#E6DCCE] hover:bg-[#FAF6EE]"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="font-semibold text-xs text-[#242A26]">
+                        <span className="font-bold text-xs text-[#182A4A]">
                           {srv.name}
                         </span>
                         <div
                           className={`w-4 h-4 rounded-md border flex items-center justify-center flex-shrink-0 ${
                             isSelected
-                              ? "bg-[#4E6758] border-[#4E6758] text-white"
+                              ? "bg-[#182A4A] border-[#182A4A] text-white"
                               : "border-[#C5BCB0]"
                           }`}
                         >
@@ -320,8 +320,8 @@ const AppointmentForm = () => {
                       </div>
 
                       <div className="mt-2.5 flex items-center justify-between text-[11px]">
-                        <span className="text-[#7D8480]">Starting from</span>
-                        <span className="font-bold text-[#4E6758]">
+                        <span className="text-[#9A8F7F]">Starts at</span>
+                        <span className="font-extrabold text-[#C89B3C]">
                           ₹{startPrice.toLocaleString()}
                         </span>
                       </div>
@@ -333,13 +333,13 @@ const AppointmentForm = () => {
 
             {/* Step 2: Choose Preferred Stylist */}
             <div>
-              <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-2.5 mb-3.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#35473C] flex items-center gap-2">
-                  <Award size={15} className="text-[#4E6758]" />
-                  2. Choose Stylist or Specialist
+              <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-3 mb-4">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-[#182A4A] flex items-center gap-2">
+                  <Award size={15} className="text-[#C89B3C]" />
+                  2. CHOOSE ARTIST OR SPECIALIST
                 </label>
-                <span className="text-[11px] text-[#7D8480]">
-                  Selected: <strong className="text-[#1F2421]">{selectedStylistName}</strong>
+                <span className="text-[11px] text-[#5C6D88]">
+                  Selected: <strong className="text-[#182A4A]">{selectedStylistName}</strong>
                 </span>
               </div>
 
@@ -349,16 +349,16 @@ const AppointmentForm = () => {
                   onClick={() => setSelectedEmployeeId("any")}
                   className={`p-3 rounded-2xl border cursor-pointer text-center transition flex flex-col items-center justify-center gap-1.5 ${
                     selectedEmployeeId === "any"
-                      ? "bg-[#EDF3EF] border-[#4E6758] shadow-xs"
-                      : "bg-[#FDFBF9] border-[#EAE3D9] hover:bg-[#F8F5F0]"
+                      ? "bg-white border-2 border-[#182A4A] shadow-soft-sm scale-[1.02]"
+                      : "bg-white border-[#E6DCCE] hover:bg-[#FAF6EE]"
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-white border border-[#D9E4DD] flex items-center justify-center text-[#4E6758]">
+                  <div className="w-10 h-10 rounded-full bg-[#FAF2DE] border border-[#C89B3C] flex items-center justify-center text-[#C89B3C]">
                     <Sparkles size={18} />
                   </div>
                   <div>
-                    <span className="font-bold text-xs text-[#1F2421] block">Any Stylist</span>
-                    <span className="text-[10px] text-[#4E6758] font-semibold">Earliest Slot</span>
+                    <span className="font-bold text-xs text-[#182A4A] block">Any Stylist</span>
+                    <span className="text-[10px] text-[#8EA89D] font-bold">Earliest Slot</span>
                   </div>
                 </div>
 
@@ -371,19 +371,19 @@ const AppointmentForm = () => {
                       onClick={() => setSelectedEmployeeId(emp._id)}
                       className={`p-3 rounded-2xl border cursor-pointer text-center transition flex flex-col items-center justify-center gap-1.5 ${
                         isSelected
-                          ? "bg-[#EDF3EF] border-[#4E6758] shadow-xs"
-                          : "bg-[#FDFBF9] border-[#EAE3D9] hover:bg-[#F8F5F0]"
+                          ? "bg-white border-2 border-[#182A4A] shadow-soft-sm scale-[1.02]"
+                          : "bg-white border-[#E6DCCE] hover:bg-[#FAF6EE]"
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-full bg-white border border-[#D9E4DD] flex items-center justify-center text-[#4E6758] font-bold text-sm">
+                      <div className="w-10 h-10 rounded-full bg-[#FAF6EE] border border-[#E6DCCE] flex items-center justify-center text-[#182A4A] font-bold text-sm">
                         {emp.name.charAt(0)}
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-[#1F2421] block truncate max-w-[100px]">
+                        <span className="font-bold text-xs text-[#182A4A] block truncate max-w-[100px]">
                           {emp.name.split(" ")[0]}
                         </span>
-                        <span className="text-[10px] text-[#7D8480] block capitalize truncate max-w-[100px]">
-                          {emp.gender || "Stylist"}
+                        <span className="text-[10px] text-[#5C6D88] block capitalize truncate max-w-[100px]">
+                          {emp.gender || "Specialist"}
                         </span>
                       </div>
                     </div>
@@ -394,14 +394,14 @@ const AppointmentForm = () => {
 
             {/* Step 3: Date & Smart Real-Time Slot Picker */}
             <div>
-              <div className="flex items-center justify-between border-b border-[#F2ECE4] pb-2.5 mb-3.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-[#35473C] flex items-center gap-2">
-                  <Clock size={15} className="text-[#4E6758]" />
-                  3. Select Date & Verified Open Slot
+              <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-3 mb-4">
+                <label className="text-xs font-extrabold uppercase tracking-wider text-[#182A4A] flex items-center gap-2">
+                  <Clock size={15} className="text-[#C89B3C]" />
+                  3. SELECT DATE & OPEN TIME SLOT
                 </label>
                 {availabilityLoading && (
-                  <span className="text-xs text-[#4E6758] animate-pulse font-medium">
-                    Checking slot calendar...
+                  <span className="text-xs text-[#C89B3C] animate-pulse font-bold">
+                    Checking live calendar...
                   </span>
                 )}
               </div>
@@ -413,21 +413,21 @@ const AppointmentForm = () => {
                   min={today}
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] outline-none text-xs sm:text-sm font-semibold text-[#1F2421] transition shadow-2xs"
+                  className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] outline-none text-xs sm:text-sm font-bold text-[#182A4A] transition"
                 />
               </div>
 
-              {/* Next Available Slot Recommendation Banner */}
+              {/* Next Available Slot Recommendation */}
               {nextAvailableSlot && (
-                <div className="mb-3.5 p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-2 text-xs">
-                  <span className="text-emerald-800">
+                <div className="mb-4 p-3 rounded-2xl bg-[#FAF2DE] border border-[#C89B3C]/40 flex items-center justify-between gap-2 text-xs">
+                  <span className="text-[#182A4A]">
                     ✨ Earliest open slot with <strong>{selectedStylistName}</strong>:{" "}
                     <strong>{nextAvailableSlot}</strong>
                   </span>
                   <button
                     type="button"
                     onClick={() => setFormData((p) => ({ ...p, time: nextAvailableSlot }))}
-                    className="px-3 py-1 rounded-xl bg-emerald-600 text-white font-bold text-[11px] hover:bg-emerald-700 transition"
+                    className="px-3 py-1 rounded-lg bg-[#C89B3C] text-white font-bold text-[11px] hover:bg-[#B5882B] transition uppercase tracking-wider"
                   >
                     Select {nextAvailableSlot}
                   </button>
@@ -449,12 +449,12 @@ const AppointmentForm = () => {
                       type="button"
                       disabled={!isAvailable}
                       onClick={() => setFormData({ ...formData, time: slot.time })}
-                      className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all duration-150 flex flex-col items-center justify-center gap-0.5 ${
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all duration-150 flex flex-col items-center justify-center gap-0.5 ${
                         !isAvailable
-                          ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed line-through opacity-60"
+                          ? "bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed line-through opacity-50"
                           : isSelected
-                          ? "bg-[#4E6758] text-white shadow-soft-sm scale-102 font-bold"
-                          : "bg-[#FDFBF9] text-[#4A524D] hover:bg-[#EDF3EF] border border-[#EAE3D9]"
+                          ? "bg-[#182A4A] text-white shadow-soft-sm scale-[1.03]"
+                          : "bg-[#FAF6EE] text-[#182A4A] hover:bg-white border border-[#E6DCCE]"
                       }`}
                     >
                       <span>{slot.time}</span>
@@ -463,11 +463,11 @@ const AppointmentForm = () => {
                           !isAvailable
                             ? "text-rose-500 font-normal no-underline"
                             : isSelected
-                            ? "text-emerald-200"
-                            : "text-[#4E6758]"
+                            ? "text-[#C89B3C]"
+                            : "text-[#6C8E82]"
                         }`}
                       >
-                        {isAvailable ? "Open" : "Busy"}
+                        {isAvailable ? "Open" : "Booked"}
                       </span>
                     </button>
                   );
@@ -476,10 +476,10 @@ const AppointmentForm = () => {
             </div>
 
             {/* Step 4: Contact Info */}
-            <div className="pt-2 border-t border-[#F2ECE4]">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#35473C] flex items-center gap-2 mb-3.5">
-                <User size={15} className="text-[#4E6758]" />
-                4. Your Contact Details
+            <div className="pt-2 border-t border-[#FAF6EE]">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-[#182A4A] flex items-center gap-2 mb-4">
+                <User size={15} className="text-[#C89B3C]" />
+                4. YOUR CONTACT DETAILS
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -489,7 +489,7 @@ const AppointmentForm = () => {
                     placeholder="Your Full Name *"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] text-xs sm:text-sm text-[#242A26] placeholder-[#8C948F] outline-none transition"
+                    className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] text-xs sm:text-sm text-[#182A4A] placeholder-[#9A8F7F] outline-none transition font-medium"
                   />
                 </div>
 
@@ -499,7 +499,7 @@ const AppointmentForm = () => {
                     placeholder="10-Digit Mobile Number *"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] text-xs sm:text-sm text-[#242A26] placeholder-[#8C948F] outline-none transition"
+                    className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] text-xs sm:text-sm text-[#182A4A] placeholder-[#9A8F7F] outline-none transition font-medium"
                   />
                 </div>
 
@@ -509,7 +509,7 @@ const AppointmentForm = () => {
                     placeholder="Special requests or styling notes (optional)"
                     value={formData.note}
                     onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-2xl bg-[#FDFBF9] border border-[#D9D0C5] focus:border-[#4E6758] text-xs sm:text-sm text-[#242A26] placeholder-[#8C948F] outline-none transition"
+                    className="w-full px-4 py-3 rounded-xl bg-[#FAF6EE] border border-[#E6DCCE] focus:border-[#182A4A] text-xs sm:text-sm text-[#182A4A] placeholder-[#9A8F7F] outline-none transition font-medium"
                   />
                 </div>
               </div>
@@ -517,7 +517,7 @@ const AppointmentForm = () => {
 
             {/* Error Banner */}
             {errorMsg && (
-              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
                 <AlertCircle size={16} className="flex-shrink-0" />
                 <span>{errorMsg}</span>
               </div>
@@ -528,21 +528,21 @@ const AppointmentForm = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-2xl bg-[#4E6758] hover:bg-[#405448] text-white font-bold text-sm sm:text-base transition duration-200 flex items-center justify-center gap-2 shadow-soft-sm disabled:opacity-50"
+                className="btn-navy-primary w-full py-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-navy-glow disabled:opacity-50"
               >
                 {loading ? (
                   <span>Checking & Reserving...</span>
                 ) : (
                   <>
                     <span>
-                      Confirm Reservation ({formData.date} at {formData.time})
+                      CONFIRM RESERVATION ({formData.date} at {formData.time})
                     </span>
                     <Sparkles size={16} />
                   </>
                 )}
               </button>
-              <p className="text-[11px] text-[#7D8480] text-center mt-2">
-                🔒 Verified conflict-free scheduling with instant WhatsApp receipt confirmation.
+              <p className="text-[11px] text-[#5C6D88] text-center mt-2.5">
+                🔒 Conflict-free scheduling with instant WhatsApp receipt confirmation.
               </p>
             </div>
           </form>
@@ -553,3 +553,4 @@ const AppointmentForm = () => {
 };
 
 export default AppointmentForm;
+

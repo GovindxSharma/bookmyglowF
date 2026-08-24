@@ -3,18 +3,18 @@ import { SALON_CONFIG } from "@/data/data";
 
 const Credit = () => {
   return (
-    <div className="py-6 bg-[#EFE9E2] border-t border-[#E2DAD0] text-center text-xs text-[#68706B] space-y-1">
-      <p>
-        &copy; {new Date().getFullYear()} {SALON_CONFIG.name}. All rights reserved.
+    <div className="py-6 bg-[#FAF2DE]/70 border-t border-[#E6DCCE] text-center text-xs text-[#5C6D88] space-y-1">
+      <p className="font-medium text-[#182A4A]">
+        &copy; {new Date().getFullYear()} {SALON_CONFIG.name} — Geometric Grace. All rights reserved.
       </p>
 
-      <p className="text-[11px] text-[#7D8480]">
-        Engineered & Crafted with care by{" "}
+      <p className="text-[11px] text-[#7A6E5D]">
+        Designed with Bauhaus Minimalist Aesthetics &bull; Crafted by{" "}
         <a
           href="https://govind-sharma.onrender.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-[#35473C] hover:text-[#4E6758] hover:underline transition"
+          className="font-bold text-[#182A4A] hover:text-[#C89B3C] hover:underline transition"
         >
           Govind Sharma
         </a>
@@ -24,3 +24,4 @@ const Credit = () => {
 };
 
 export default Credit;
+

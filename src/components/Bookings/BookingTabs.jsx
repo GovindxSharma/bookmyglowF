@@ -48,38 +48,38 @@ const BookingTabs = () => {
   };
 
   return (
-    <div className="p-4 sm:p-8 bg-[#FDFBF9] min-h-screen text-[#242A26]">
+    <div className="p-4 sm:p-8 bg-[#FAF6EE] min-h-screen text-[#182A4A]">
       {/* Title */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EDF3EF] text-[#35473C] border border-[#D9E4DD] text-xs font-semibold uppercase tracking-wider mb-1.5">
-            <Sparkles size={13} className="text-[#4E6758]" /> Front Desk Management
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-[#E6DCCE] text-xs font-bold uppercase tracking-[0.2em] text-[#C89B3C] mb-2">
+            <Sparkles size={13} /> FRONT DESK POS & BILLING
           </div>
-          <h1 className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-[#1F2421]">
-            Appointments & Billing
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold uppercase tracking-tight text-[#182A4A]">
+            Appointments & Invoicing
           </h1>
         </div>
       </div>
 
       {/* Tabs Header */}
-      <div className="flex flex-wrap gap-2 mb-6 p-1.5 rounded-2xl bg-[#F8F5F0] border border-[#EAE3D9]">
+      <div className="flex flex-wrap gap-2 mb-6 p-1.5 rounded-2xl bg-white border border-[#E6DCCE]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
+              className={`relative flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 uppercase tracking-wider ${
                 isActive
-                  ? "bg-[#4E6758] text-white shadow-soft-sm"
-                  : "text-[#555E58] hover:text-[#1F2421] hover:bg-white/60"
+                  ? "bg-[#182A4A] text-white shadow-soft-sm"
+                  : "text-[#5C6D88] hover:text-[#182A4A] hover:bg-[#FAF6EE]"
               }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
 
               {tab.key === "online" && hasUnread && (
-                <span className="w-2 h-2 bg-amber-500 rounded-full animate-ping" />
+                <span className="w-2.5 h-2.5 bg-[#C89B3C] rounded-full animate-ping" />
               )}
             </button>
           );
