@@ -20,6 +20,7 @@ import {
   ArrowUpRight,
   Receipt,
   UserCheck,
+  Clock,
 } from "lucide-react";
 import { BASE_URL, SALON_CONFIG } from "../data/data";
 import Loader from "../components/Layout/Loader.jsx";
