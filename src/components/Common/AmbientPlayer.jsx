@@ -147,61 +147,51 @@ const AmbientPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-3 md:left-6 z-40">
-      <motion.div
-        layout
-        className="bg-white/95 backdrop-blur-xl border border-[#E6DCCE] rounded-2xl shadow-xl overflow-hidden text-[#182A4A]"
-      >
-        {/* Collapsed Pill */}
-        <div className="flex items-center gap-2 p-2 px-3">
-          <button
-            type="button"
-            onClick={togglePlay}
-            className={`p-2 rounded-xl transition flex items-center justify-center ${
-              isPlaying
-                ? "bg-[#182A4A] text-white shadow-xs"
-                : "bg-[#FAF6EE] text-[#182A4A] hover:bg-[#FAF2DE]"
-            }`}
-            title={isPlaying ? "Pause Ambient Sound" : "Play Spa Sanctuary Sound"}
-          >
-            {isPlaying ? <Volume2 size={16} className="text-[#C89B3C] animate-pulse" /> : <VolumeX size={16} />}
-          </button>
+    <div className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-40">
+      {/* Mobile Compact Icon Button */}
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          aria-label="Toggle spa ambient audio"
+          className={`w-11 h-11 rounded-full shadow-soft-lg flex items-center justify-center border-2 transition-all duration-300 ${
+            isPlaying
+              ? "bg-[#182A4A] text-[#C89B3C] border-[#C89B3C] shadow-gold-glow animate-pulse"
+              : "bg-white/95 text-[#182A4A] border-[#E6DCCE] backdrop-blur-md"
+          }`}
+        >
+          {isPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        </button>
 
-          <div
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="cursor-pointer select-none pr-1"
-          >
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C89B3C]">
-                SANCTUARY AUDIO
-              </span>
-              {isPlaying && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />}
-            </div>
-            <span className="text-xs font-bold text-[#182A4A] block truncate max-w-[130px]">
-              {selectedTrack.name.split(" (")[0]}
-            </span>
-          </div>
-
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 text-[#9A8F7F] hover:text-[#182A4A] transition"
-          >
-            {isExpanded ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
-          </button>
-        </div>
-
-        {/* Expanded Track Selection Drawer */}
+        {/* Mobile Popup Drawer */}
         <AnimatePresence>
           {isExpanded && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="px-3 pb-3 pt-1 border-t border-[#FAF6EE] space-y-2 text-xs"
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              className="absolute bottom-14 left-0 w-64 bg-white/95 backdrop-blur-2xl border-2 border-[#182A4A] rounded-2xl p-3.5 shadow-2xl space-y-3 text-[#182A4A]"
             >
-              <span className="text-[9px] font-extrabold uppercase text-[#9A8F7F] tracking-wider block">
-                Choose Studio Soundscape:
-              </span>
+              <div className="flex items-center justify-between border-b border-[#FAF6EE] pb-2">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles size={12} className="text-[#C89B3C]" />
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C89B3C]">
+                    Spa Ambient Audio
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                    isPlaying
+                      ? "bg-[#182A4A] text-white"
+                      : "bg-[#FAF2DE] text-[#182A4A] border border-[#C89B3C]"
+                  }`}
+                >
+                  {isPlaying ? "Pause" : "Play"}
+                </button>
+              </div>
+
               <div className="space-y-1">
                 {TRACKS.map((track) => (
                   <button
@@ -209,21 +199,26 @@ const AmbientPlayer = () => {
                     onClick={() => {
                       setSelectedTrack(track);
                       setIsPlaying(true);
+                      setIsExpanded(false);
                     }}
-                    className={`w-full p-2 rounded-xl text-left flex items-center justify-between transition ${
+                    className={`w-full p-2 rounded-xl text-left flex items-center justify-between transition text-xs ${
                       selectedTrack.id === track.id
                         ? "bg-[#182A4A] text-white font-bold"
                         : "hover:bg-[#FAF6EE] text-[#182A4A]"
                     }`}
                   >
                     <div>
-                      <span className="block text-xs">{track.name}</span>
-                      <span className={`text-[10px] ${selectedTrack.id === track.id ? "text-[#C89B3C]" : "text-[#5C6D88]"}`}>
+                      <span className="block text-xs">{track.name.split(" (")[0]}</span>
+                      <span
+                        className={`text-[9px] ${
+                          selectedTrack.id === track.id ? "text-[#C89B3C]" : "text-[#5C6D88]"
+                        }`}
+                      >
                         {track.mood}
                       </span>
                     </div>
                     {selectedTrack.id === track.id && isPlaying && (
-                      <Radio size={13} className="text-[#C89B3C] animate-pulse" />
+                      <Radio size={12} className="text-[#C89B3C] animate-pulse" />
                     )}
                   </button>
                 ))}
@@ -231,7 +226,101 @@ const AmbientPlayer = () => {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
+
+      {/* Desktop Pill Bar */}
+      <div className="hidden md:block">
+        <motion.div
+          layout
+          className="bg-white/95 backdrop-blur-xl border border-[#E6DCCE] rounded-2xl shadow-xl overflow-hidden text-[#182A4A]"
+        >
+          {/* Collapsed Pill */}
+          <div className="flex items-center gap-2 p-2 px-3">
+            <button
+              type="button"
+              onClick={togglePlay}
+              aria-label="Toggle spa audio playback"
+              className={`p-2 rounded-xl transition flex items-center justify-center ${
+                isPlaying
+                  ? "bg-[#182A4A] text-white shadow-xs"
+                  : "bg-[#FAF6EE] text-[#182A4A] hover:bg-[#FAF2DE]"
+              }`}
+              title={isPlaying ? "Pause Ambient Sound" : "Play Spa Sanctuary Sound"}
+            >
+              {isPlaying ? <Volume2 size={16} className="text-[#C89B3C] animate-pulse" /> : <VolumeX size={16} />}
+            </button>
+
+            <div
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="cursor-pointer select-none pr-1"
+            >
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C89B3C]">
+                  SANCTUARY AUDIO
+                </span>
+                {isPlaying && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />}
+              </div>
+              <span className="text-xs font-bold text-[#182A4A] block truncate max-w-[130px]">
+                {selectedTrack.name.split(" (")[0]}
+              </span>
+            </div>
+
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              aria-label="Expand audio tracks"
+              className="p-1 text-[#9A8F7F] hover:text-[#182A4A] transition"
+            >
+              {isExpanded ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
+            </button>
+          </div>
+
+          {/* Expanded Track Selection Drawer */}
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="px-3 pb-3 pt-1 border-t border-[#FAF6EE] space-y-2 text-xs"
+              >
+                <span className="text-[9px] font-extrabold uppercase text-[#9A8F7F] tracking-wider block">
+                  Choose Studio Soundscape:
+                </span>
+                <div className="space-y-1">
+                  {TRACKS.map((track) => (
+                    <button
+                      key={track.id}
+                      onClick={() => {
+                        setSelectedTrack(track);
+                        setIsPlaying(true);
+                      }}
+                      className={`w-full p-2 rounded-xl text-left flex items-center justify-between transition ${
+                        selectedTrack.id === track.id
+                          ? "bg-[#182A4A] text-white font-bold"
+                          : "hover:bg-[#FAF6EE] text-[#182A4A]"
+                      }`}
+                    >
+                      <div>
+                        <span className="block text-xs">{track.name}</span>
+                        <span
+                          className={`text-[10px] ${
+                            selectedTrack.id === track.id ? "text-[#C89B3C]" : "text-[#5C6D88]"
+                          }`}
+                        >
+                          {track.mood}
+                        </span>
+                      </div>
+                      {selectedTrack.id === track.id && isPlaying && (
+                        <Radio size={13} className="text-[#C89B3C] animate-pulse" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
     </div>
   );
 };

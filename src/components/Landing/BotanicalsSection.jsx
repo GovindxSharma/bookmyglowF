@@ -12,7 +12,7 @@ const BOTANICALS = [
     benefits: ["Soothes skin redness & micro-inflammation", "Deep cell-level hydration", "Natural mood elevation"],
     treatmentsUsed: ["Deluxe Rose Petal Spa Pedicure", "Diamond Radiance Facial"],
     accentColor: "gold",
-    image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80",
+    image: "/images/botanicals/damask-rose-soak.jpg",
   },
   {
     id: "argan",

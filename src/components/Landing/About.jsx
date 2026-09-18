@@ -41,7 +41,7 @@ const AboutUs = () => {
                 <div className="rounded-2xl overflow-hidden border border-[#E6DCCE] bg-[#182A4A] shadow-sm flex flex-col group">
                   <div className="relative aspect-[3/4] w-full overflow-hidden">
                     <img
-                      src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80"
+                      src="/images/stylists/rahul-sharma.jpg"
                       alt="Rahul Sharma — Master Stylist"
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     />
@@ -59,7 +59,7 @@ const AboutUs = () => {
                 <div className="rounded-2xl overflow-hidden border border-[#E6DCCE] bg-[#182A4A] shadow-sm flex flex-col group">
                   <div className="relative aspect-[3/4] w-full overflow-hidden">
                     <img
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80"
+                      src="/images/stylists/pooja-patel.jpg"
                       alt="Pooja Patel — Lead Aesthetician"
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                     />

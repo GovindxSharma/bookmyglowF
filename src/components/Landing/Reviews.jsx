@@ -11,7 +11,7 @@ const REVIEWS = [
     date: "August 2026",
     comment:
       "The balayage and Olaplex treatment done by Rahul was beyond stunning! The salon's minimalist aesthetic, calm music, and organic botanical scents make it an oasis in the city.",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.1.0&auto=format&fit=crop&w=400&q=80",
+    avatar: "/images/reviews/ananya-roy.jpg",
     service: "French Balayage & Glaze",
   },
   {
@@ -22,7 +22,7 @@ const REVIEWS = [
     date: "August 2026",
     comment:
       "Best men's grooming experience in the Design District. Amit's beard sculpting and the hot towel facial steam left me completely refreshed. Zero wait time with online booking!",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.1.0&auto=format&fit=crop&w=400&q=80",
+    avatar: "/images/reviews/siddharth-malhotra.jpg",
     service: "Hot Towel Shave & Facial",
   },
   {
@@ -33,7 +33,7 @@ const REVIEWS = [
     date: "July 2026",
     comment:
       "Komal and her team created pure magic for my reception look. The airbrush base lasted 14+ hours without a crease. Truly architectural precision in beauty!",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.1.0&auto=format&fit=crop&w=400&q=80",
+    avatar: "/images/reviews/rhea-sen.jpg",
     service: "Ultra-HD Bridal Glamour",
   },
 ];

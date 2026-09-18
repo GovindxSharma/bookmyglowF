@@ -6,6 +6,7 @@ import { BASE_URL } from "../../data/data";
 import Loader from "../../components/Layout/Loader.jsx";
 import Alert from "../../components/Layout/Alert.jsx";
 import EmployeePerformanceModal from "../../components/Employee/EmployeePerformaceModal.jsx";
+import { getStaffImage } from "../../data/staffImages";
 
 const EmployeeManagement = () => {
   const token = localStorage.getItem("token");
@@ -185,14 +186,21 @@ const EmployeeManagement = () => {
               className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-soft-sm space-y-3"
             >
               <div className="flex items-start justify-between">
-                <div>
-                  <h4 className="font-bold text-sm text-[#1F2421]">{emp.name}</h4>
-                  <a
-                    href={`tel:${emp.phone}`}
-                    className="text-xs text-[#4E6758] font-mono flex items-center gap-1 mt-0.5"
-                  >
-                    <Phone size={11} /> {emp.phone || "N/A"}
-                  </a>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={getStaffImage(emp.name, emp.gender)}
+                    alt={emp.name}
+                    className="w-12 h-12 rounded-xl object-cover object-top border-2 border-[#182A4A] shadow-soft-sm flex-shrink-0"
+                  />
+                  <div>
+                    <h4 className="font-bold text-sm text-[#1F2421]">{emp.name}</h4>
+                    <a
+                      href={`tel:${emp.phone}`}
+                      className="text-xs text-[#4E6758] font-mono flex items-center gap-1 mt-0.5"
+                    >
+                      <Phone size={11} /> {emp.phone || "N/A"}
+                    </a>
+                  </div>
                 </div>
 
                 <button
@@ -261,7 +269,14 @@ const EmployeeManagement = () => {
               {employees.map((emp) => (
                 <tr key={emp._id} className="hover:bg-[#FAF7F2] transition">
                   <td className="px-5 py-3.5">
-                    <div className="font-semibold text-[#1F2421]">{emp.name}</div>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={getStaffImage(emp.name, emp.gender)}
+                        alt={emp.name}
+                        className="w-10 h-10 rounded-xl object-cover object-top border border-[#182A4A] shadow-2xs flex-shrink-0"
+                      />
+                      <div className="font-semibold text-[#1F2421]">{emp.name}</div>
+                    </div>
                   </td>
                   <td className="px-5 py-3.5 text-xs text-[#555E58] font-mono">
                     {emp.phone || "N/A"}

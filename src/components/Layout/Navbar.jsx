@@ -25,6 +25,8 @@ import Loader from "@/components/Layout/Loader.jsx";
 import { SALON_CONFIG } from "@/data/data";
 import GeometricLogo, { GeometricEmblem } from "@/components/Common/GeometricLogo";
 import axios from "@/api/axiosInstance";
+import { useAmbientAudio } from "@/context/AmbientAudioContext";
+import { Volume2, VolumeX, Music, Radio, Crown, UserCheck, User } from "lucide-react";
 
 const Navbar = ({ activeSection, setActiveSection }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +37,8 @@ const Navbar = ({ activeSection, setActiveSection }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const { isPlaying, selectedTrack, togglePlay, changeTrack, tracks } = useAmbientAudio();
 
   const isLanding = location.pathname === "/";
 
@@ -138,6 +142,32 @@ const Navbar = ({ activeSection, setActiveSection }) => {
       setLoading(false);
       navigate("/login");
     }, 300);
+  };
+
+  const switchToClient = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("user");
+    setIsOpen(false);
+    navigate("/");
+    window.location.reload();
+  };
+
+  const switchToRole = async (email, password, targetRoute) => {
+    try {
+      setLoading(true);
+      const res = await axios.post("/auth/login", { email, password });
+      const { token, role, user } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      if (user) localStorage.setItem("user", JSON.stringify(user));
+      setIsOpen(false);
+      navigate(targetRoute);
+      window.location.reload();
+    } catch (err) {
+      console.error("Demo Switch Error:", err);
+      setLoading(false);
+    }
   };
 
   // Curated architectural links with subtitles and quick tags
@@ -379,7 +409,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
               )}
             </div>
 
-            {/* NEW IDEA: Mobile Bauhaus Capsule Controls (Live Status + Menu Trigger) */}
+            {/* Mobile Bauhaus Capsule Controls (Live Status + Menu Trigger) */}
             <div className="flex sm:hidden items-center gap-2">
               {/* Studio Live Status Indicator */}
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-[#E6DCCE] text-[10px] font-bold text-[#182A4A]">
@@ -413,7 +443,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
           </div>
         </div>
 
-        {/* REVOLUTIONARY: FULLSCREEN BAUHAUS ART CANVAS MOBILE MENU */}
+        {/* FULLSCREEN BAUHAUS ART CANVAS MOBILE MENU */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -428,15 +458,13 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                 <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[#C89B3C] opacity-30 blur-2xl" />
                 <div className="absolute top-1/2 -left-20 w-52 h-52 rounded-full bg-[#8EA89D] opacity-20 blur-2xl" />
                 <div className="absolute -bottom-10 right-10 w-48 h-48 rounded-full bg-[#C06C52] opacity-25 blur-xl" />
-                <div className="absolute inset-x-8 top-20 h-px bg-white/10" />
-                <div className="absolute inset-x-8 bottom-32 h-px bg-white/10" />
               </div>
 
               {/* Canvas Header (Top Close + Logo) */}
-              <div className="relative z-10 p-5 flex items-center justify-between border-b border-white/10 bg-[#182A4A]/90 backdrop-blur-md">
+              <div className="relative z-10 p-4 flex items-center justify-between border-b border-white/10 bg-[#182A4A]/90 backdrop-blur-md">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 rounded-xl bg-white/10 border border-white/15">
-                    <GeometricEmblem size={24} />
+                    <GeometricEmblem size={22} />
                   </div>
                   <div>
                     <h3 className="font-display font-extrabold text-sm uppercase tracking-widest text-white">
@@ -456,102 +484,188 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                 </button>
               </div>
 
-              {/* Canvas Body: Numbered Bauhaus Navigation List */}
-              <div className="relative z-10 px-6 py-6 flex-1 flex flex-col justify-center space-y-3">
-                <span className="text-[10px] font-extrabold tracking-[0.3em] uppercase text-[#C89B3C] block mb-1">
-                  // STUDIO DIRECTORY
-                </span>
+              {/* Canvas Body: Audio + Demo Switcher + Directory List */}
+              <div className="relative z-10 px-5 py-4 flex-1 flex flex-col space-y-4 overflow-y-auto">
+                {/* 1. Studio Ambient Soundscape Card */}
+                <div className="p-3.5 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-md space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg ${isPlaying ? "bg-[#C89B3C] text-[#182A4A]" : "bg-white/10 text-white"}`}>
+                        <Music size={14} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C89B3C] block">
+                          Sanctuary Ambience
+                        </span>
+                        <span className="text-xs font-semibold text-white/90 block">
+                          {selectedTrack.name.split(" (")[0]}
+                        </span>
+                      </div>
+                    </div>
 
-                {isLoggedIn ? (
-                  // Staff Options in Mobile Canvas
-                  <div className="space-y-2">
-                    {(role === "admin" ? adminMenus : receptionistMenus).map((item, idx) => (
-                      <motion.button
-                        key={item.path}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.05 + 0.1 }}
-                        onClick={() => handleLinkClick(item.path)}
-                        className="w-full p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-between transition text-left"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-xl bg-[#C89B3C]/20 text-[#C89B3C]">
-                            {item.icon}
-                          </div>
-                          <span className="font-display text-base font-extrabold tracking-wide uppercase">
-                            {item.label}
-                          </span>
-                        </div>
-                        <ChevronRight size={16} className="text-[#C89B3C]" />
-                      </motion.button>
-                    ))}
+                    <button
+                      onClick={togglePlay}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
+                        isPlaying
+                          ? "bg-[#C89B3C] text-[#182A4A] shadow-gold-glow"
+                          : "bg-white/20 hover:bg-white/30 text-white"
+                      }`}
+                    >
+                      {isPlaying ? "Pause" : "Play"}
+                    </button>
                   </div>
-                ) : (
-                  // Public Client Numbered Links
-                  publicLinks.map((item, idx) => {
-                    const isCurrent = isLanding && activeSection === item.id;
-                    return (
-                      <motion.button
-                        key={item.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.04 + 0.08 }}
-                        onClick={() => handleLinkClick(item.target)}
-                        className={`w-full py-2.5 px-3 rounded-2xl flex items-center justify-between transition-all text-left group ${
-                          isCurrent
-                            ? "bg-white/15 border border-[#C89B3C]"
-                            : "hover:bg-white/5 border border-transparent"
+
+                  {/* Track Selection Pills */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    {tracks.map((t) => (
+                      <button
+                        key={t.id}
+                        onClick={() => changeTrack(t)}
+                        className={`py-1.5 px-2 rounded-xl text-[10px] font-bold text-center truncate transition border ${
+                          selectedTrack.id === t.id && isPlaying
+                            ? "bg-[#C89B3C]/20 border-[#C89B3C] text-[#FAF2DE]"
+                            : "bg-white/5 border-white/10 text-white/70 hover:text-white"
                         }`}
                       >
-                        <div className="flex items-center gap-3.5">
-                          <span className="font-mono text-xs font-bold text-[#C89B3C] opacity-80">
-                            {item.num}
-                          </span>
-                          <div>
-                            <span className="font-display text-lg font-extrabold uppercase tracking-wider block text-white group-hover:text-[#C89B3C] transition-colors">
+                        {t.name.split(" ")[0]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Instant Demo Access Roles Switcher */}
+                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                  <span className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-[#C89B3C] block">
+                    ⚡ Quick Demo Switcher:
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <button
+                      onClick={switchToClient}
+                      className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-center transition flex flex-col items-center gap-1"
+                    >
+                      <User size={13} className="text-[#C89B3C]" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-white">Client</span>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        switchToRole("reception@bookmyglow.com", "recep123", "/bookings")
+                      }
+                      className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-center transition flex flex-col items-center gap-1"
+                    >
+                      <UserCheck size={13} className="text-[#8EA89D]" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-white">Front Desk</span>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        switchToRole("admin@bookmyglow.com", "admin123", "/dashboard")
+                      }
+                      className="p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-center transition flex flex-col items-center gap-1"
+                    >
+                      <Crown size={13} className="text-[#C89B3C]" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-white">Admin</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3. Studio Directory Navigation */}
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[10px] font-extrabold tracking-[0.3em] uppercase text-[#C89B3C] block mb-1">
+                    // STUDIO DIRECTORY
+                  </span>
+
+                  {isLoggedIn ? (
+                    // Staff Options in Mobile Canvas
+                    <div className="space-y-2">
+                      {(role === "admin" ? adminMenus : receptionistMenus).map((item, idx) => (
+                        <motion.button
+                          key={item.path}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 + 0.1 }}
+                          onClick={() => handleLinkClick(item.path)}
+                          className="w-full p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-between transition text-left"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-[#C89B3C]/20 text-[#C89B3C]">
+                              {item.icon}
+                            </div>
+                            <span className="font-display text-sm font-extrabold tracking-wide uppercase">
                               {item.label}
                             </span>
-                            <span className="text-[11px] text-white/60 block">
-                              {item.tagline}
-                            </span>
                           </div>
-                        </div>
+                          <ChevronRight size={16} className="text-[#C89B3C]" />
+                        </motion.button>
+                      ))}
+                    </div>
+                  ) : (
+                    // Public Client Numbered Links
+                    publicLinks.map((item, idx) => {
+                      const isCurrent = isLanding && activeSection === item.id;
+                      return (
+                        <motion.button
+                          key={item.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.03 + 0.05 }}
+                          onClick={() => handleLinkClick(item.target)}
+                          className={`w-full py-2 px-3 rounded-2xl flex items-center justify-between transition-all text-left group ${
+                            isCurrent
+                              ? "bg-white/15 border border-[#C89B3C]"
+                              : "hover:bg-white/5 border border-transparent"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-xs font-bold text-[#C89B3C] opacity-80">
+                              {item.num}
+                            </span>
+                            <div>
+                              <span className="font-display text-base font-extrabold uppercase tracking-wider block text-white group-hover:text-[#C89B3C] transition-colors">
+                                {item.label}
+                              </span>
+                              <span className="text-[10px] text-white/60 block">
+                                {item.tagline}
+                              </span>
+                            </div>
+                          </div>
 
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/10 text-[#C89B3C] border border-white/15">
-                          {item.badge}
-                        </span>
-                      </motion.button>
-                    );
-                  })
-                )}
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-[#C89B3C] border border-white/15">
+                            {item.badge}
+                          </span>
+                        </motion.button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
               {/* Canvas Footer: Quick Concierge & Booking Actions */}
-              <div className="relative z-10 p-6 pt-4 border-t border-white/10 bg-[#182A4A]/95 backdrop-blur-md space-y-3">
+              <div className="relative z-10 p-4 border-t border-white/10 bg-[#182A4A]/95 backdrop-blur-md space-y-3">
                 {/* 2-Action Grid: Book + WhatsApp Concierge */}
                 <div className="grid grid-cols-2 gap-3">
                   <a
                     href="#book"
                     onClick={() => setIsOpen(false)}
-                    className="btn-gold-primary py-3.5 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-gold-glow uppercase tracking-wider"
+                    className="btn-gold-primary py-3 px-3 rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-gold-glow uppercase tracking-wider"
                   >
-                    <Calendar size={15} />
+                    <Calendar size={14} />
                     <span>BOOK SLOT</span>
                   </a>
 
                   <button
                     onClick={handleWhatsAppConcierge}
-                    className="py-3.5 px-3 rounded-2xl bg-[#25D366] hover:bg-[#20BE5A] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-soft-sm uppercase tracking-wider transition"
+                    className="py-3 px-3 rounded-2xl bg-[#25D366] hover:bg-[#20BE5A] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-soft-sm uppercase tracking-wider transition"
                   >
-                    <MessageCircle size={15} />
+                    <MessageCircle size={14} />
                     <span>WHATSAPP</span>
                   </button>
                 </div>
 
                 {/* Staff Login / Logout Footer Strip */}
-                <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+                <div className="flex items-center justify-between pt-1 border-t border-white/10 text-xs">
                   <div className="flex items-center gap-1 text-[11px] text-white/60">
-                    <MapPin size={12} className="text-[#C89B3C]" />
+                    <MapPin size={11} className="text-[#C89B3C]" />
                     <span>Design District, Studio #4</span>
                   </div>
 
@@ -563,7 +677,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                       }}
                       className="inline-flex items-center gap-1 text-xs font-bold text-[#C89B3C] hover:text-white transition uppercase tracking-wider"
                     >
-                      <Lock size={12} />
+                      <Lock size={11} />
                       <span>Staff Portal</span>
                     </button>
                   ) : (
@@ -571,7 +685,7 @@ const Navbar = ({ activeSection, setActiveSection }) => {
                       onClick={handleLogout}
                       className="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:text-rose-300 transition uppercase tracking-wider"
                     >
-                      <LogOut size={12} />
+                      <LogOut size={11} />
                       <span>Sign Out</span>
                     </button>
                   )}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import Loader from "../Layout/Loader.jsx";
 import { X, Sparkles, TrendingUp, Calendar, Scissors, Award } from "lucide-react";
+import { getStaffImage } from "../../data/staffImages";
 
 const EmployeePerformanceModal = ({ employee, onClose }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
@@ -50,14 +51,21 @@ const EmployeePerformanceModal = ({ employee, onClose }) => {
       <div className="bg-white rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative border-2 border-[#182A4A] shadow-2xl space-y-5 text-[#182A4A]">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-[#FAF6EE] pb-4">
-          <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF2DE] text-[#C89B3C] border border-[#C89B3C]/30 text-[10px] font-extrabold uppercase tracking-wider mb-1.5">
-              <Award size={13} /> SPECIALIST ANALYTICS
+          <div className="flex items-center gap-3.5">
+            <img
+              src={getStaffImage(employee.name, employee.gender)}
+              alt={employee.name}
+              className="w-14 h-14 rounded-2xl object-cover object-top border-2 border-[#182A4A] shadow-soft-sm flex-shrink-0"
+            />
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF2DE] text-[#C89B3C] border border-[#C89B3C]/30 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+                <Award size={13} /> SPECIALIST ANALYTICS
+              </div>
+              <h2 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A]">
+                {employee.name}
+              </h2>
+              <p className="text-xs text-[#5C6D88]">{employee.phone} &bull; Master Stylist Profile</p>
             </div>
-            <h2 className="font-display text-xl sm:text-2xl font-extrabold uppercase text-[#182A4A]">
-              {employee.name}
-            </h2>
-            <p className="text-xs text-[#5C6D88]">{employee.phone} &bull; Master Stylist Profile</p>
           </div>
 
           <button

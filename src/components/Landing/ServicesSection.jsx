@@ -21,8 +21,7 @@ const SALON_SERVICES = [
     name: "Precision Haircut, Color & Smooth Care",
     iconType: "hair",
     color: "navy",
-    image:
-      "https://images.unsplash.com/photo-1560869713-7d0a29430803?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/services/hair-balayage.jpg",
     tagline: "Bespoke scissor work, rich balayage, and restorative keratin",
     description:
       "From precision modern cuts to dimensional balayage highlights and organic keratin treatments, we keep your hair vibrant and healthy.",
@@ -42,8 +41,7 @@ const SALON_SERVICES = [
     name: "Hydra Glow & Brightening Facials",
     iconType: "skin",
     color: "gold",
-    image:
-      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/services/hydra-facial.jpg",
     tagline: "Ultrasonic deep pore cleansing & glass-skin radiance",
     description:
       "Gentle ultrasonic exfoliation, botanical hydration masks, and anti-tan therapies designed for instant brightening and cellular renewal.",
@@ -63,8 +61,7 @@ const SALON_SERVICES = [
     name: "Bridal & Event Glamour",
     iconType: "bridal",
     color: "gold",
-    image:
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/services/bridal-glam.jpg",
     tagline: "Flawless HD makeup, couture hair artistry, and saree draping",
     description:
       "Look your radiant best on weddings, receptions, and festivals with long-lasting HD airbrush makeup and customized bridal hair artistry.",
@@ -84,8 +81,7 @@ const SALON_SERVICES = [
     name: "Luxury Pedicure & Nail Art",
     iconType: "nails",
     color: "terracotta",
-    image:
-      "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/botanicals/damask-rose-soak.jpg",
     tagline: "Relaxing rose foot soaks, cuticle therapy, and gel art",
     description:
       "Pamper your hands and feet with warm rose petal botanical soaks, dead skin buffing, tension massage, and long-lasting gel extensions.",
@@ -105,8 +101,7 @@ const SALON_SERVICES = [
     name: "Clean Cuts, Beard Sculpt & Facial Steam",
     iconType: "grooming",
     color: "navy",
-    image:
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/services/men-barber.jpg",
     tagline: "Sharp scissor cuts, razor line-up, and hot towel pampering",
     description:
       "Modern men's haircuts, precise beard sculpting with hot towel steam, and detoxifying charcoal cleanups crafted for the modern gentleman.",
@@ -126,8 +121,7 @@ const SALON_SERVICES = [
     name: "Full Body Aromatherapy Massage",
     iconType: "spa",
     color: "teal",
-    image:
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.1.0&auto=format&fit=crop&w=800&q=80",
+    image: "/images/stylists/sneha-nair.jpg",
     tagline: "Essential oil therapies for total muscle relief and calmness",
     description:
       "Melt away physical fatigue with warm herbal compress, Swedish body strokes, and essential aroma oils in our serene private suites.",

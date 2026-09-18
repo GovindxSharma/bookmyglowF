@@ -51,18 +51,31 @@ const MobileBottomNav = ({ activeSection }) => {
     return () => clearInterval(interval);
   }, [role, location]);
 
+  const scrollToTarget = (elId) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    const yOffset = -75; // Account for sticky header
+    const targetY = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    const currentY = window.pageYOffset;
+    const distance = Math.abs(targetY - currentY);
+
+    // If navigating across large distances, jump instantly to avoid sluggish scrolling
+    window.scrollTo({
+      top: targetY,
+      behavior: distance > 3000 ? "auto" : "smooth",
+    });
+  };
+
   const handleNavClick = (target) => {
     if (target.startsWith("#")) {
       const elId = target.replace("#", "");
       if (isLanding) {
-        const el = document.getElementById(elId);
-        if (el) el.scrollIntoView({ behavior: "smooth" });
+        scrollToTarget(elId);
       } else {
         navigate("/");
         setTimeout(() => {
-          const el = document.getElementById(elId);
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }, 300);
+          scrollToTarget(elId);
+        }, 150);
       }
       return;
     }

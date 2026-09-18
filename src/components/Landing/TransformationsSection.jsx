@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ArrowRight, CheckCircle2, Star, User, Calendar, MoveHorizontal, Split } from "lucide-react";
+import { getStaffImage, getClientImage } from "@/data/staffImages";
 
 const TRANSFORMATIONS = [
   {
@@ -228,14 +229,28 @@ const TransformationsSection = () => {
               </div>
 
               {/* Stylist & Client Info */}
-              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-[#E6DCCE] space-y-2">
-                <div className="flex justify-between text-xs">
+              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-[#E6DCCE] space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-[#9A8F7F] font-bold">Client:</span>
-                  <span className="font-bold text-[#182A4A]">{activeItem.client} (Verified)</span>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={getClientImage(activeItem.client)}
+                      alt={activeItem.client}
+                      className="w-6 h-6 rounded-full object-cover border border-[#182A4A]"
+                    />
+                    <span className="font-bold text-[#182A4A]">{activeItem.client} (Verified)</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-xs">
+                <div className="flex items-center justify-between text-xs">
                   <span className="text-[#9A8F7F] font-bold">Stylist:</span>
-                  <span className="font-bold text-[#C89B3C]">{activeItem.stylist}</span>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={getStaffImage(activeItem.stylist)}
+                      alt={activeItem.stylist}
+                      className="w-6 h-6 rounded-full object-cover object-top border border-[#C89B3C]"
+                    />
+                    <span className="font-bold text-[#C89B3C]">{activeItem.stylist}</span>
+                  </div>
                 </div>
               </div>
 

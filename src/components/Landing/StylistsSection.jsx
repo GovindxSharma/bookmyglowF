@@ -13,7 +13,7 @@ const STYLISTS = [
     rating: "4.96",
     reviews: "340+",
     accentColor: "navy",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80",
+    image: "/images/stylists/rahul-sharma.jpg",
     bio: "Certified by Vidal Sassoon London. Specializes in dimensional balayage, French root melting, precision scissor shaping, and structural hair wellness.",
     certifications: ["Vidal Sassoon Master Colorist", "Olaplex Certified Educator", "L'Oréal Professionnel Paris"],
     signatureTreatments: [
@@ -36,7 +36,7 @@ const STYLISTS = [
     rating: "4.98",
     reviews: "290+",
     accentColor: "gold",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80",
+    image: "/images/stylists/pooja-patel.jpg",
     bio: "CIDESCO Zurich Certified aesthetician. Expert in ultrasonic pore extractions, Hydra Dermabrasion, cold cryo infusions, and holistic glass-skin rituals.",
     certifications: ["CIDESCO Diploma in Aesthetics", "HydraFacial MD Certified", "O3+ Skincare Specialist"],
     signatureTreatments: [
@@ -59,7 +59,7 @@ const STYLISTS = [
     rating: "4.99",
     reviews: "210+",
     accentColor: "gold",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80",
+    image: "/images/stylists/komal-jadeja.jpg",
     bio: "International Makeup Academy graduate. Known for long-wearing HD airbrush makeup, soft smokey eye transitions, and couture Indian bridal draping.",
     certifications: ["IMA International Bridal Artistry", "Temptu HD Airbrush Pro", "Certified Saree Draper"],
     signatureTreatments: [
@@ -82,7 +82,7 @@ const STYLISTS = [
     rating: "4.94",
     reviews: "230+",
     accentColor: "terracotta",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.1.0&auto=format&fit=crop&w=700&q=80",
+    image: "/images/stylists/amit-varma.jpg",
     bio: "Master of classic hot towel straight-razor shaves, modern architectural fades, beard sculpting, and restorative tea tree scalp massages.",
     certifications: ["Truefitt & Hill Master Barbering", "Wahl Professional Educator"],
     signatureTreatments: [
@@ -92,9 +92,32 @@ const STYLISTS = [
     ],
     lookbook: [
       "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?ixlib=rb-4.1.0&auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.1.0&auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.1.0&auto=format&fit=crop&w=600&q=80",
     ],
     specialties: ["Royal Hot Towel Shave", "Beard Sculpting", "Scalp Detox"],
+  },
+  {
+    id: "sneha",
+    name: "Sneha Nair",
+    gender: "female",
+    role: "Holistic Wellness & Spa Specialist",
+    exp: "6+ Years Studio Experience",
+    rating: "4.97",
+    reviews: "185+",
+    accentColor: "teal",
+    image: "/images/stylists/sneha-nair.jpg",
+    bio: "Certified Ayurvedic & aromatherapy body therapist. Expert in stress-relieving head, neck, and reflexology therapies with pure botanical extractions.",
+    certifications: ["Kerala Ayurvedic Spa Certification", "Aromatherapy Council Educator"],
+    signatureTreatments: [
+      { name: "Aroma Stress Relief Massage", price: "₹1,600", time: "60 min" },
+      { name: "Deluxe Rose Petal Spa Pedicure", price: "₹650", time: "45 min" },
+      { name: "Deep Cranial Ayurvedic Champi", price: "₹550", time: "30 min" },
+    ],
+    lookbook: [
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-4.1.0&auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1515377905703-c4788e51af15?ixlib=rb-4.1.0&auto=format&fit=crop&w=600&q=80",
+    ],
+    specialties: ["Aromatherapy Massage", "Botanical Foot Soaks", "Ayurvedic Champi"],
   },
 ];
 

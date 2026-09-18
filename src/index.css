@@ -22,6 +22,14 @@
   --border-strong: #182A4A;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 80px;
+}
+
 /* Typography & Base */
 body {
   font-family: 'Urbanist', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
